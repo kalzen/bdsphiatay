@@ -1,10 +1,4 @@
 @charset "UTF-8";
-/**
-  * Name: DreamHome - Real Estate HTML Template
-  * Version: 1.0.2
-  * Author: Themesflat
-  * Author URI: http://www.themesflat.com
-*/
 @import "responsive.css";
 @import "animate.css";
 @import "jquery.fancybox.min.css";
@@ -5878,7 +5872,7 @@
   -ms-transition: all 0.5s ease;
   -o-transition: all 0.5s ease;
   transition: all 0.5s ease;
-  z-index: 99;
+  z-index: 2;
   opacity: 0;
   border-radius: 10px;
 }
@@ -6692,6 +6686,7 @@
   opacity: 1;
   margin-top: 40px;
   visibility: visible;
+  z-index: 99999;
 }
 .wd-search-form .group-select .nice-select {
   width: 100% !important;
@@ -10312,4 +10307,3 @@ p, span
     width: 100% !important;
     object-fit:contain !important;
 }
-/*# sourceMappingURL=app.css.map */
