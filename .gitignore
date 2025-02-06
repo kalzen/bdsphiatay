@@ -1,5 +1,6 @@
 /vendor/
-/public/
+/public/userfiles/
+/public/batdongsanphiatay.vn/
 node_modules/
 npm-debug.log
 yarn-error.log
