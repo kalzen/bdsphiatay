@@ -22,6 +22,12 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::latest();
+        
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where('title', 'LIKE', "%{$search}%");
+        }
+        
         $records = $query->paginate();
         return view('admin.product.index',compact('records'));
     }

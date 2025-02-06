@@ -3,7 +3,21 @@
     <div class="card">
         <div class="card-body">
             @include('admin.partials.message')
-            <a class="btn mb-2 btn-success" href="{{route('admin.product.create')}}"><i class="icon-plus-circle2"></i> Thêm mới</a>
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <a class="btn btn-success" href="{{route('admin.product.create')}}"><i class="icon-plus-circle2"></i> Thêm mới</a>
+                </div>
+                <div class="col-md-4">
+                    <form action="{{route('admin.product.index')}}" method="GET">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm theo tên...">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
             @if(count($records))
             <div class="card card-table table-responsive shadow-0 mb-0">
                 <table class="table table-bordered">
