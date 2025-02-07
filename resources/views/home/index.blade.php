@@ -262,63 +262,6 @@
                     </div>
                 </section>
 
-                <section class="flat-brand home3 " >
-                    <div class="container">
-                        <div class="row">                      
-                            <div class="col-lg-12">
-                                <div class="title-section center">
-                                    <h5>Đối tác của chúng tôi</h5>
-                                </div>
-                                <div class="swiper-container carousel-5">                            
-                                    <div class="swiper-wrapper">
-                                        <div class="swiper-slide">
-                                            <div class="slogan-logo">
-                                                <a href="#">
-                                                    <img src="{{asset('phiatay/assets/images/img-box/brand-1.png')}}" alt="images">
-                                                </a>
-                                            </div>                         
-                                        </div>
-                                        <div class="swiper-slide">
-                                            <div class="slogan-logo">
-                                                <a href="#">
-                                                    <img src="{{asset('phiatay/assets/images/img-box/brand-2.png')}}" alt="images">
-                                                </a>
-                                            </div>                         
-                                        </div>
-                                        <div class="swiper-slide">
-                                            <div class="slogan-logo">
-                                                <a href="#">
-                                                    <img src="{{asset('phiatay/assets/images/img-box/brand-3.png')}}" alt="images">
-                                                </a>
-                                            </div>                         
-                                        </div>
-                                        <div class="swiper-slide">
-                                            <div class="slogan-logo">
-                                                <a href="#">
-                                                    <img src="{{asset('phiatay/assets/images/img-box/brand-4.png')}}" alt="images">
-                                                </a>
-                                            </div>                         
-                                        </div>
-                                        <div class="swiper-slide">
-                                            <div class="slogan-logo">
-                                                <a href="#">
-                                                    <img src="{{asset('phiatay/assets/images/img-box/brand-5.png')}}" alt="images">
-                                                </a>
-                                            </div>                         
-                                        </div>
-                                        <div class="swiper-slide">
-                                            <div class="slogan-logo">
-                                                <a href="#">
-                                                    <img src="{{asset('phiatay/assets/images/img-box/brand-6.png')}}" alt="images">
-                                                </a>
-                                            </div>                         
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
                 @include('home.product')                
 @include('home.featured_product')     
 
