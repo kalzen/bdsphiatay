@@ -6,7 +6,7 @@
                         <div class="col-lg-12">
                             <div class="wrap-logo flex align-center justify-space">
                                 <div class="logo-footer style box-1" id="logo-footer">
-                                    <a href="{{route(home)}}">
+                                    <a href="{{route(index)}}">
                                         <img src="{{$shared_config['logo']['value']}}" alt="logo" width="197" height="48">
                                     </a>
                                 </div>
