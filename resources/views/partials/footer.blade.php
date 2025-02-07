@@ -6,7 +6,7 @@
                         <div class="col-lg-12">
                             <div class="wrap-logo flex align-center justify-space">
                                 <div class="logo-footer style box-1" id="logo-footer">
-                                    <a href="index.html">
+                                    <a href="{{route(home)}}">
                                         <img src="{{$shared_config['logo']['value']}}" alt="logo" width="197" height="48">
                                     </a>
                                 </div>
@@ -61,7 +61,7 @@
                         <div class="images flex-none">
                             <img src="{{asset('phiatay/assets/images/section/bg-login.jpg')}}" alt="images">
                             <div class="mark-logo">
-                                <img src="{{asset('phiatay/assets/images/logo/logo2.png')}}" alt="images">
+                                <img src="{{$shared_config['logo']['value']}}" alt="images">
                             </div>
                         </div>
                         
@@ -126,7 +126,7 @@
                         <div class="images flex-none relative">
                             <img src="{{asset('phiatay/assets/images/section/bg-register.jpg')}}" alt="images">
                             <div class="mark-logo">
-                                <img src="{{asset('phiatay/assets/images/logo/logo2.png')}}" alt="images">
+                                <img src="{{$shared_config['logo']['value']}}" alt="images">
                             </div>
                         </div>
                         <div class="content">
