@@ -342,10 +342,7 @@
                                                 @endforeach
                             </div>
 
-                            {{-- Pagination --}}
-                            <div class="pagination-wrapper mt-4 d-flex justify-content-center">
-                                {{ $products->links('pagination::bootstrap-4') }}
-                            </div>
+                            {{ $products->links('vendor.pagination.custom') }}
 
                         </div>  
                     </div>
