@@ -10,7 +10,9 @@
                 <div class="col-md-4">
                     <form action="{{route('admin.product.index')}}" method="GET">
                         <div class="input-group">
-                            <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Tìm kiếm theo tên...">
+                            <input type="text" class="form-control" name="search" 
+                                   value="{{ request('search') }}" 
+                                   placeholder="Tìm kiếm theo tên hoặc từ khóa...">
                             <div class="input-group-append">
                                 <button type="submit" class="btn btn-primary">Tìm kiếm</button>
                             </div>
