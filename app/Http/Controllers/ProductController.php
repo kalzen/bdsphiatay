@@ -353,11 +353,8 @@ class ProductController extends Controller
            // var_dump($product_ids);
             $query->whereIn('id', $product_ids);
         }
-        $products = $query->orderBy('price', 'asc')->paginate(20);
+        $products = $query->orderBy('price', 'asc')->get();
         
-        // Append all search parameters to pagination links
-        $products->appends($params);
-
         return view('product.index',compact('products', 'wards', 'catalogues', 'plans'));
     }
     public function detail($alias)
