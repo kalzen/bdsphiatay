@@ -8,11 +8,16 @@
                     <a class="btn btn-success" href="{{route('admin.product.create')}}"><i class="icon-plus-circle2"></i> Thêm mới</a>
                 </div>
                 <div class="col-md-4">
-                    <form action="{{route('admin.product.index')}}" method="GET">
+                    <form action="{{route('admin.product.index')}}" method="GET" class="d-flex gap-2">
                         <div class="input-group">
                             <input type="text" class="form-control" name="search" 
                                    value="{{ request('search') }}" 
                                    placeholder="Tìm kiếm theo tên hoặc từ khóa...">
+                            <select name="sort" class="form-control" style="max-width: 150px;">
+                                <option value="">Sắp xếp</option>
+                                <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Giá tăng dần</option>
+                                <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Giá giảm dần</option>
+                            </select>
                             <div class="input-group-append">
                                 <button type="submit" class="btn btn-primary">Tìm kiếm</button>
                             </div>

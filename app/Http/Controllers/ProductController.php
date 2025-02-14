@@ -14,7 +14,7 @@ class ProductController extends Controller
     public function index()
     {
         $catalogues = Catalogue::orderBy('id','asc')->get();
-        $products = Product::active()->latest()->paginate();
+        $products = Product::active()->latest()->paginate(20);
         return view('product.index',compact('catalogues','products'));
     }
     public function catalogue($alias)
@@ -44,7 +44,7 @@ class ProductController extends Controller
                 });
             });
         }
-        $products = $query->paginate();
+        $products = $query->paginate(20);
         return view('product.index',compact('catalogue','products','catalogues'));
     }
     public function search(Request $request)
@@ -344,7 +344,7 @@ class ProductController extends Controller
            // var_dump($product_ids);
             $query->whereIn('id', $product_ids);
         }
-        $products = $query->paginate();
+        $products = $query->orderBy('price', 'asc')->paginate(20);
         //var_dump($products);
         return view('product.index',compact('products', 'wards', 'catalogues', 'plans'));
     }

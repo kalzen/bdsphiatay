@@ -21,19 +21,9 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with('tags')->latest();
-        
-        if ($request->has('search')) {
-            $search = $request->get('search');
-            $query->where(function($q) use ($search) {
-                $q->where('title', 'LIKE', "%{$search}%")
-                  ->orWhereHas('tags', function($query) use ($search) {
-                      $query->where('name', 'LIKE', "%{$search}%");
-                  });
-            });
-        }
+        $query = Product::latest();
         $records = $query->paginate();
-        return view('admin.product.index', compact('records'));
+        return view('admin.product.index',compact('records'));
     }
     
     public function create()
