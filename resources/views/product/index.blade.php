@@ -50,7 +50,7 @@
                                 <div class="content-tab">
                                     <div class="content-inner tab-content">
                                         <div class="form-sl">
-                                            <form method="post" action="{{route('product.search')}}">
+                                            <form method="get" action="{{route('product.search')}}">
                                                         @csrf
                                                 <div class="wd-find-select flex">
                                                     <div class="form-group-1 search-form form-style relative">

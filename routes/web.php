@@ -38,7 +38,7 @@ Route::any('/gioi-thieu', [HomeController::class, 'about'])->name('about');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::any('/lien-he', [HomeController::class, 'contact'])->name('contact');
 Route::get('/du-an/{alias}', [App\Http\Controllers\ProductController::class, 'detail'])->name('product.detail');
-Route::post('/du-an/tim-kiem', [App\Http\Controllers\ProductController::class, 'search'])->name('product.search');
+Route::any('/du-an/tim-kiem', [App\Http\Controllers\ProductController::class, 'search'])->name('product.search');
 Route::get('/danh-muc/{alias}', [App\Http\Controllers\ProductController::class, 'catalogue'])->name('product.catalogue');
 Route::get('/tin-tuc/', [App\Http\Controllers\PostController::class, 'index'])->name('post.list');
 Route::get('/danh-muc-tin-tuc/{alias}', [App\Http\Controllers\PostController::class, 'category'])->name('post.category');
