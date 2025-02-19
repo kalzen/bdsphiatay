@@ -21,6 +21,8 @@ class ProductController extends Controller
     {
         $catalogues = Catalogue::orderBy('id','asc')->get();
         $catalogue = Catalogue::where('slug',$alias)->firstOrFail();
+        $wards = Ward::All();
+        $plans = Plan::All();
         //keyword
         $query = $catalogue->products()->active();
         if (request('sort')=='price-asc') {
@@ -45,7 +47,7 @@ class ProductController extends Controller
             });
         }
         $products = $query->paginate(20);
-        return view('product.index',compact('catalogue','products','catalogues'));
+        return view('product.index',compact('catalogue','products','catalogues', 'wards', 'plans'));
     }
     public function search(Request $request)
     {
