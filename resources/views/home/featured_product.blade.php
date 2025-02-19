@@ -12,7 +12,7 @@
                                 </div>
                                 <div class="swiper-container2" >    
                                     <div class="one-carousel owl-carousel owl-theme">
-                                         @foreach($products as $product)
+                                         @foreach($featuredProducts as $product)
                                         <div class="slide-item">
                                             
                                                 <div class="box box-dream hv-one">

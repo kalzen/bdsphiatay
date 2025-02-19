@@ -27,7 +27,22 @@ class HomeController extends Controller
         $wards = Ward::All();
         $plans = Plan::All();
         $products = Product::latest()->withCount(['images'])->having('images_count','>',0)->active()->take(3)->get();
-        return view('home.index',['slides'=> $slides, 'posts'=>$posts, 'testimonials' => $testimonials, 'teams' => $teams, 'products' => $products, 'wards' => $wards, 'plans'=> $plans ]);
+        
+        // Get featured products from catalogue with slug 'bst'
+        $featuredProducts = Product::whereHas('catalogues', function($query) {
+            $query->where('slug', 'bst');
+        })->latest()->active()->take(3)->get();
+
+        return view('home.index',[
+            'slides'=> $slides, 
+            'posts'=>$posts, 
+            'testimonials' => $testimonials, 
+            'teams' => $teams, 
+            'products' => $products, 
+            'wards' => $wards, 
+            'plans'=> $plans,
+            'featuredProducts' => $featuredProducts
+        ]);
     }
     public function order()
     {
