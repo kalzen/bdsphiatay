@@ -4,7 +4,7 @@
                             <div class="col-lg-12">
                                 <div class="heading-section d-flex justify-content-between">
                                     <h3>Danh sách nhà đất</h3>
-                                    <a href="{{ route('product.list') }}">Xem thêm 
+                                    <a href="{{ route('product.index') }}">Xem thêm 
                                     <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M0.875 6H12.125M12.125 6L7.0625 0.9375M12.125 6L7.0625 11.0625" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                                 </svg> 
