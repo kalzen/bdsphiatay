@@ -44,7 +44,7 @@ Route::get('/tin-tuc/', [App\Http\Controllers\PostController::class, 'index'])->
 Route::get('/danh-muc-tin-tuc/{alias}', [App\Http\Controllers\PostController::class, 'category'])->name('post.category');
 Route::get('/tim-kiem-tin-tuc', [App\Http\Controllers\PostController::class, 'search'])->name('post.search');
 Route::get('/tin-tuc/{alias}', [App\Http\Controllers\PostController::class, 'detail'])->name('post.detail');
-Route::get('/products', [ProductController::class, 'index'])->name('product.index');
+Route::get('/du-an', [ProductController::class, 'index'])->name('product.index');
 
 Route::middleware(['auth'])->name('admin.')->prefix('admin')->group(function () {
     Route::get('', [DashboardController::class, 'index'])->name('index');
