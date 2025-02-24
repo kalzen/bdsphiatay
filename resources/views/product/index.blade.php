@@ -268,8 +268,8 @@
            
 
             <section class="flat-featured flat-property-grid flat-property tf-section2 wg-dream home2" >
-                <div class="container6">
-                    <div class="row flex">                      
+                <div class="container">
+                    <div class="row">                      
                         <div class="post">
                             <div class="category-filter flex justify-space align-center">
                                 <div class="box-1 flex align-center">
@@ -303,7 +303,8 @@
                             </div>
                             <div class="wrap-item flex ">
                             @foreach($products as $product)
-                                                <div class="box box-dream hv-one">
+                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                                <div class="box box-dream hv-one style-dream">
                                                     <div class="image-group relative ">
                                                         <span class="featured fs-12 fw-6">Nổi bật</span>   
                                                         <span class="featured style fs-12 fw-6">Mới nhất</span>   
@@ -340,9 +341,9 @@
                                                     </div>
                                                 </div> 
                                                 @endforeach
-                            </div>
-                        </div>  
-                    </div>
+                                            </div>
+                                        </div>  
+                                    </div>
                 </div>
             </section>
 
