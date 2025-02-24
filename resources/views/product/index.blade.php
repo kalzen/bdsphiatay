@@ -267,7 +267,7 @@
             </section>
            
 
-            <section class="flat-featured flat-property flat-property-grid-1 tf-section2 wg-dream style5" >
+            <section class="flat-featured flat-property-grid flat-property tf-section2 wg-dream home2" >
                 <div class="container6">
                     <div class="row flex">                      
                         <div class="post">
