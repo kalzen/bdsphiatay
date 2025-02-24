@@ -264,5 +264,5 @@
 
                 @include('home.product')                
 @include('home.featured_product')     
-
+@include('home.news')
 @endsection
