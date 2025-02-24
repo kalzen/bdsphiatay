@@ -22,6 +22,28 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::latest();
+        // Add search functionality
+        if ($request->has('search') && $request->search) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('title', 'LIKE', "%{$searchTerm}%")
+                ->orWhereHas('tags', function($q) use ($searchTerm) {
+                    $q->where('name', 'LIKE', "%{$searchTerm}%");
+                });
+            });
+        }
+
+        // Add sorting functionality
+        if ($request->has('sort')) {
+            switch ($request->sort) {
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+            }
+        }
         $records = $query->paginate();
         return view('admin.product.index',compact('records'));
     }
