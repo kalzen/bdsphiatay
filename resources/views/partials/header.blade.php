@@ -23,10 +23,10 @@
                                                     </li>
                                                     <li class="dropdown2"><a href="#">Nhà đất</a>
                                                         <ul>
-                                                            <li><a href="danh-muc/dat-nen">Đất nền</a></li>
-                                                            <li><a href="danh-muc/cho-thue">Cho thuê</a></li>
-                                                            <li><a href="danh-muc/nha-o">Nhà ở</a></li>
-                                                            <li><a href="danh-muc/bst">Bộ sưu tập</a></li>
+                                                            <li><a href="/danh-muc/dat-nen">Đất nền</a></li>
+                                                            <li><a href="/danh-muc/cho-thue">Cho thuê</a></li>
+                                                            <li><a href="/danh-muc/nha-o">Nhà ở</a></li>
+                                                            <li><a href="/danh-muc/bst">Bộ sưu tập</a></li>
                                                         </ul>
                                                     </li>
                                                     <li class=""><a href="#">Dự án</a>
