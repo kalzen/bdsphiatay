@@ -216,52 +216,39 @@
                                         </div>
                                         @endforeach
                                     </div>
-                                    <section class="flat-related tf-section">
-                                        <div class="container">
-                                            <div class="row">
-                                                <div class="col-lg-12">
-                                                    <div class="heading-section center">
-                                                        <h2>Khu vực lân cận</h2>
-                                                        <p class="text-color-4">Khám phá các khu vực và phường xã lân cận</p>
-                                                    </div>
+                                    
+                                    <!-- Khu vực lân cận - keeping original HTML structure -->
+                                    <div class="widget widget-listings style"> 
+                                        <h3 class="widget-title title-list">
+                                            Khu vực lân cận
+                                        </h3>
+                                        @php
+                                            $darkColors = ['#2c3e50', '#34495e', '#7f8c8d', '#16a085', '#27ae60', '#2980b9', '#8e44ad', '#2c3e50', '#d35400', '#c0392b'];
+                                        @endphp
+                                        
+                                        @foreach($wards as $ward)
+                                            @php
+                                                $randomColor = $darkColors[array_rand($darkColors)];
+                                            @endphp                 
+                                            <div class="box-listings flex hover-img3">
+                                                <div class="img-listings img-style3" style="background-color: {{ $randomColor }}; width: 120px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                                                    <span class="text-white">{{ substr($ward->name, 0, 2) }}</span>
                                                 </div>
-                                                <div class="col-lg-12">
-                                                    <div class="swiper-container carousel-8 style-Abel">
-                                                        <div class="swiper-wrapper">
-                                                            @php
-                                                                $darkColors = ['#2c3e50', '#34495e', '#7f8c8d', '#16a085', '#27ae60', '#2980b9', '#8e44ad', '#2c3e50', '#d35400', '#c0392b'];
-                                                            @endphp
-                                                            
-                                                            @foreach($wards as $ward)
-                                                                @php
-                                                                    $randomColor = $darkColors[array_rand($darkColors)];
-                                                                @endphp
-                                                                <div class="swiper-slide">
-                                                                    <div class="box box-dream hv-one">
-                                                                        <div class="image-group" style="background-color: {{ $randomColor }}; height: 200px; display: flex; align-items: center; justify-content: center;">
-                                                                            <h3 class="text-white text-center">{{ $ward->name }}</h3>
-                                                                        </div>
-                                                                        <div class="content">
-                                                                            <h3 class="link-style-1"><a href="{{ route('product.search', ['ward_id' => $ward->id]) }}">{{ $ward->name }}</a></h3>
-                                                                            <div class="text-address"><p class="p-12">{{ $ward->products_count }} dự án</p></div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                        <div class="pagi center"><div class="swiper-pagination"></div> </div>
-                                                    </div>
+                                                <div class="content link-style-1">
+                                                    <a class="fs-16 lh-24" href="{{ route('product.search', ['ward_id' => $ward->id]) }}">{{ $ward->name }}</a>
+                                                    <h5>{{ $ward->products_count }} dự án</h5>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </section>
+                                        @endforeach
+                                    </div>
+                                    
                                     <div class="widget widget-ads">  
                                         <div class="box-ads">
                                             <div class="content relative z-2">
                                                 <h3 class="link-style-3"><a href="property-detail-v1.html">Gorgeous Apartment Building</a> </h3>
                                                 <div class="text-addres "><p class="p-12 text-color-1 icon-p">58 Hullbrook Road, Billesley, B13 0LA</p></div>
                                                 <div class="star flex">
-                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
                                                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
                                                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
                                                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
