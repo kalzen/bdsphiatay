@@ -282,7 +282,7 @@
                             <div class="category-filter flex justify-space align-center">
                                 <div class="box-1 flex align-center">
                                     <div class="heading-listing fs-30 lh-45 fw-7">
-                                        @if(isset($ward))
+                                        @if(Route::currentRouteName() == 'product.ward')
                                         Dự án khu vực {{ $ward->name }}
                                         @elseif(isset($catalogue))
                                         {{ $catalogue->name }}
