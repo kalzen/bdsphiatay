@@ -8,6 +8,18 @@
     <meta name="author" content="12bytes.xyz">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
+    <!-- Google Analytics -->
+    @if(env('GOOGLE_ANALYTICS_ID'))
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ env('GOOGLE_ANALYTICS_ID') }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ env('GOOGLE_ANALYTICS_ID') }}');
+    </script>
+    @endif
+    
     <link rel="stylesheet" href="{{asset('phiatay/app/dist/font-awesome.css')}}">
     <link rel="stylesheet" href="{{asset('phiatay/app/dist/app.css')}}">
     <link rel="stylesheet" href="{{asset('phiatay/app/dist/responsive.css')}}">
