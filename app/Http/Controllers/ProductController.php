@@ -375,7 +375,13 @@ class ProductController extends Controller
     
     public function ward($slug)
     {
-        $ward = Ward::where('slug', $slug)->firstOrFail();
+        try {
+            $ward = Ward::where('slug', $slug)->firstOrFail();
+        } catch (\Exception $e) {
+            // If the exact slug is not found, try to find by a normalized version of the slug
+            $ward = Ward::where('name', 'like', '%'.str_replace('-', '%', $slug).'%')->firstOrFail();
+        }
+        
         $wards = Ward::all();
         $plans = Plan::all();
         $catalogues = Catalogue::orderBy('id', 'asc')->get();
