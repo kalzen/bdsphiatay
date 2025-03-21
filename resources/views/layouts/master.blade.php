@@ -69,9 +69,6 @@
         
         @section('scripts')
         @show
-        
-        <!-- Removing the toggle script since we're showing icons by default -->
-        
     </div>
 </div>           
 </body>
