@@ -261,9 +261,9 @@
                 <div class="title-inner style">
                     <div class="title-group fs-12">
                         <a class="home fw-6 text-color-3" href="/">Trang chủ</a>
-                        @if(isset($ward))
+                        @if(Route::currentRouteName() == 'product.ward')
                         <span>Dự án khu vực {{ $ward->name }}</span>
-                        @elseif(isset($catalogue))
+                        @elseif(Route::currentRouteName() == 'product.catalogue')
                         <span>{{ $catalogue->name }}</span>
                         @else
                         <span>Danh sách dự án</span>
