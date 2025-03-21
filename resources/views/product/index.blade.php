@@ -254,18 +254,26 @@
                 </div>
             </div>
 
-            <section class="flat-title" >
-                <div class="container6">
-                    <div class="row">                      
-                        <div class="col-lg-12">
-                            <div class="title-inner style">
-                                <div class="title-group fs-12"><a class="home fw-6 text-color-3" href="index.html">Home</a><span >Property Listing</span></div>
-                            </div>
-                        </div> 
+<section class="flat-title" >
+    <div class="container6">
+        <div class="row">                      
+            <div class="col-lg-12">
+                <div class="title-inner style">
+                    <div class="title-group fs-12">
+                        <a class="home fw-6 text-color-3" href="/">Trang chủ</a>
+                        @if(isset($ward))
+                        <span>Dự án khu vực {{ $ward->name }}</span>
+                        @elseif(isset($catalogue))
+                        <span>{{ $catalogue->name }}</span>
+                        @else
+                        <span>Danh sách dự án</span>
+                        @endif
                     </div>
                 </div>
-            </section>
-           
+            </div> 
+        </div>
+    </div>
+</section>
 
             <section class="flat-featured flat-property-grid flat-property tf-section2 wg-dream home2" >
                 <div class="container">
@@ -273,7 +281,16 @@
                         <div class="post">
                             <div class="category-filter flex justify-space align-center">
                                 <div class="box-1 flex align-center">
-                                    <div class="heading-listing fs-30 lh-45 fw-7">Danh sách dự án</div><div class="">Hiển thị {{count($products)}} dự án </div> 
+                                    <div class="heading-listing fs-30 lh-45 fw-7">
+                                        @if(isset($ward))
+                                        Dự án khu vực {{ $ward->name }}
+                                        @elseif(isset($catalogue))
+                                        {{ $catalogue->name }}
+                                        @else
+                                        Danh sách dự án
+                                        @endif
+                                    </div>
+                                    <div class="">Hiển thị {{count($products)}} dự án </div> 
                                 </div>
                                 <div class="box-2 flex">
                                     <a href="#" class="btn-view grid active">
@@ -363,9 +380,6 @@
                                         <span>Liên hệ</span>
                                     </a>
                                 </div>
-                            </div>
-                            <div class="mark-img">
-                                <img src="assets/images/mark/mark-contact2.png" alt="images">
                             </div>
                         </div>
                     </div>

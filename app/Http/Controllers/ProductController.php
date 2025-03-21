@@ -372,4 +372,20 @@ class ProductController extends Controller
         
         return view('product.detail',compact('product', 'products', 'wards'));
     }
+    
+    public function ward($slug)
+    {
+        $ward = Ward::where('slug', $slug)->firstOrFail();
+        $wards = Ward::all();
+        $plans = Plan::all();
+        $catalogues = Catalogue::orderBy('id', 'asc')->get();
+        
+        $products = Product::with(['images', 'attributes'])
+            ->where('ward_id', $ward->id)
+            ->active()
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return view('product.index', compact('products', 'wards', 'catalogues', 'plans', 'ward'));
+    }
 }

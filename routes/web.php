@@ -40,6 +40,10 @@ Route::any('/lien-he', [HomeController::class, 'contact'])->name('contact');
 Route::get('/du-an/{alias}', [App\Http\Controllers\ProductController::class, 'detail'])->name('product.detail');
 Route::any('/du-an/tim-kiem', [App\Http\Controllers\ProductController::class, 'search'])->name('product.search');
 Route::get('/danh-muc/{alias}', [App\Http\Controllers\ProductController::class, 'catalogue'])->name('product.catalogue');
+
+// Change the ward route to use slug instead of ID
+Route::get('/khu-vuc/{slug}', [App\Http\Controllers\ProductController::class, 'ward'])->name('product.ward');
+
 Route::get('/tin-tuc/', [App\Http\Controllers\PostController::class, 'index'])->name('post.list');
 Route::get('/danh-muc-tin-tuc/{alias}', [App\Http\Controllers\PostController::class, 'category'])->name('post.category');
 Route::get('/tim-kiem-tin-tuc', [App\Http\Controllers\PostController::class, 'search'])->name('post.search');

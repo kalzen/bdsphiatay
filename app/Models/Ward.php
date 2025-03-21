@@ -17,4 +17,10 @@ class Ward extends Model
     {
         return $this->hasMany(Product::class);
     }
+    
+    // Method to get ward by slug
+    public static function findBySlug($slug)
+    {
+        return self::where('slug', $slug)->first();
+    }
 }

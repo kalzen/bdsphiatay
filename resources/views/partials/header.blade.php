@@ -29,7 +29,7 @@
                                                             <li><a href="/danh-muc/bst">Bộ sưu tập</a></li>
                                                         </ul>
                                                     </li>
-                                                    <li class=""><a href="#">Dự án</a>
+                                                    <li class=""><a href="/du-an">Dự án</a>
                                                     </li>
                                                     <li class=""><a href="{{route('post.list')}}">Tin tức</a>
                                                     </li>
