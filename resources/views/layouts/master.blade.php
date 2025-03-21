@@ -44,10 +44,8 @@
     <div id="wrapper">
         <div id="pagee" class="clearfix">
 
-        <!-- Force header visibility -->
-        <div style="display: block !important; visibility: visible !important; opacity: 1 !important;">
-            @include('partials.header')
-        </div>
+       
+        @include('partials.header')
         @yield('content')
         @include('partials.footer')
         
