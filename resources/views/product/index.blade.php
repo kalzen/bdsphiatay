@@ -262,7 +262,7 @@
                     <div class="title-group fs-12">
                         <a class="home fw-6 text-color-3" href="/">Trang chủ</a>
                         @if(Route::currentRouteName() == 'product.ward')
-                        <span>Dự án khu vực {{ $ward->name ?? 'Không xác định' }}</span>
+                        <span>Dự án khu vực {{ $khuvuc ?? 'Không xác định' }}</span>
                         @elseif(Route::currentRouteName() == 'product.catalogue')
                         <span>{{ $catalogue->name }}</span>
                         @else
@@ -282,8 +282,8 @@
                             <div class="category-filter flex justify-space align-center">
                                 <div class="box-1 flex align-center">
                                     <div class="heading-listing fs-30 lh-45 fw-7">
-                                        @if(isset($ward))
-                                        Dự án khu vực {{ $ward->name ?? 'Không xác định' }}
+                                        @if(isset($khuvuc))
+                                        Dự án khu vực {{ $khuvuc ?? 'Không xác định' }}
                                         @elseif(isset($catalogue))
                                         {{ $catalogue->name }}
                                         @else

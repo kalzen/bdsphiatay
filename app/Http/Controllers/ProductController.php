@@ -391,7 +391,7 @@ class ProductController extends Controller
             ->active()
             ->orderBy('created_at', 'desc')
             ->get();
-            
-        return view('product.index', compact('products', 'wards', 'catalogues', 'plans', 'ward'));
+        $khuvuc = $ward->name;
+        return view('product.index', compact('products', 'wards', 'catalogues', 'plans', 'khuvuc'));
     }
 }
