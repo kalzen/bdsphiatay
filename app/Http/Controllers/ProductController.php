@@ -366,6 +366,10 @@ class ProductController extends Controller
         $product = Product::active()->where('slug',$alias)->firstOrFail();
         DB::table('products')->where('id',$product->id)->increment('viewed');
         $products = Product::latest()->withCount(['images'])->having('images_count','>',0)->active()->take(4)->get();
-        return view('product.detail',compact('product', 'products'));
+        
+        // Get all wards with product counts
+        $wards = Ward::withCount('products')->get();
+        
+        return view('product.detail',compact('product', 'products', 'wards'));
     }
 }

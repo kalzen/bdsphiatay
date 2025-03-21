@@ -216,67 +216,45 @@
                                         </div>
                                         @endforeach
                                     </div>
-                                    <div class="widget widget-estate">
-                                        <h3 class="widget-title title-news">
-                                            Real estate near you
-                                        </h3>                       
-                                        <ul class="group-estate flex">
-                                            <li class="box-estate hover-img2">
-                                                <div class="thumb img-style2 ">
-                                                    <img class="img2" src="{{asset('phiatay/assets/images/img-box/sidebar-estate-1.jpg')}}" alt="images">
+                                    <section class="flat-related tf-section">
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    <div class="heading-section center">
+                                                        <h2>Khu vực lân cận</h2>
+                                                        <p class="text-color-4">Khám phá các khu vực và phường xã lân cận</p>
+                                                    </div>
                                                 </div>
-                                                <div class="content">    
-                                                    <div class="title link-style-3 fw-6 lh-18"><a href="#">Moncton</a> </div>                              
-                                                    <p class="fs-12 lh-16 text-color-1">1570 listing</p>
+                                                <div class="col-lg-12">
+                                                    <div class="swiper-container carousel-8 style-Abel">
+                                                        <div class="swiper-wrapper">
+                                                            @php
+                                                                $darkColors = ['#2c3e50', '#34495e', '#7f8c8d', '#16a085', '#27ae60', '#2980b9', '#8e44ad', '#2c3e50', '#d35400', '#c0392b'];
+                                                            @endphp
+                                                            
+                                                            @foreach($wards as $ward)
+                                                                @php
+                                                                    $randomColor = $darkColors[array_rand($darkColors)];
+                                                                @endphp
+                                                                <div class="swiper-slide">
+                                                                    <div class="box box-dream hv-one">
+                                                                        <div class="image-group" style="background-color: {{ $randomColor }}; height: 200px; display: flex; align-items: center; justify-content: center;">
+                                                                            <h3 class="text-white text-center">{{ $ward->name }}</h3>
+                                                                        </div>
+                                                                        <div class="content">
+                                                                            <h3 class="link-style-1"><a href="{{ route('product.search', ['ward_id' => $ward->id]) }}">{{ $ward->name }}</a></h3>
+                                                                            <div class="text-address"><p class="p-12">{{ $ward->products_count }} dự án</p></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                        <div class="pagi center"><div class="swiper-pagination"></div> </div>
+                                                    </div>
                                                 </div>
-                                            </li>
-                                            <li class="box-estate hover-img2">
-                                                <div class="thumb img-style2 ">
-                                                    <img class="img2" src="{{asset('phiatay/assets/images/img-box/sidebar-estate-2.jpg')}}" alt="images">
-                                                </div>
-                                                <div class="content">    
-                                                    <div class="title link-style-3 fw-6 lh-18"><a href="#">Mississauga</a> </div>                              
-                                                    <p class="fs-12 lh-16 text-color-1">1570 listing</p>
-                                                </div>
-                                            </li>
-                                            <li class="box-estate hover-img2">
-                                                <div class="thumb img-style2 ">
-                                                    <img class="img2" src="{{asset('phiatay/assets/images/img-box/sidebar-estate-3.jpg')}}" alt="images">
-                                                </div>
-                                                <div class="content">    
-                                                    <div class="title link-style-3 fw-6 lh-18"><a href="#">Halifax</a> </div>                              
-                                                    <p class="fs-12 lh-16 text-color-1">1570 listing</p>
-                                                </div>
-                                            </li>
-                                            <li class="box-estate hover-img2">
-                                                <div class="thumb img-style2 ">
-                                                    <img class="img2" src="{{asset('phiatay/assets/images/img-box/sidebar-estate-4.jpg')}}" alt="images">
-                                                </div>
-                                                <div class="content">    
-                                                    <div class="title link-style-3 fw-6 lh-18"><a href="#">Ottawa</a> </div>                              
-                                                    <p class="fs-12 lh-16 text-color-1">1570 listing</p>
-                                                </div>
-                                            </li>
-                                            <li class="box-estate hover-img2">
-                                                <div class="thumb img-style2 ">
-                                                    <img class="img2" src="{{asset('phiatay/assets/images/img-box/sidebar-estate-5.jpg')}}" alt="images">
-                                                </div>
-                                                <div class="content">    
-                                                    <div class="title link-style-3 fw-6 lh-18"><a href="#">Iqaluit</a> </div>                              
-                                                    <p class="fs-12 lh-16 text-color-1">1570 listing</p>
-                                                </div>
-                                            </li>
-                                            <li class="box-estate hover-img2">
-                                                <div class="thumb img-style2 ">
-                                                    <img class="img2" src="{{asset('phiatay/assets/images/img-box/sidebar-estate-6.jpg')}}" alt="images">
-                                                </div>
-                                                <div class="content">    
-                                                    <div class="title link-style-3 fw-6 lh-18"><a href="#">Toronto</a> </div>                              
-                                                    <p class="fs-12 lh-16 text-color-1">1570 listing</p>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div> 
+                                            </div>
+                                        </div>
+                                    </section>
                                     <div class="widget widget-ads">  
                                         <div class="box-ads">
                                             <div class="content relative z-2">
