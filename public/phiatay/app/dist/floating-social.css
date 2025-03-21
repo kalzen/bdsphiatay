@@ -1,6 +1,6 @@
 .floating-social {
     position: fixed;
-    bottom: 20px;
+    bottom: 88px;
     right: 20px;
     z-index: 9999;
     display: flex;
@@ -20,6 +20,7 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s;
     margin-top: 10px;
+    display: none; /* Hide the toggle button */
 }
 
 .floating-social-toggle i {
@@ -28,13 +29,10 @@
 }
 
 .floating-social-menu {
-    display: none;
-    margin-bottom: 10px;
-}
-
-.floating-social-menu.active {
+    /* Make menu visible by default */
     display: flex;
     flex-direction: column;
+    margin-bottom: 10px;
 }
 
 .floating-social-item {

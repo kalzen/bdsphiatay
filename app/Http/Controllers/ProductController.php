@@ -14,8 +14,10 @@ class ProductController extends Controller
     public function index()
     {
         $catalogues = Catalogue::orderBy('id','asc')->get();
+        $wards = Ward::All();
+        $plans = Plan::All();
         $products = Product::active()->latest()->paginate(20);
-        return view('product.index',compact('catalogues','products'));
+        return view('product.index',compact('catalogues','products', 'wards', 'plans'));
     }
     public function catalogue($alias)
     {

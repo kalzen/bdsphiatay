@@ -29,7 +29,7 @@
                                 </div>
                             </div>
                             @endforeach
-                            <div class="col-lg-12 center">
+                            <div class="col-lg-12 center mt-4">
                             <a href="{{route('post.list')}}" class="sc-button pt-4"> Xem tất cả tin tức</a>
                             </div>
                         </div>

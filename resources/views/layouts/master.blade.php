@@ -70,17 +70,8 @@
         @section('scripts')
         @show
         
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const toggle = document.querySelector('.floating-social-toggle');
-                const menu = document.querySelector('.floating-social-menu');
-                
-                toggle.addEventListener('click', function() {
-                    menu.classList.toggle('active');
-                    toggle.classList.toggle('active');
-                });
-            });
-        </script>
+        <!-- Removing the toggle script since we're showing icons by default -->
+        
     </div>
 </div>           
 </body>
