@@ -10302,12 +10302,14 @@ p, span
 {
     height: auto !important;
     width: 100% !important;
+    display: block !important;
 }
 .fancybox-inner
 {
     width: 60vw!important;
     height: auto !important;
 }
+
 .fancybox-inner img
 {
     height: auto !important;
