@@ -265,8 +265,7 @@ $(function() {
 @endsection
 
 @section('styles')
-<style>
-    .category-tabs {
+<style>    .category-tabs {
         margin-bottom: 30px;
     }
     .category-tabs .nav-tabs {
@@ -278,41 +277,37 @@ $(function() {
         list-style: none;
     }
     .category-tabs .nav-item {
-        margin-right: 10px;
-        margin-bottom: -1px;
-    }    .category-tabs .nav-link {
+        margin-right: 20px;
+        margin-bottom: 0;
+    }    
+    .category-tabs .nav-link {
         display: block;
-        padding: 12px 20px;
+        padding: 12px 5px;
         text-decoration: none;
-        border: 1px solid #eee;
-        border-bottom: none;
-        border-radius: 5px 5px 0 0;
+        border: none;
         font-weight: 600;
         color: #666;
         transition: all 0.3s ease;
         font-size: 15px;
-        margin-bottom: -1px;
-        background-color: #f9f9f9;
+        background-color: transparent;
+        position: relative;
     }
     .category-tabs .nav-link:hover {
         color: #FFA920;
     }
     .category-tabs .nav-link.active {
         color: #FFA920;
-        border-bottom: none;
-        border-top: 3px solid #FFA920;
-        background-color: #fff;
+        background-color: transparent;
         position: relative;
     }
     .category-tabs .nav-link.active:after {
         content: "";
         position: absolute;
-        top: -3px;
+        bottom: -1px;
         left: 0;
         right: 0;
         height: 3px;
         background-color: #FFA920;
-        border-radius: 3px 3px 0 0;
     }
     
     /* Custom pagination styles */
@@ -353,13 +348,15 @@ $(function() {
         opacity: 0.5;
         cursor: not-allowed;
     }
-    
-    @media (max-width: 768px) {
+      @media (max-width: 768px) {
         .category-tabs .nav-tabs {
             justify-content: center;
         }
+        .category-tabs .nav-item {
+            margin-right: 15px;
+        }
         .category-tabs .nav-link {
-            padding: 10px 15px;
+            padding: 10px 2px;
             font-size: 14px;
         }
     }
