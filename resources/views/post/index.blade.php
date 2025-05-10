@@ -133,8 +133,7 @@
                                             </li>
                                         @endforeach
                                         </ul>
-                                    </div> -->
-                                    <div class="widget widget-listings style"> 
+                                    </div> -->                                    <div class="widget widget-listings style"> 
                                         <h3 class="widget-title title-list">
                                             Dự án nổi bật
                                         </h3>                  
@@ -211,12 +210,11 @@
                                                 </div>
                                             </li>
                                         </ul>
-                                    </div> -->
-                                    <div class="widget widget-ads">  
+                                    </div> -->                                    <div class="widget widget-ads">  
                                         <div class="box-ads">
                                             <div class="content relative z-2">
-                                                <h3 class="link-style-3"><a href="#">Gorgeous Apartment Building</a> </h3>
-                                                <div class="text-addres "><p class="p-12 text-color-1 icon-p">58 Hullbrook Road, Billesley, B13 0LA</p></div>
+                                                <h3 class="link-style-3"><a href="#">Chung cư cao cấp</a> </h3>
+                                                <div class="text-addres "><p class="p-12 text-color-1 icon-p">Quận 7, Thành phố Hồ Chí Minh</p></div>
                                                 <div class="star flex">
                                                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
                                                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
@@ -226,19 +224,7 @@
                                                 </div>
                                             </div> 
                                         </div>
-                                    </div>
-                                    <div class="widget widget-tags">
-                                        <h3 class="widget-title title-tags">
-                                            Tags
-                                        </h3>     
-                                        <div class="tags_cloud_inner">
-                                        @foreach ($tags as $tag)
-                                        @if ($tag->name != '')
-                                            <a href="#">{{$tag->name}}</a>
-                                            @endif
-                                         @endforeach                                 
-                                        </div>                                                                                                       
-                                    </div>
+                                    </div><!-- Tags widget removed -->
                                 </div>
                             </aside>
                         </div>
@@ -246,20 +232,19 @@
                     </div>
                 </div>
             </section>
-            
-            <section class="flat-contact2 relative" >
+              <section class="flat-contact2 relative" >
                 <div class="container">
                     <div class="row">                      
                         <div class="col-lg-12">
                             <div class="heading-section">
-                                <h2>Find for your dream home and increase your investment opportunities</h2>
-                                <p class="text-color-2 font-2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce sed tristique metus proin id lorem odio</p>
+                                <h2>Tìm ngôi nhà mơ ước và tăng cơ hội đầu tư của bạn</h2>
+                                <p class="text-color-2 font-2">Chúng tôi cung cấp các giải pháp bất động sản tối ưu, từ nhà ở đến các cơ hội đầu tư sinh lời</p>
                                 <div class="button-footer">
-                                    <a class="sc-button center btn-icon" href="contact.html">
+                                    <a class="sc-button center btn-icon" href="{{ route('contact') }}">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M2.25 6.75C2.25 15.034 8.966 21.75 17.25 21.75H19.5C20.0967 21.75 20.669 21.5129 21.091 21.091C21.5129 20.669 21.75 20.0967 21.75 19.5V18.128C21.75 17.612 21.399 17.162 20.898 17.037L16.475 15.931C16.035 15.821 15.573 15.986 15.302 16.348L14.332 17.641C14.05 18.017 13.563 18.183 13.122 18.021C11.4849 17.4191 9.99815 16.4686 8.76478 15.2352C7.53141 14.0018 6.58087 12.5151 5.979 10.878C5.817 10.437 5.983 9.95 6.359 9.668L7.652 8.698C8.015 8.427 8.179 7.964 8.069 7.525L6.963 3.102C6.90214 2.85869 6.76172 2.6427 6.56405 2.48834C6.36638 2.33397 6.1228 2.25008 5.872 2.25H4.5C3.90326 2.25 3.33097 2.48705 2.90901 2.90901C2.48705 3.33097 2.25 3.90326 2.25 4.5V6.75Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                                         </svg>                               
-                                        <span>Contact Seller</span>
+                                        <span>Liên hệ tư vấn</span>
                                     </a>
                                 </div>
                             </div>
@@ -274,7 +259,7 @@
 @section('scripts')
 <script>
 $(function() {
-    console.log('Post index ready')
+    console.log('Trang danh sách bài viết đã sẵn sàng')
 })
 </script>
 @endsection
