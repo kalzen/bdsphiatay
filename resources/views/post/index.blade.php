@@ -268,7 +268,15 @@ $(function() {
 <style>    .category-tabs {
         margin-bottom: 30px;
     }
-    .category-tabs .nav-tabs {
+    /* Global list styles to ensure bullets are hidden */
+    .category-tabs ul, 
+    .category-tabs li {
+        list-style: none !important;
+        list-style-type: none !important;
+        list-style-image: none !important;
+        -webkit-padding-start: 0;
+        padding-inline-start: 0;
+    }.category-tabs .nav-tabs {
         display: flex;
         flex-wrap: wrap;
         border-bottom: 1px solid #eee;
@@ -276,9 +284,19 @@ $(function() {
         margin: 0;
         list-style: none;
     }
+    .category-tabs .nav-tabs li {
+        list-style-type: none;
+    }
     .category-tabs .nav-item {
         margin-right: 20px;
         margin-bottom: 0;
+        list-style-type: none;
+    }
+    .category-tabs .nav-item::marker {
+        display: none;
+    }
+    .category-tabs li::marker {
+        display: none;
     }    
     .category-tabs .nav-link {
         display: block;
