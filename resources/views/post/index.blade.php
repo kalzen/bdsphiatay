@@ -19,12 +19,19 @@
 @endif
 @stop
 @section('content')
-<section class="flat-title " >
-                <div class="container">
+<section class="flat-title " >                <div class="container">
                     <div class="row">                      
                         <div class="col-lg-12">
                             <div class="title-inner style">
-                                <div class="title-group fs-12"><a class="home fw-6 text-color-3" href="{{route('index')}}">Trang chủ</a><span >{{$category->name??'Tin tức'}}</span></div>
+                                <div class="title-group fs-12">
+                                    <a class="home fw-6 text-color-3" href="{{route('index')}}">Trang chủ</a>
+                                    <a class="fw-6 text-color-3" href="{{route('post.list')}}">Tin tức</a>
+                                    @if(isset($category))
+                                        <span>{{$category->name}}</span>
+                                    @elseif(isset($search_keyword))
+                                        <span>Tìm kiếm</span>
+                                    @endif
+                                </div>
                             </div>
                         </div> 
                     </div>
@@ -35,10 +42,32 @@
                 <div class="container">
                     <div class="row flex">                      
                         <div class="col-lg-8">
-                            <div class="post">
-                            <div class="category-filter flex  justify-space">
+                            <div class="post">                            <!-- Category Tabs Navigation -->
+                            <div class="category-tabs">
+                                <ul class="nav nav-tabs">
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ !isset($category) ? 'active' : '' }}" href="{{ route('post.list') }}">Tất cả</a>
+                                    </li>
+                                    @foreach($categories as $cat)
+                                        <li class="nav-item">
+                                            <a class="nav-link {{ isset($category) && $category->id == $cat->id ? 'active' : '' }}" 
+                                               href="{{ route('post.category', ['alias' => $cat->slug]) }}">
+                                               <span>{{ $cat->name }}</span>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                            <!-- End Category Tabs Navigation -->
+                              <div class="category-filter flex  justify-space">
                                 <div class="box-1 ">
-                                    <div class="heading-listing fs-30 lh-45 fw-7">{{$category->name??'Tin tức'}}</div>
+                                    <div class="heading-listing fs-30 lh-45 fw-7">
+                                        @if(isset($search_keyword))
+                                            Kết quả tìm kiếm: "{{ $search_keyword }}"
+                                        @else
+                                            {{$category->name??'Tin tức'}}
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                             <div class="flat-blog">
@@ -84,26 +113,16 @@
                                 @endforeach
                                     
                                 </div>
+                            </div>                            
+                            <div class="themesflat-pagination clearfix center">
+                                {{ $posts->links() }}
                             </div>
-
-                            
-                            <!--<div class="themesflat-pagination clearfix center">
-                                <ul>
-                                    <li><a href="#" class="page-numbers style"><i class="far fa-angle-left"></i></a></li>
-                                    <li><a href="#" class="page-numbers">1</a></li>
-                                    <li><a href="#" class="page-numbers">2</a></li>
-                                    <li><a href="#" class="page-numbers current">3</a></li>
-                                    <li><a href="#" class="page-numbers">4</a></li>
-                                    <li><a href="#" class="page-numbers">...</a></li>
-                                    <li><a href="#" class="page-numbers style"><i class="far fa-angle-right"></i></a></li>
-                                </ul>
-                            </div> -->
                          </div>
                         </div>  
                         <div class="col-lg-4">
                              <aside class="side-bar side-bar-1 side-blog">
-                                <div class="inner-side-bar">  
-                                    <div class="widget widget-categories style"> 
+                                <div class="inner-side-bar">                    <!-- Category sidebar removed as it's now shown as tabs -->
+                                    <!-- <div class="widget widget-categories style"> 
                                         <h3 class="widget-titles title-categories">
                                             Danh mục bài viết
                                         </h3>                                                                                                                        
@@ -114,7 +133,7 @@
                                             </li>
                                         @endforeach
                                         </ul>
-                                    </div>
+                                    </div> -->
                                     <div class="widget widget-listings style"> 
                                         <h3 class="widget-title title-list">
                                             Dự án nổi bật
@@ -199,11 +218,11 @@
                                                 <h3 class="link-style-3"><a href="#">Gorgeous Apartment Building</a> </h3>
                                                 <div class="text-addres "><p class="p-12 text-color-1 icon-p">58 Hullbrook Road, Billesley, B13 0LA</p></div>
                                                 <div class="star flex">
-                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
-                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>                                               
+                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>
+                                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><g>	<g>		<polygon points="512,197.816 325.961,185.585 255.898,9.569 185.835,185.585 0,197.816 142.534,318.842 95.762,502.431 			255.898,401.21 416.035,502.431 369.263,318.842 		"></polygon>	</g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>                                               
                                                 </div>
                                             </div> 
                                         </div>
@@ -258,4 +277,106 @@ $(function() {
     console.log('Post index ready')
 })
 </script>
+@endsection
+
+@section('styles')
+<style>
+    .category-tabs {
+        margin-bottom: 30px;
+    }
+    .category-tabs .nav-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        border-bottom: 1px solid #eee;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+    .category-tabs .nav-item {
+        margin-right: 10px;
+        margin-bottom: -1px;
+    }    .category-tabs .nav-link {
+        display: block;
+        padding: 12px 20px;
+        text-decoration: none;
+        border: 1px solid #eee;
+        border-bottom: none;
+        border-radius: 5px 5px 0 0;
+        font-weight: 600;
+        color: #666;
+        transition: all 0.3s ease;
+        font-size: 15px;
+        margin-bottom: -1px;
+        background-color: #f9f9f9;
+    }
+    .category-tabs .nav-link:hover {
+        color: #FFA920;
+    }
+    .category-tabs .nav-link.active {
+        color: #FFA920;
+        border-bottom: none;
+        border-top: 3px solid #FFA920;
+        background-color: #fff;
+        position: relative;
+    }
+    .category-tabs .nav-link.active:after {
+        content: "";
+        position: absolute;
+        top: -3px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background-color: #FFA920;
+        border-radius: 3px 3px 0 0;
+    }
+    
+    /* Custom pagination styles */
+    .themesflat-pagination {
+        margin-top: 30px;
+    }
+    .themesflat-pagination ul {
+        display: flex;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+    }
+    .themesflat-pagination li {
+        margin: 0 5px;
+    }
+    .themesflat-pagination .page-numbers {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 5px;
+        border: 1px solid #eee;
+        color: #666;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .themesflat-pagination .page-numbers:hover {
+        background-color: #f5f5f5;
+        color: #FFA920;
+    }
+    .themesflat-pagination .page-numbers.current {
+        background-color: #FFA920;
+        color: #fff;
+        border-color: #FFA920;
+    }
+    .themesflat-pagination .page-numbers.style {
+        padding: 8px 12px;
+    }
+    .themesflat-pagination .disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    @media (max-width: 768px) {
+        .category-tabs .nav-tabs {
+            justify-content: center;
+        }
+        .category-tabs .nav-link {
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+    }
+</style>
 @endsection

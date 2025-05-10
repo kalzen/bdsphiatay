@@ -10,15 +10,14 @@ use App\Models\Product;
 use DB;
 
 class PostController extends Controller
-{
-    public function index()
+{    public function index()
     {
-        $categories = Category::orderBy('name','asc')->get();
-        $featured_posts = Post::active()->orderBy('viewed','desc')->paginate();
+        $categories = Category::orderBy('name','asc')->whereNull('parent_id')->get();
+        $featured_posts = Post::active()->orderBy('viewed','desc')->paginate(5);
         $related = Post::inRandomOrder()->paginate(5);
         $products = Product::latest()->withCount(['images'])->having('images_count','>',0)->active()->take(4)->get();
         $tags = Tag::All();
-        $posts = Post::active()->paginate();
+        $posts = Post::active()->paginate(10);
         return view('post.index',compact('categories','posts','featured_posts', 'products', 'tags', 'related'));
     }
     public function detail($alias)
@@ -32,32 +31,35 @@ class PostController extends Controller
         $related = Post::inRandomOrder()->paginate(3);
         //dd($related);
         return view('post.detail',compact('post', 'categories', 'most_view', 'products', 'tags', 'related'));
-    }
-    public function category($alias)
+    }    public function category($alias)
     {
-        $categories = Category::orderBy('name','asc')->get();
+        $categories = Category::orderBy('name','asc')->whereNull('parent_id')->get();
         $category = Category::where('slug',$alias)->firstOrFail();
         if ($category->parent_id != '0')
         {
             $category_parent = Category::find($category->parent_id);
         }
-        $posts = $category->posts()->active()->orderBy('id','desc')->paginate();
-        $featured_posts = Post::active()->orderBy('id','desc')->paginate();
+        $posts = $category->posts()->active()->orderBy('id','desc')->paginate(10);
+        $featured_posts = Post::active()->orderBy('id','desc')->paginate(5);
         $products = Product::latest()->withCount(['images'])->having('images_count','>',0)->active()->take(3)->get();
         $tags = Tag::All();
-        return view('post.index',compact('category','posts','categories','featured_posts', 'category_parent', 'products', 'tags'));
-    }
-    public function search()
+        $related = Post::inRandomOrder()->paginate(5);
+        return view('post.index',compact('category','posts','categories','featured_posts', 'category_parent', 'products', 'tags', 'related'));
+    }    public function search()
     {
-        $featured_posts = Post::active()->orderBy('viewed','desc')->paginate();
-        $categories = Category::orderBy('name','asc')->get();
+        $featured_posts = Post::active()->orderBy('viewed','desc')->paginate(5);
+        $categories = Category::orderBy('name','asc')->whereNull('parent_id')->get();
         $query = Post::latest()->active()->with(['tags','images']);
         $posts = $query->where(function($p){
             $p->where('title','like','%'.request('keyword').'%')
             ->orWhereHas('categories',function($q){
                 $q->where('name','like','%'.request('keyword').'%');
             });
-        })->paginate();
-        return view('post.index',compact('posts','categories','featured_posts'));
+        })->paginate(10);
+        $products = Product::latest()->withCount(['images'])->having('images_count','>',0)->active()->take(4)->get();
+        $tags = Tag::All();
+        $related = Post::inRandomOrder()->paginate(5);
+        $search_keyword = request('keyword');
+        return view('post.index',compact('posts','categories','featured_posts', 'products', 'tags', 'related', 'search_keyword'));
     }
 }

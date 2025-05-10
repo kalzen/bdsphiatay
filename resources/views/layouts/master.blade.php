@@ -26,9 +26,10 @@
     <link rel="stylesheet" href="{{asset('phiatay/app/dist/owl.css')}}">
     <link rel="stylesheet" href="{{asset('phiatay/app/dist/floating-social.css')}}">
 
-    <!-- Favicon and Touch Icons  -->
-    <link rel="shortcut icon" href="{{asset('favicon.png')}}">
+    <!-- Favicon and Touch Icons  -->    <link rel="shortcut icon" href="{{asset('favicon.png')}}">
     <link rel="apple-touch-icon-precomposed" href="{{asset('favicon.png')}}">
+    
+    @yield('styles')
 
 </head>
 
