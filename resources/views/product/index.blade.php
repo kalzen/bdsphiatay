@@ -1,7 +1,13 @@
 @extends('layouts.master')
+@section('title')
+    @if(isset($catalogue))
+    {{$catalogue->name}} - {{env('APP_NAME')}}
+    @else
+    Dự án - {{env('APP_NAME')}}
+    @endif
+@endsection
 @section('meta')
     @if(isset($catalogue))
-    <title>{{$catalogue->name}} - {{env('APP_NAME')}}</title>
     <meta name="keywords" content="{{$catalogue->tags->pluck('name')->join(', ')}}"/>
     <meta name="description" content="{{$catalogue->description}}"/>
     <meta property="og:image" content="{{$catalogue->image->url??''}}">
@@ -9,14 +15,14 @@
     <meta property="og:title" content="{{$catalogue->name}}">
     <meta property="og:description" content="{{$catalogue->description}}">
     @else
-    <title>Dự án - {{env('APP_NAME')}}</title>
-    <meta name="keywords" content="{{env('APP_NAME')}}"/>
-    <meta name="description" content="{{env('APP_NAME')}}"/>
-    <meta property="og:image" content="{{env('APP_LOGO')}}">
+    <meta name="keywords" content="dự án bất động sản, mua bán nhà đất, {{env('APP_NAME')}}"/>
+    <meta name="description" content="Danh sách các dự án bất động sản hot nhất hiện nay. Tìm kiếm dự án phù hợp theo nhu cầu và ngân sách của bạn."/>
+    <meta property="og:image" content="{{asset('favicon.png')}}">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{env('APP_NAME')}}">
-    <meta property="og:description" content="{{env('APP_NAME')}}">
+    <meta property="og:title" content="Dự án - {{env('APP_NAME')}}">
+    <meta property="og:description" content="Danh sách các dự án bất động sản hot nhất hiện nay. Tìm kiếm dự án phù hợp theo nhu cầu và ngân sách của bạn.">
     @endif
+    <meta property="og:url" content="{{url()->current()}}">
 @stop
 @section('styles')
 
@@ -418,5 +424,58 @@
             $('#range_cost_ttl').html("$" + value[0] + " - $" + value[1]);
         });
     });
+</script>
+@endsection
+@section('schema_markup')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "@if(isset($catalogue)){{$catalogue->name}}@else Dự án bất động sản @endif",
+  "description": "@if(isset($catalogue)){{$catalogue->description}}@else Danh sách các dự án bất động sản hot nhất hiện nay. Tìm kiếm dự án phù hợp theo nhu cầu và ngân sách của bạn. @endif",
+  "url": "{{url()->current()}}",
+  "mainEntity": {
+    "@type": "ItemList",
+    "name": "@if(isset($catalogue)){{$catalogue->name}}@else Dự án bất động sản @endif",
+    "numberOfItems": "{{count($products)}}",
+    "itemListElement": [
+      @foreach($products as $product)
+      {
+        "@type": "ListItem",
+        "position": {{$loop->iteration}},
+        "item": {
+          "@type": "Product",
+          "name": "{{$product->title}}",
+          "description": "{{substr(strip_tags($product->description ?? ''),0,300)}}",
+          "url": "{{route('product.detail', ['alias' => $product->slug])}}",
+          @if($product->images->first())
+          "image": "{{$product->images->first()->url}}",
+          @endif
+          @if($product->price)
+          "offers": {
+            "@type": "Offer",
+            "price": "{{$product->price}}",
+            "priceCurrency": "VND",
+            "availability": "https://schema.org/InStock"
+          },
+          @endif
+          "brand": {
+            "@type": "Organization",
+            "name": "{{env('APP_NAME')}}"
+          }
+        }
+      }@if(!$loop->last),@endif
+      @endforeach
+    ]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{env('APP_NAME')}}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{asset('favicon.png')}}"
+    }
+  }
+}
 </script>
 @endsection

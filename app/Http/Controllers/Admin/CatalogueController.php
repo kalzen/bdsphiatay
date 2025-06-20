@@ -32,7 +32,7 @@ class CatalogueController extends Controller
         if ($validator->fails()) {
             return back()->withInput();
         }
-        $catalogue = Catalogue::create($request->only(['name','description','content','parent_id']));
+        $catalogue = Catalogue::create($request->only(['name','description','content','parent_id','slug']));
         $catalogue->tags()->createMany(collect(explode(', ',$request->tags))->map(function($item){return ['name'=>$item];}));
         if ($request->image) {
             $catalogue->image()->create(['url' => $request->image]);
@@ -55,7 +55,7 @@ class CatalogueController extends Controller
     public function update(Request $request, $id)
     {
         $catalogue = Catalogue::find($id);
-        $catalogue->update($request->only(['name','description','content','parent_id']));
+        $catalogue->update($request->only(['name','description','content','parent_id','slug']));
         $ids = collect(explode(', ',$request->tags))->map(function($item){return Tag::updateOrCreate(['name'=>$item]);})->pluck('id');
         $catalogue->tags()->sync($ids);
         if ($request->image) {

@@ -1,4 +1,45 @@
 @extends('layouts.master')
+
+@section('title', 'Trang chủ - Bất động sản Phía Tây')
+
+@section('meta')
+<meta name="keywords" content="bất động sản, mua bán nhà đất, cho thuê nhà đất, dự án bất động sản, phía tây">
+<meta name="description" content="Tìm kiếm bất động sản ưng ý theo mong muốn của bạn. Chuyên mua bán, cho thuê nhà đất, dự án bất động sản khu vực phía tây.">
+<meta property="og:image" content="{{asset('favicon.png')}}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Trang chủ - Bất động sản Phía Tây">
+<meta property="og:description" content="Tìm kiếm bất động sản ưng ý theo mong muốn của bạn. Chuyên mua bán, cho thuê nhà đất, dự án bất động sản khu vực phía tây.">
+<meta property="og:url" content="{{url('/')}}">
+@endsection
+
+@section('schema_markup')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Bất động sản Phía Tây",
+  "url": "{{url('/')}}",
+  "description": "Tìm kiếm bất động sản ưng ý theo mong muốn của bạn. Chuyên mua bán, cho thuê nhà đất, dự án bất động sản khu vực phía tây.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Bất động sản Phía Tây",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{asset('favicon.png')}}"
+    }
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "{{route('product.search')}}?keyword={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+@endsection
+
 @section('content')
 <!-- slider -->
  <!-- slider -->

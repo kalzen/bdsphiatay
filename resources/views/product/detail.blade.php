@@ -1,13 +1,66 @@
 @extends('layouts.master')
+@section('title', $product->title)
 @section('meta')
-<title>{{$product->title}}</title>
 <meta name="keywords" content="{{collect($product->tags)->pluck('name')->join(',')}}"/>
 <meta name="description" content="{{substr(strip_tags($product->description),0,300)}}"/>
 <meta property="og:image" content="{{$product->images()->first()->url??''}}">
 <meta property="og:type" content="product">
 <meta property="og:title" content="{{$product->title}}">
 <meta property="og:description" content="{{substr(strip_tags($product->description),0,300)}}">
+<meta property="og:url" content="{{url()->current()}}">
+<meta property="product:price:amount" content="{{$product->price}}">
+<meta property="product:price:currency" content="VND">
 @stop
+@section('schema_markup')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{$product->title}}",
+  "description": "{{substr(strip_tags($product->description ?? ''),0,300)}}",
+  "url": "{{url()->current()}}",
+  @if($product->images->first())
+  "image": [
+    @foreach($product->images as $image)
+    "{{$image->url}}"@if(!$loop->last),@endif
+    @endforeach
+  ],
+  @endif
+  @if($product->price)
+  "offers": {
+    "@type": "Offer",
+    "price": "{{$product->price}}",
+    "priceCurrency": "VND",
+    "availability": "https://schema.org/InStock",
+    "seller": {
+      "@type": "Organization",
+      "name": "{{env('APP_NAME')}}"
+    }
+  },
+  @endif
+  "brand": {
+    "@type": "Organization",
+    "name": "{{env('APP_NAME')}}"
+  },
+  "category": "{{$product->catalogues->first()->name ?? 'Bất động sản'}}",
+  @if($product->attributes->count() > 0)
+  "additionalProperty": [
+    @foreach($product->attributes as $attribute)
+    {
+      "@type": "PropertyValue",
+      "name": "{{$attribute->name}}",
+      "value": "{{$attribute->pivot->value}}"
+    }@if(!$loop->last),@endif
+    @endforeach
+  ],
+  @endif
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{url()->current()}}"
+  }
+}
+</script>
+@endsection
 @section('styles')
 <style>
     /* Ensure header is visible */
@@ -67,6 +120,25 @@
                     <div class="row">                      
                         <div class="col-lg-8">
                             <div class="post">
+                                <!-- Product Title and Price Section -->
+                                <div class="wrap-text wrap-style">
+                                    <div class="product-header">
+                                        <h1 class="product-title fs-30 fw-7 lh-45">{{$product->title}}</h1>
+                                        @if($product->price)
+                                        <div class="product-price-section" style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #FFA920;">
+                                            <div class="price-label" style="font-size: 14px; color: #666; margin-bottom: 5px;">Giá dự án:</div>
+                                            <div class="price-value" style="font-size: 24px; font-weight: bold; color: #FFA920;">
+                                                {{number_format($product->price, 0, ',', '.')}} VNĐ
+                                            </div>
+                                            @if($product->price_per_m2)
+                                            <div class="price-per-m2" style="font-size: 14px; color: #666; margin-top: 5px;">
+                                                ({{number_format($product->price_per_m2, 0, ',', '.')}} VNĐ/m²)
+                                            </div>
+                                            @endif
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
                                 <div class="wrap-text wrap-style">
                                     <div class="titles"><h3>Nội dung dự án</h3></div>
                                     {!! $product->content !!}
@@ -97,6 +169,24 @@
                         <div class="col-lg-4">
                             <aside class="side-bar side-bar-1">
                                 <div class="inner-side-bar">  
+                                    <!-- Price Widget -->
+                                    @if($product->price)
+                                    <div class="widget-rent style" style="margin-bottom: 20px;">
+                                        <h3 class="widget-title title-contact">
+                                            Thông tin giá
+                                        </h3>
+                                        <div class="price-info-widget" style="padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;">
+                                            <div class="main-price" style="font-size: 22px; font-weight: bold; color: #FFA920; margin-bottom: 10px;">
+                                                {{number_format($product->price, 0, ',', '.')}} VNĐ
+                                            </div>
+                                            @if($product->price_per_m2)
+                                            <div class="price-per-unit" style="font-size: 14px; color: #666;">
+                                                {{number_format($product->price_per_m2, 0, ',', '.')}} VNĐ/m²
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @endif
                                     <div class="widget-rent style">
                                         <h3 class="widget-title title-contact">
                                             Nhân viên sale

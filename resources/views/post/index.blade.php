@@ -1,7 +1,13 @@
 @extends('layouts.master')
+@section('title')
+@if(isset($category))
+{{$category->name??'Tin tức'}} - {{env('APP_NAME')}}
+@else
+Tin tức - {{env('APP_NAME')}}
+@endif
+@endsection
 @section('meta')
 @if(isset($category))
-<title>{{$category->name??'Tin tức'}} - {{env('APP_NAME')}}</title>
 <meta name="keywords" content="{{$category->tags->pluck('name')->join(', ')}}" />
 <meta name="description" content="{{$category->description}}" />
 <meta property="og:image" content="{{$category->image?$category->image->url:''}}">
@@ -9,15 +15,64 @@
 <meta property="og:title" content="{{$category->name??'Tin tức'}}">
 <meta property="og:description" content="{{$category->description}}">
 @else
-<title>Tin tức - {{env('APP_NAME')}}</title>
-<meta name="keywords" content="{{env('APP_NAME')}}" />
-<meta name="description" content="{{env('APP_NAME')}}" />
-<meta property="og:image" content="{{env('APP_LOGO')}}">
+<meta name="keywords" content="tin tức bất động sản, {{env('APP_NAME')}}" />
+<meta name="description" content="Tin tức mới nhất về thị trường bất động sản, xu hướng đầu tư, phân tích thị trường và các dự án hot." />
+<meta property="og:image" content="{{asset('favicon.png')}}">
 <meta property="og:type" content="website">
-<meta property="og:title" content="{{env('APP_NAME')}}">
-<meta property="og:description" content="{{env('APP_NAME')}}">
+<meta property="og:title" content="Tin tức - {{env('APP_NAME')}}">
+<meta property="og:description" content="Tin tức mới nhất về thị trường bất động sản, xu hướng đầu tư, phân tích thị trường và các dự án hot.">
 @endif
+<meta property="og:url" content="{{url()->current()}}">
 @stop
+
+@section('schema_markup')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "@if(isset($category)){{$category->name}}@else Tin tức bất động sản @endif",
+  "description": "@if(isset($category)){{$category->description}}@else Tin tức mới nhất về thị trường bất động sản, xu hướng đầu tư, phân tích thị trường và các dự án hot. @endif",
+  "url": "{{url()->current()}}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{env('APP_NAME')}}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{asset('favicon.png')}}"
+    }
+  },
+  "blogPost": [
+    @foreach($posts as $post)
+    {
+      "@type": "BlogPosting",
+      "headline": "{{$post->title}}",
+      "description": "{{substr(strip_tags($post->description),0,300)}}",
+      "url": "{{$post->url}}",
+      "datePublished": "{{$post->created_at->format('Y-m-d')}}",
+      "dateModified": "{{$post->updated_at->format('Y-m-d')}}",
+      "author": {
+        "@type": "Organization",
+        "name": "{{env('APP_NAME')}}"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "{{env('APP_NAME')}}",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "{{asset('favicon.png')}}"
+        }
+      }@if($post->images->first()),
+      "image": {
+        "@type": "ImageObject",
+        "url": "{{$post->images->first()->url}}"
+      }@endif
+    }@if(!$loop->last),@endif
+    @endforeach
+  ]
+}
+</script>
+@endsection
+
 @section('content')
 <section class="flat-title " >                <div class="container">
                     <div class="row">                      

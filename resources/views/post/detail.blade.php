@@ -1,13 +1,58 @@
 @extends('layouts.master')
+@section('title', $post->title)
 @section('meta')
-<title>{{$post->title}}</title>
 <meta name="keywords" content="{{collect($post->tags)->pluck('name')->join(',')}}"/>
 <meta name="description" content="{{substr(strip_tags($post->description),0,300)}}"/>
 <meta property="og:image" content="{{$post->images()->first()->url??''}}">
 <meta property="og:type" content="article">
 <meta property="og:title" content="{{$post->title}}">
 <meta property="og:description" content="{{substr(strip_tags($post->description),0,300)}}">
+<meta property="og:url" content="{{url()->current()}}">
+<meta property="article:published_time" content="{{$post->created_at->format('Y-m-d')}}">
+<meta property="article:modified_time" content="{{$post->updated_at->format('Y-m-d')}}">
 @stop
+
+@section('schema_markup')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "{{$post->title}}",
+  "description": "{{substr(strip_tags($post->description),0,300)}}",
+  "url": "{{url()->current()}}",
+  "datePublished": "{{$post->created_at->format('Y-m-d\TH:i:s\Z')}}",
+  "dateModified": "{{$post->updated_at->format('Y-m-d\TH:i:s\Z')}}",
+  "author": {
+    "@type": "Organization",
+    "name": "{{env('APP_NAME')}}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{env('APP_NAME')}}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{asset('favicon.png')}}"
+    }
+  },
+  @if($post->images()->first())
+  "image": {
+    "@type": "ImageObject",
+    "url": "{{$post->images()->first()->url}}",
+    "width": 800,
+    "height": 600
+  },
+  @endif
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{url()->current()}}"
+  },
+  "articleSection": "{{$post->categories->first()->name??'Tin tức'}}",
+  "keywords": "{{collect($post->tags)->pluck('name')->join(', ')}}",
+  "wordCount": "{{str_word_count(strip_tags($post->content))}}"
+}
+</script>
+@endsection
+
 @section('content')
     <section class="flat-title " >
                 <div class="container">

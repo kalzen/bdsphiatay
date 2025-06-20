@@ -3,10 +3,12 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Bất động sản Phía Tây</title>
+    <title>@yield('title', 'Bất động sản Phía Tây')</title>
 
     <meta name="author" content="12bytes.xyz">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    @yield('meta')
 
     <!-- Google Analytics -->
     @if(env('GOOGLE_ANALYTICS_ID'))
@@ -26,10 +28,14 @@
     <link rel="stylesheet" href="{{asset('phiatay/app/dist/owl.css')}}">
     <link rel="stylesheet" href="{{asset('phiatay/app/dist/floating-social.css')}}">
 
-    <!-- Favicon and Touch Icons  -->    <link rel="shortcut icon" href="{{asset('favicon.png')}}">
+    <!-- Favicon and Touch Icons  -->    
+    <link rel="shortcut icon" href="{{asset('favicon.png')}}">
     <link rel="apple-touch-icon-precomposed" href="{{asset('favicon.png')}}">
     
     @yield('styles')
+
+    <!-- Schema Markup -->
+    @yield('schema_markup')
 
 </head>
 
