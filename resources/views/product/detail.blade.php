@@ -69,50 +69,50 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Dự án này có pháp lý đầy đủ không?",
+      "name": "Dự án đất nền này có pháp lý đầy đủ không?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Dự án {{$product->title}} được phát triển với pháp lý hoàn toàn minh bạch và đầy đủ. Chúng tôi cam kết cung cấp đầy đủ các giấy tờ pháp lý theo quy định của pháp luật, bao gồm giấy phép xây dựng, giấy chứng nhận quyền sử dụng đất, và các văn bản pháp lý liên quan khác."
+        "text": "Dự án {{$product->title}} được phát triển với pháp lý hoàn toàn minh bạch và đầy đủ. Chúng tôi cam kết cung cấp đầy đủ các giấy tờ pháp lý theo quy định: Giấy chứng nhận quyền sử dụng đất, Giấy phép xây dựng, Quyết định phê duyệt quy hoạch chi tiết và các văn bản pháp lý liên quan khác."
       }
     },
     {
       "@type": "Question",
-      "name": "Có những hình thức thanh toán nào?",
+      "name": "Diện tích thực tế của từng lô đất như thế nào?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Chúng tôi hỗ trợ nhiều hình thức thanh toán linh hoạt: thanh toán một lần, trả góp theo tiến độ xây dựng, hoặc vay ngân hàng với lãi suất ưu đãi. Khách hàng có thể lựa chọn phương thức thanh toán phù hợp với khả năng tài chính của mình."
+        "text": "Dự án có nhiều loại diện tích đa dạng từ 80m² đến 500m² tùy theo vị trí và loại đất. Mỗi lô đất đều được đo đạc chính xác, có sổ đỏ riêng biệt và thông tin chi tiết về diện tích, kích thước mặt tiền, chiều sâu. Khách hàng có thể tham khảo sơ đồ phân lô chi tiết và chọn lô phù hợp."
       }
     },
     {
       "@type": "Question",
-      "name": "Dự án có tiện ích gì đi kèm?",
+      "name": "Hạ tầng kỹ thuật đã hoàn thiện chưa?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Dự án được trang bị đầy đủ các tiện ích hiện đại như: hệ thống an ninh 24/7, khu vui chơi trẻ em, sân thể thao, khu BBQ, hồ bơi, phòng gym, và nhiều tiện ích khác. Ngoài ra, dự án còn có vị trí thuận lợi gần các trường học, bệnh viện, và trung tâm thương mại."
+        "text": "Dự án đã hoàn thiện 100% hạ tầng kỹ thuật bao gồm: Hệ thống đường bê tông rộng 6-12m, điện ngầm 3 pha, nước máy từ nhà máy nước sạch, hệ thống thoát nước mưa và nước thải, viễn thông internet cáp quang. Khách hàng có thể xây dựng ngay sau khi nhận đất."
       }
     },
     {
       "@type": "Question",
-      "name": "Thời gian bàn giao là khi nào?",
+      "name": "Thời gian bàn giao sổ đỏ là khi nào?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Dự án đang trong quá trình thi công và dự kiến bàn giao trong vòng 12-18 tháng tới. Chúng tôi cam kết bàn giao đúng tiến độ với chất lượng hoàn thiện cao cấp. Khách hàng sẽ được thông báo cụ thể về lịch bàn giao khi ký hợp đồng."
+        "text": "Sau khi khách hàng hoàn tất thủ tục mua bán và thanh toán đầy đủ, thời gian bàn giao sổ đỏ trong vòng 30-60 ngày. Đối với các lô đất đã có sổ đỏ riêng, có thể bàn giao ngay. Chúng tôi hỗ trợ khách hàng hoàn tất mọi thủ tục sang tên đổi chủ một cách nhanh chóng."
       }
     },
     {
       "@type": "Question",
-      "name": "Có chính sách hỗ trợ vay vốn không?",
+      "name": "Có chính sách hỗ trợ vay vốn mua đất không?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Chúng tôi có hợp tác với các ngân hàng uy tín để hỗ trợ khách hàng vay vốn với lãi suất ưu đãi lên đến 70% giá trị bất động sản. Thời gian vay linh hoạt từ 10-20 năm. Đội ngũ tư vấn sẽ hỗ trợ khách hàng hoàn thiện hồ sơ vay một cách nhanh chóng và thuận lợi nhất."
+        "text": "Có, chúng tôi hỗ trợ khách hàng vay vốn ngân hàng với lãi suất ưu đãi từ các ngân hàng đối tác như Vietcombank, BIDV, Techcombank. Hỗ trợ vay lên đến 70% giá trị đất với thời hạn vay 15-20 năm. Đội ngũ tư vấn sẽ hỗ trợ khách hàng chuẩn bị hồ sơ và thủ tục vay một cách thuận tiện nhất."
       }
     },
     {
       "@type": "Question",
-      "name": "Có chính sách bảo hành sau bàn giao không?",
+      "name": "Có hạn chế gì về việc xây dựng trên đất không?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Dự án có chính sách bảo hành rõ ràng: bảo hành kết cấu 10 năm, hệ thống điện nước 2 năm, và các hạng mục hoàn thiện 1 năm. Ngoài ra, chúng tôi có đội ngũ dịch vụ hậu mãi chuyên nghiệp, sẵn sàng hỗ trợ khách hàng 24/7 sau khi bàn giao."
+        "text": "Đất nền trong dự án được phép xây dựng nhà ở theo quy hoạch được duyệt. Khách hàng có thể xây dựng nhà ở từ 1-4 tầng tùy theo quy định từng khu vực. Cần tuân thủ các quy định về lùi đường, mật độ xây dựng và kiến trúc cảnh quan. Chúng tôi sẽ cung cấp bản vẽ quy hoạch chi tiết và hỗ trợ tư vấn thiết kế."
       }
     }
   ]
@@ -318,61 +318,61 @@
                                     <div class="faq-accordion" id="faqAccordion">
                                         <div class="faq-item">
                                             <div class="faq-header" onclick="toggleFaq(1)">
-                                                <h4>Dự án này có pháp lý đầy đủ không?</h4>
+                                                <h4>Dự án đất nền này có pháp lý đầy đủ không?</h4>
                                                 <span class="faq-icon" id="faq-icon-1">+</span>
                                             </div>
                                             <div class="faq-content" id="faq-content-1">
-                                                <p>Dự án {{$product->title}} được phát triển với pháp lý hoàn toàn minh bạch và đầy đủ. Chúng tôi cam kết cung cấp đầy đủ các giấy tờ pháp lý theo quy định của pháp luật, bao gồm giấy phép xây dựng, giấy chứng nhận quyền sử dụng đất, và các văn bản pháp lý liên quan khác.</p>
+                                                <p>Dự án {{$product->title}} được phát triển với pháp lý hoàn toàn minh bạch và đầy đủ. Chúng tôi cam kết cung cấp đầy đủ các giấy tờ pháp lý theo quy định: Giấy chứng nhận quyền sử dụng đất, Giấy phép xây dựng, Quyết định phê duyệt quy hoạch chi tiết và các văn bản pháp lý liên quan khác.</p>
                                             </div>
                                         </div>
                                         
                                         <div class="faq-item">
                                             <div class="faq-header" onclick="toggleFaq(2)">
-                                                <h4>Có những hình thức thanh toán nào?</h4>
+                                                <h4>Diện tích thực tế của từng lô đất như thế nào?</h4>
                                                 <span class="faq-icon" id="faq-icon-2">+</span>
                                             </div>
                                             <div class="faq-content" id="faq-content-2">
-                                                <p>Chúng tôi hỗ trợ nhiều hình thức thanh toán linh hoạt: thanh toán một lần, trả góp theo tiến độ xây dựng, hoặc vay ngân hàng với lãi suất ưu đãi. Khách hàng có thể lựa chọn phương thức thanh toán phù hợp với khả năng tài chính của mình.</p>
+                                                <p>Dự án có nhiều loại diện tích đa dạng từ 80m² đến 500m² tùy theo vị trí và loại đất. Mỗi lô đất đều được đo đạc chính xác, có sổ đỏ riêng biệt và thông tin chi tiết về diện tích, kích thước mặt tiền, chiều sâu. Khách hàng có thể tham khảo sơ đồ phân lô chi tiết và chọn lô phù hợp.</p>
                                             </div>
                                         </div>
                                         
                                         <div class="faq-item">
                                             <div class="faq-header" onclick="toggleFaq(3)">
-                                                <h4>Dự án có tiện ích gì đi kèm?</h4>
+                                                <h4>Hạ tầng kỹ thuật đã hoàn thiện chưa?</h4>
                                                 <span class="faq-icon" id="faq-icon-3">+</span>
                                             </div>
                                             <div class="faq-content" id="faq-content-3">
-                                                <p>Dự án được trang bị đầy đủ các tiện ích hiện đại như: hệ thống an ninh 24/7, khu vui chơi trẻ em, sân thể thao, khu BBQ, hồ bơi, phòng gym, và nhiều tiện ích khác. Ngoài ra, dự án còn có vị trí thuận lợi gần các trường học, bệnh viện, và trung tâm thương mại.</p>
+                                                <p>Dự án đã hoàn thiện 100% hạ tầng kỹ thuật bao gồm: Hệ thống đường bê tông rộng 6-12m, điện ngầm 3 pha, nước máy từ nhà máy nước sạch, hệ thống thoát nước mưa và nước thải, viễn thông internet cáp quang. Khách hàng có thể xây dựng ngay sau khi nhận đất.</p>
                                             </div>
                                         </div>
                                         
                                         <div class="faq-item">
                                             <div class="faq-header" onclick="toggleFaq(4)">
-                                                <h4>Thời gian bàn giao là khi nào?</h4>
+                                                <h4>Thời gian bàn giao sổ đỏ là khi nào?</h4>
                                                 <span class="faq-icon" id="faq-icon-4">+</span>
                                             </div>
                                             <div class="faq-content" id="faq-content-4">
-                                                <p>Dự án đang trong quá trình thi công và dự kiến bàn giao trong vòng 12-18 tháng tới. Chúng tôi cam kết bàn giao đúng tiến độ với chất lượng hoàn thiện cao cấp. Khách hàng sẽ được thông báo cụ thể về lịch bàn giao khi ký hợp đồng.</p>
+                                                <p>Sau khi khách hàng hoàn tất thủ tục mua bán và thanh toán đầy đủ, thời gian bàn giao sổ đỏ trong vòng 30-60 ngày. Đối với các lô đất đã có sổ đỏ riêng, có thể bàn giao ngay. Chúng tôi hỗ trợ khách hàng hoàn tất mọi thủ tục sang tên đổi chủ một cách nhanh chóng.</p>
                                             </div>
                                         </div>
                                         
                                         <div class="faq-item">
                                             <div class="faq-header" onclick="toggleFaq(5)">
-                                                <h4>Có chính sách hỗ trợ vay vốn không?</h4>
+                                                <h4>Có chính sách hỗ trợ vay vốn mua đất không?</h4>
                                                 <span class="faq-icon" id="faq-icon-5">+</span>
                                             </div>
                                             <div class="faq-content" id="faq-content-5">
-                                                <p>Chúng tôi có hợp tác với các ngân hàng uy tín để hỗ trợ khách hàng vay vốn với lãi suất ưu đãi lên đến 70% giá trị bất động sản. Thời gian vay linh hoạt từ 10-20 năm. Đội ngũ tư vấn sẽ hỗ trợ khách hàng hoàn thiện hồ sơ vay một cách nhanh chóng và thuận lợi nhất.</p>
+                                                <p>Có, chúng tôi hỗ trợ khách hàng vay vốn ngân hàng với lãi suất ưu đãi từ các ngân hàng đối tác như Vietcombank, BIDV, Techcombank. Hỗ trợ vay lên đến 70% giá trị đất với thời hạn vay 15-20 năm. Đội ngũ tư vấn sẽ hỗ trợ khách hàng chuẩn bị hồ sơ và thủ tục vay một cách thuận tiện nhất.</p>
                                             </div>
                                         </div>
                                         
                                         <div class="faq-item">
                                             <div class="faq-header" onclick="toggleFaq(6)">
-                                                <h4>Có chính sách bảo hành sau bàn giao không?</h4>
+                                                <h4>Có hạn chế gì về việc xây dựng trên đất không?</h4>
                                                 <span class="faq-icon" id="faq-icon-6">+</span>
                                             </div>
                                             <div class="faq-content" id="faq-content-6">
-                                                <p>Dự án có chính sách bảo hành rõ ràng: bảo hành kết cấu 10 năm, hệ thống điện nước 2 năm, và các hạng mục hoàn thiện 1 năm. Ngoài ra, chúng tôi có đội ngũ dịch vụ hậu mãi chuyên nghiệp, sẵn sàng hỗ trợ khách hàng 24/7 sau khi bàn giao.</p>
+                                                <p>Đất nền trong dự án được phép xây dựng nhà ở theo quy hoạch được duyệt. Khách hàng có thể xây dựng nhà ở từ 1-4 tầng tùy theo quy định từng khu vực. Cần tuân thủ các quy định về lùi đường, mật độ xây dựng và kiến trúc cảnh quan. Chúng tôi sẽ cung cấp bản vẽ quy hoạch chi tiết và hỗ trợ tư vấn thiết kế.</p>
                                             </div>
                                         </div>
                                     </div>

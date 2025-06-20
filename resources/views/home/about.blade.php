@@ -1,391 +1,421 @@
 @extends('layouts.master')
 
-@section('title', 'Về Phía Tây - Công ty Bất động sản hàng đầu')
+@section('title', 'Về Phía Tây - Công ty Bất động sản Cao Bằng')
 
 @section('meta')
-<meta name="keywords" content="về phía tây, công ty bất động sản, bất động sản uy tín, mua bán nhà đất, đầu tư bất động sản">
-<meta name="description" content="Phía Tây - Công ty bất động sản uy tín hàng đầu, chuyên cung cấp dịch vụ mua bán, cho thuê nhà đất và phát triển dự án bất động sản chất lượng cao.">
-<meta property="og:title" content="Về Phía Tây - Công ty Bất động sản hàng đầu">
-<meta property="og:description" content="Phía Tây - Công ty bất động sản uy tín hàng đầu, chuyên cung cấp dịch vụ mua bán, cho thuê nhà đất và phát triển dự án bất động sản chất lượng cao.">
-<meta property="og:image" content="{{asset('favicon.png')}}">
-<meta property="og:url" content="{{route('about')}}">
+<meta name="keywords" content="về phía tây, công ty bất động sản cao bằng, bất động sản uy tín, mua bán nhà đất cao bằng, đầu tư bất động sản">
+<meta name="description" content="Công ty TNHH Bất động sản Phía Tây - Chuyên tư vấn, môi giới bất động sản tại Cao Bằng. Giám đốc Nguyễn Trung Kiên với đội ngũ chuyên nghiệp, uy tín.">
+<meta property="og:title" content="Về Phía Tây - Công ty Bất động sản Cao Bằng">
+<meta property="og:description" content="Công ty TNHH Bất động sản Phía Tây - Chuyên tư vấn, môi giới bất động sản tại Cao Bằng. Giám đốc Nguyễn Trung Kiên với đội ngũ chuyên nghiệp, uy tín.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="{{url()->current()}}">
+<meta property="og:image" content="{{asset('favicon.png')}}">
 @endsection
 
 @section('schema_markup')
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "AboutPage",
-  "mainEntity": {
-    "@type": "Organization",
-    "name": "Bất động sản Phía Tây",
-    "url": "{{url('/')}}",
-    "logo": "{{$shared_config['logo']['value']}}",
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": "{{$shared_config['hotline']['value']}}",
-      "contactType": "customer service",
-      "availableLanguage": "Vietnamese"
-    },
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "VN",
-      "addressLocality": "Việt Nam"
-    },
-    "sameAs": [
-      "{{$shared_config['facebook']['value'] ?? ''}}"
-    ],
-    "description": "Phía Tây là công ty bất động sản uy tín hàng đầu, chuyên cung cấp dịch vụ mua bán, cho thuê nhà đất và phát triển dự án bất động sản chất lượng cao.",
-    "foundingDate": "2015",
-    "numberOfEmployees": "100+",
-    "slogan": "Kết nối ước mơ - Kiến tạo tương lai"
+  "@type": "Organization",
+  "name": "Công ty TNHH Bất động sản Phía Tây",
+  "alternateName": "Bất động sản Phía Tây",
+  "url": "{{url('/')}}",
+  "logo": "{{asset('favicon.png')}}",
+  "description": "Chuyên tư vấn, môi giới bất động sản tại Cao Bằng",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "SN181 tổ 9, Phường Hợp Giang",
+    "addressLocality": "Thành phố Cao Bằng",
+    "addressRegion": "Tỉnh Cao Bằng",
+    "addressCountry": "VN"
+  },
+  "taxID": "4800933757",
+  "founder": {
+    "@type": "Person",
+    "name": "Nguyễn Trung Kiên",
+    "jobTitle": "Giám đốc"
+  },
+  "knowsAbout": ["Bất động sản", "Tư vấn đầu tư", "Môi giới nhà đất", "Dự án bất động sản"],
+  "areaServed": {
+    "@type": "Place",
+    "name": "Cao Bằng, Việt Nam"
   }
 }
 </script>
 @endsection
 
-@section('content')
-<div class="page-layout">
-    <!-- Page Title -->
-    <section class="flat-title">
-        <div class="container">
-            <div class="row">                      
-                <div class="col-lg-12">
-                    <div class="title-inner style">
-                        <div class="title-group fs-12">
-                            <a class="home fw-6 text-color-3" href="{{route('index')}}">Trang chủ</a>
-                            <span>Về Phía Tây</span>
-                        </div>
-                    </div>
-                </div> 
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section class="flat-about">
-        <div class="container">
-            <div class="row">                      
-                <div class="col-lg-7 col-md-7">
-                    <div class="heading-about">
-                        <h2>Kết nối ước mơ - Kiến tạo tương lai</h2>
-                        <h4>Phía Tây là công ty bất động sản uy tín hàng đầu với hơn 8 năm kinh nghiệm, chuyên cung cấp các dịch vụ mua bán, cho thuê nhà đất và phát triển dự án bất động sản chất lượng cao.</h4>
-                        <p class="text-1 text-color-2">Chúng tôi tự hào là đối tác tin cậy của hàng nghìn khách hàng trong hành trình tìm kiếm và đầu tư bất động sản. Với đội ngũ chuyên viên giàu kinh nghiệm và am hiểu thị trường, Phía Tây cam kết mang đến những giải pháp tối ưu nhất cho mọi nhu cầu của khách hàng.</p>
-                        <div class="text-box">
-                            <p class="font-2 fw-5 font-italic text-color-2">"Chúng tôi không chỉ bán nhà đất, mà còn kiến tạo những ước mơ và tương lai tươi sáng cho mỗi gia đình Việt Nam"</p>
-                        </div>
-                        <div class="group-author flex">
-                            <div class="box-author flex align-center">
-                                <div class="avatar">
-                                    <img src="{{asset('phiatay/assets/images/avatar/avt-about.jpg')}}" alt="CEO Phía Tây">
-                                </div>
-                                <div class="info">
-                                    <h4 class="fw-6 font-2">Nguyễn Văn Minh</h4>
-                                    <p class="fs-12 font-2">CEO & Founder</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>  
-                <div class="col-lg-5 col-md-5">
-                    <div class="image-about">
-                        <img src="{{asset('phiatay/assets/images/banner/about-banner.jpg')}}" alt="Về Phía Tây">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Vision Mission Goals Section -->
-    <section class="flat-iconbox bg-color-7">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="heading-section center">
-                        <h2 class="fw-8 font-2 lh-56">Tầm nhìn - Sứ mệnh - Mục tiêu</h2>
-                        <p class="">Định hướng phát triển và giá trị cốt lõi của Phía Tây</p>
-                    </div>
-                </div>
-                
-                <!-- Vision -->
-                <div class="col-lg-4 col-md-4">
-                    <div class="box-icon flex align-center">
-                        <div class="icon relative flex-none">
-                            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M40 8L52 32H28L40 8Z" fill="#FFA920"/>
-                                <circle cx="40" cy="50" r="22" fill="#FFA920" opacity="0.2"/>
-                                <circle cx="40" cy="50" r="12" fill="#FFA920"/>
-                            </svg>
-                        </div>
-                        <div class="content">
-                            <h4 class="title fw-6 font-2">Tầm nhìn</h4>
-                            <p class="text-color-2">Trở thành công ty bất động sản hàng đầu Việt Nam, tiên phong trong việc ứng dụng công nghệ hiện đại và cung cấp dịch vụ chất lượng cao nhất cho khách hàng.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mission -->
-                <div class="col-lg-4 col-md-4">
-                    <div class="box-icon flex align-center">
-                        <div class="icon relative flex-none">
-                            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="20" y="25" width="40" height="30" rx="5" fill="#FFA920" opacity="0.2"/>
-                                <path d="M25 35L35 45L55 25" stroke="#FFA920" stroke-width="3" fill="none"/>
-                                <circle cx="40" cy="15" r="8" fill="#FFA920"/>
-                            </svg>
-                        </div>
-                        <div class="content">
-                            <h4 class="title fw-6 font-2">Sứ mệnh</h4>
-                            <p class="text-color-2">Kết nối và hỗ trợ khách hàng tìm kiếm, sở hữu những bất động sản ưng ý với giá trị tốt nhất. Đồng thời phát triển các dự án bất động sản bền vững, góp phần xây dựng đô thị hiện đại.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Goals -->
-                <div class="col-lg-4 col-md-4">
-                    <div class="box-icon flex align-center">
-                        <div class="icon relative flex-none">
-                            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15 40L25 50L40 35L55 50L65 40" stroke="#FFA920" stroke-width="3" fill="none"/>
-                                <rect x="12" y="52" width="6" height="15" fill="#FFA920"/>
-                                <rect x="22" y="47" width="6" height="20" fill="#FFA920"/>
-                                <rect x="37" y="42" width="6" height="25" fill="#FFA920"/>
-                                <rect x="52" y="47" width="6" height="20" fill="#FFA920"/>
-                                <rect x="62" y="52" width="6" height="15" fill="#FFA920"/>
-                            </svg>
-                        </div>
-                        <div class="content">
-                            <h4 class="title fw-6 font-2">Mục tiêu</h4>
-                            <p class="text-color-2">Phục vụ hơn 10,000 khách hàng mỗi năm, phát triển 50+ dự án chất lượng cao và mở rộng mạng lưới ra toàn quốc trong 5 năm tới.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Core Values Section -->
-    <section class="flat-why-choose-us">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="content-left">
-                        <div class="heading-section">
-                            <h2 class="fw-8 font-2 lh-56">Giá trị cốt lõi của Phía Tây</h2>
-                            <p class="">Những nguyên tắc và giá trị mà chúng tôi luôn theo đuổi</p>
-                        </div>
-                        <div class="list-number-icon">
-                            <div class="number-icon-box flex align-center">
-                                <div class="icon-number">01</div>
-                                <div class="content">
-                                    <h4 class="title">Uy tín & Minh bạch</h4>
-                                    <p class="text-color-2">Cam kết cung cấp thông tin chính xác, minh bạch trong mọi giao dịch và luôn đặt lợi ích khách hàng lên hàng đầu.</p>
-                                </div>
-                            </div>
-                            <div class="number-icon-box flex align-center">
-                                <div class="icon-number">02</div>
-                                <div class="content">
-                                    <h4 class="title">Chuyên nghiệp & Tận tâm</h4>
-                                    <p class="text-color-2">Đội ngũ nhân viên được đào tạo bài bản, có kinh nghiệm và luôn tận tâm phục vụ khách hàng một cách tốt nhất.</p>
-                                </div>
-                            </div>
-                            <div class="number-icon-box flex align-center">
-                                <div class="icon-number">03</div>
-                                <div class="content">
-                                    <h4 class="title">Đổi mới & Sáng tạo</h4>
-                                    <p class="text-color-2">Không ngừng ứng dụng công nghệ mới, cải tiến dịch vụ để mang lại trải nghiệm tốt nhất cho khách hàng.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="image-box">
-                        <img src="{{asset('phiatay/assets/images/banner/values-image.jpg')}}" alt="Giá trị cốt lõi">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Statistics Section -->
-    <section class="flat-counter bg-color-1">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="counter-box center">
-                        <div class="icon">
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M30 5L35 20H25L30 5Z" fill="#FFA920"/>
-                                <rect x="15" y="25" width="30" height="25" rx="5" fill="#FFA920" opacity="0.7"/>
-                                <circle cx="30" cy="35" r="8" fill="white"/>
-                            </svg>
-                        </div>
-                        <div class="content">
-                            <h3 class="number fw-8" data-speed="2000" data-to="8" data-inviewport="yes">8</h3>
-                            <p class="text-color-4">Năm kinh nghiệm</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="counter-box center">
-                        <div class="icon">
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="20" cy="20" r="12" fill="#FFA920" opacity="0.7"/>
-                                <circle cx="40" cy="25" r="12" fill="#FFA920" opacity="0.7"/>
-                                <circle cx="30" cy="40" r="12" fill="#FFA920" opacity="0.7"/>
-                            </svg>
-                        </div>
-                        <div class="content">
-                            <h3 class="number fw-8" data-speed="2000" data-to="5000" data-inviewport="yes">5000+</h3>
-                            <p class="text-color-4">Khách hàng tin tựa</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="counter-box center">
-                        <div class="icon">
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="10" y="15" width="40" height="30" rx="5" fill="#FFA920" opacity="0.7"/>
-                                <rect x="15" y="20" width="12" height="8" fill="white"/>
-                                <rect x="33" y="20" width="12" height="8" fill="white"/>
-                                <rect x="15" y="32" width="30" height="4" fill="white"/>
-                            </svg>
-                        </div>
-                        <div class="content">
-                            <h3 class="number fw-8" data-speed="2000" data-to="150" data-inviewport="yes">150+</h3>
-                            <p class="text-color-4">Dự án thành công</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="counter-box center">
-                        <div class="icon">
-                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M30 10L40 25H20L30 10Z" fill="#FFA920"/>
-                                <circle cx="15" cy="35" r="8" fill="#FFA920" opacity="0.7"/>
-                                <circle cx="30" cy="45" r="8" fill="#FFA920" opacity="0.7"/>
-                                <circle cx="45" cy="35" r="8" fill="#FFA920" opacity="0.7"/>
-                            </svg>
-                        </div>
-                        <div class="content">
-                            <h3 class="number fw-8" data-speed="2000" data-to="50" data-inviewport="yes">50+</h3>
-                            <p class="text-color-4">Chuyên viên giỏi</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="flat-call-to-action bg-color-3">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <div class="content-left">
-                        <h2 class="text-white">Bạn đang tìm kiếm bất động sản ưng ý?</h2>
-                        <p class="text-white">Hãy để Phía Tây đồng hành cùng bạn trong hành trình tìm kiếm và đầu tư bất động sản</p>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="content-right">
-                        <a href="{{route('contact')}}" class="tf-btn bg-color-primary text-color-white">Liên hệ ngay
-                            <i class="icon-MagnifyingGlass"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
-@endsection
-
 @section('styles')
+<!-- Icon Moon CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@iconscout/unicons@4.0.8/css/line.css">
 <style>
-    .flat-about .heading-about h2 {
-        color: #1a1a1a;
-        margin-bottom: 20px;
+    /* About Page Styles */
+    .about-hero {
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{asset('phiatay/assets/images/slider/bg-slider-3.jpg')}}');
+        background-size: cover;
+        background-position: center;
+        padding: 100px 0;
+        color: white;
+        text-align: center;
     }
     
-    .flat-about .heading-about h4 {
-        color: #666;
-        font-weight: 400;
-        line-height: 1.6;
-        margin-bottom: 20px;
-    }
-
-    .flat-iconbox .box-icon {
-        padding: 30px;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        margin-bottom: 30px;
-        transition: all 0.3s ease;
-    }
-
-    .flat-iconbox .box-icon:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-    }
-
-    .flat-iconbox .box-icon .icon {
-        margin-right: 20px;
-    }
-
-    .flat-counter {
+    .about-section {
         padding: 80px 0;
-        background: linear-gradient(135deg, #FFA920 0%, #FF8C00 100%);
     }
-
-    .counter-box {
-        padding: 40px 20px;
-        background: rgba(255,255,255,0.1);
+    
+    .about-card {
+        background: white;
         border-radius: 15px;
-        backdrop-filter: blur(10px);
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         margin-bottom: 30px;
+        transition: transform 0.3s ease;
     }
-
-    .counter-box .icon {
-        margin-bottom: 20px;
+    
+    .about-card:hover {
+        transform: translateY(-10px);
     }
-
-    .counter-box .number {
-        color: white;
-        font-size: 48px;
-        margin-bottom: 10px;
-    }
-
-    .counter-box p {
-        color: rgba(255,255,255,0.9);
-        font-size: 16px;
-        margin: 0;
-    }
-
-    .flat-call-to-action {
-        background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
-        padding: 60px 0;
-    }
-
-    .number-icon-box {
-        margin-bottom: 30px;
-        padding: 20px 0;
-    }
-
-    .icon-number {
-        width: 60px;
-        height: 60px;
-        background: #FFA920;
-        color: white;
+    
+    .about-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #FFA920, #FF8C00);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: bold;
-        font-size: 20px;
-        margin-right: 20px;
-        flex-shrink: 0;
+        margin: 0 auto 20px;
+        font-size: 2.5rem;
+        color: white;
+    }
+    
+    .company-info {
+        background: #f8f9fa;
+        padding: 60px 0;
+    }
+    
+    .info-box {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        border-left: 5px solid #FFA920;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    
+    .info-box h5 {
+        color: #FFA920;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    
+    .info-box p {
+        margin: 0;
+        color: #666;
+    }
+    
+    .section-title {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+    
+    .section-title h2 {
+        color: #333;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+    
+    .section-title p {
+        color: #666;
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .ceo-quote {
+        background: linear-gradient(135deg, #FFA920, #FF8C00);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ceo-quote::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{{asset('phiatay/assets/images/slider/bg-slider-3.jpg')}}');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.1;
+    }
+    
+    .ceo-quote .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .quote-text {
+        font-size: 1.3rem;
+        font-style: italic;
+        margin-bottom: 30px;
+        line-height: 1.8;
+    }
+    
+    .quote-author {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    .stats-section {
+        background: #333;
+        color: white;
+        padding: 80px 0;
+    }
+    
+    .stat-item {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #FFA920;
+        display: block;
+    }
+    
+    .stat-label {
+        font-size: 1.1rem;
+        margin-top: 10px;
     }
 </style>
+@endsection
+
+@section('content')
+<!-- Hero Section -->
+<section class="about-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="fs-60 font-2 fw-8 mb-3">Về Phía Tây</h1>
+                <p class="fs-18">Công ty TNHH Bất động sản Phía Tây - Đối tác tin cậy trong lĩnh vực bất động sản Cao Bằng</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Company Introduction -->
+<section class="about-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Giới thiệu công ty</h2>
+            <p>Chúng tôi là đơn vị hàng đầu chuyên về tư vấn và môi giới bất động sản tại Cao Bằng</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="about-card">
+                    <h3 class="mb-4">Câu chuyện của chúng tôi</h3>
+                    <p class="mb-3">
+                        Công ty TNHH Bất động sản Phía Tây được thành lập với sứ mệnh mang đến những giải pháp bất động sản tốt nhất cho người dân Cao Bằng. Với kinh nghiệm nhiều năm trong lĩnh vực này, chúng tôi hiểu rõ nhu cầu và mong muốn của khách hàng.
+                    </p>
+                    <p class="mb-3">
+                        Dưới sự lãnh đạo của Giám đốc Nguyễn Trung Kiên, công ty đã không ngừng phát triển và khẳng định vị thế trên thị trường bất động sản địa phương.
+                    </p>
+                    <p>
+                        Chúng tôi cam kết mang đến dịch vụ chuyên nghiệp, uy tín và hiệu quả nhất cho mọi khách hàng.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="about-card">
+                    <h3 class="mb-4">Dịch vụ chính</h3>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><i class="uil uil-check-circle text-warning me-2"></i> Tư vấn đầu tư bất động sản</li>
+                        <li class="mb-3"><i class="uil uil-check-circle text-warning me-2"></i> Môi giới mua bán nhà đất</li>
+                        <li class="mb-3"><i class="uil uil-check-circle text-warning me-2"></i> Cho thuê bất động sản</li>
+                        <li class="mb-3"><i class="uil uil-check-circle text-warning me-2"></i> Định giá bất động sản</li>
+                        <li class="mb-3"><i class="uil uil-check-circle text-warning me-2"></i> Tư vấn pháp lý bất động sản</li>
+                        <li class="mb-3"><i class="uil uil-check-circle text-warning me-2"></i> Quản lý và vận hành dự án</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Vision, Mission, Goals -->
+<section class="about-section" style="background: #f8f9fa;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="about-card text-center">
+                    <div class="about-icon">
+                        <i class="uil uil-eye"></i>
+                    </div>
+                    <h4 class="mb-3">Tầm nhìn</h4>
+                    <p>Trở thành công ty bất động sản hàng đầu tại Cao Bằng, được khách hàng tin tưởng và lựa chọn số 1 trong các dịch vụ tư vấn, môi giới bất động sản.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="about-card text-center">
+                    <div class="about-icon">
+                        <i class="uil uil-heart"></i>
+                    </div>
+                    <h4 class="mb-3">Sứ mệnh</h4>
+                    <p>Kết nối khách hàng với những cơ hội bất động sản tốt nhất, mang đến giá trị bền vững và góp phần phát triển thị trường bất động sản Cao Bằng.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="about-card text-center">
+                    <div class="about-icon">
+                        <i class="uil uil-target"></i>
+                    </div>
+                    <h4 class="mb-3">Mục tiêu</h4>
+                    <p>Cung cấp dịch vụ chất lượng cao, xây dựng mối quan hệ lâu dài với khách hàng và đối tác, đóng góp tích cực vào sự phát triển kinh tế địa phương.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CEO Quote -->
+<section class="ceo-quote">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="quote-text">
+                    "Chúng tôi không chỉ môi giới bất động sản, mà còn là người bạn đồng hành tin cậy, giúp khách hàng hiện thực hóa ước mơ về một mái ấm lý tưởng và những khoản đầu tư sinh lời."
+                </div>
+                <div class="quote-author">
+                    <strong>Nguyễn Trung Kiên</strong><br>
+                    <span>Giám đốc Công ty TNHH Bất động sản Phía Tây</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Company Information -->
+<section class="company-info">
+    <div class="container">
+        <div class="section-title">
+            <h2>Thông tin công ty</h2>
+            <p>Thông tin chi tiết về Công ty TNHH Bất động sản Phía Tây</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="info-box">
+                    <h5><i class="uil uil-building me-2"></i>Tên công ty</h5>
+                    <p>Công ty TNHH Bất động sản Phía Tây</p>
+                </div>
+                
+                <div class="info-box">
+                    <h5><i class="uil uil-user-circle me-2"></i>Giám đốc</h5>
+                    <p>Nguyễn Trung Kiên</p>
+                </div>
+                
+                <div class="info-box">
+                    <h5><i class="uil uil-receipt me-2"></i>Mã số thuế</h5>
+                    <p>4800933757</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="info-box">
+                    <h5><i class="uil uil-map-marker me-2"></i>Địa chỉ</h5>
+                    <p>SN181 tổ 9, Phường Hợp Giang, Thành phố Cao Bằng, Tỉnh Cao Bằng, Việt Nam</p>
+                </div>
+                
+                <div class="info-box">
+                    <h5><i class="uil uil-briefcase me-2"></i>Lĩnh vực hoạt động</h5>
+                    <p>Tư vấn, môi giới bất động sản Cao Bằng</p>
+                </div>
+                
+                <div class="info-box">
+                    <h5><i class="uil uil-award me-2"></i>Giá trị cốt lõi</h5>
+                    <p>Uy tín - Chuyên nghiệp - Hiệu quả - Tận tâm</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <span class="stat-number">500+</span>
+                    <div class="stat-label">Khách hàng hài lòng</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <span class="stat-number">200+</span>
+                    <div class="stat-label">Giao dịch thành công</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <span class="stat-number">50+</span>
+                    <div class="stat-label">Dự án đã tư vấn</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <span class="stat-number">5+</span>
+                    <div class="stat-label">Năm kinh nghiệm</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="about-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Tại sao chọn chúng tôi?</h2>
+            <p>Những lý do khiến khách hàng tin tưởng và lựa chọn Bất động sản Phía Tây</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="about-card text-center">
+                    <div class="about-icon">
+                        <i class="uil uil-users-alt"></i>
+                    </div>
+                    <h4 class="mb-3">Đội ngũ chuyên nghiệp</h4>
+                    <p>Đội ngũ tư vấn viên giàu kinh nghiệm, am hiểu thị trường địa phương, luôn tận tâm với khách hàng.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="about-card text-center">
+                    <div class="about-icon">
+                        <i class="uil uil-shield-check"></i>
+                    </div>
+                    <h4 class="mb-3">Uy tín đáng tin cậy</h4>
+                    <p>Hoạt động minh bạch, pháp lý rõ ràng, cam kết bảo vệ quyền lợi tối đa cho khách hàng.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="about-card text-center">
+                    <div class="about-icon">
+                        <i class="uil uil-clock-three"></i>
+                    </div>
+                    <h4 class="mb-3">Dịch vụ nhanh chóng</h4>
+                    <p>Quy trình làm việc chuyên nghiệp, xử lý nhanh chóng, tiết kiệm thời gian cho khách hàng.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection
