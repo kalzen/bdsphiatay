@@ -18,9 +18,9 @@
                                                     <li class="current"><a href="{{route('index')}}">Trang chủ</a>
                                                         
                                                     </li>
-                                                    <li class=""><a href="#">Về phía tây</a>
-                                                    
-                                                    </li>
+                                                                                        <li class=""><a href="{{route('about')}}">Về phía tây</a>
+                                    
+                                    </li>
                                                     <li class="dropdown2"><a href="#">Nhà đất</a>
                                                         <ul>
                                                             <li><a href="/danh-muc/dat-nen">Đất nền</a></li>

@@ -60,6 +60,64 @@
   }
 }
 </script>
+
+<!-- FAQ Schema Markup -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Dự án này có pháp lý đầy đủ không?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dự án {{$product->title}} được phát triển với pháp lý hoàn toàn minh bạch và đầy đủ. Chúng tôi cam kết cung cấp đầy đủ các giấy tờ pháp lý theo quy định của pháp luật, bao gồm giấy phép xây dựng, giấy chứng nhận quyền sử dụng đất, và các văn bản pháp lý liên quan khác."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Có những hình thức thanh toán nào?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Chúng tôi hỗ trợ nhiều hình thức thanh toán linh hoạt: thanh toán một lần, trả góp theo tiến độ xây dựng, hoặc vay ngân hàng với lãi suất ưu đãi. Khách hàng có thể lựa chọn phương thức thanh toán phù hợp với khả năng tài chính của mình."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Dự án có tiện ích gì đi kèm?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dự án được trang bị đầy đủ các tiện ích hiện đại như: hệ thống an ninh 24/7, khu vui chơi trẻ em, sân thể thao, khu BBQ, hồ bơi, phòng gym, và nhiều tiện ích khác. Ngoài ra, dự án còn có vị trí thuận lợi gần các trường học, bệnh viện, và trung tâm thương mại."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Thời gian bàn giao là khi nào?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dự án đang trong quá trình thi công và dự kiến bàn giao trong vòng 12-18 tháng tới. Chúng tôi cam kết bàn giao đúng tiến độ với chất lượng hoàn thiện cao cấp. Khách hàng sẽ được thông báo cụ thể về lịch bàn giao khi ký hợp đồng."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Có chính sách hỗ trợ vay vốn không?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Chúng tôi có hợp tác với các ngân hàng uy tín để hỗ trợ khách hàng vay vốn với lãi suất ưu đãi lên đến 70% giá trị bất động sản. Thời gian vay linh hoạt từ 10-20 năm. Đội ngũ tư vấn sẽ hỗ trợ khách hàng hoàn thiện hồ sơ vay một cách nhanh chóng và thuận lợi nhất."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Có chính sách bảo hành sau bàn giao không?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dự án có chính sách bảo hành rõ ràng: bảo hành kết cấu 10 năm, hệ thống điện nước 2 năm, và các hạng mục hoàn thiện 1 năm. Ngoài ra, chúng tôi có đội ngũ dịch vụ hậu mãi chuyên nghiệp, sẵn sàng hỗ trợ khách hàng 24/7 sau khi bàn giao."
+      }
+    }
+  ]
+}
+</script>
 @endsection
 @section('styles')
 <style>
@@ -68,6 +126,95 @@
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
+    }
+    
+    /* FAQ Accordion Styles */
+    .faq-accordion {
+        margin-top: 20px;
+    }
+    
+    .faq-item {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .faq-item:hover {
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .faq-header {
+        padding: 20px;
+        background: #f8f9fa;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.3s ease;
+    }
+    
+    .faq-header:hover {
+        background: #e9ecef;
+    }
+    
+    .faq-header h4 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        flex: 1;
+    }
+    
+    .faq-icon {
+        font-size: 20px;
+        font-weight: bold;
+        color: #FFA920;
+        transition: transform 0.3s ease;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 169, 32, 0.1);
+    }
+    
+    .faq-icon.active {
+        transform: rotate(45deg);
+    }
+    
+    .faq-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+        background: #fff;
+    }
+    
+    .faq-content.active {
+        max-height: 500px;
+        padding: 20px;
+    }
+    
+    .faq-content p {
+        margin: 0;
+        line-height: 1.6;
+        color: #555;
+    }
+    
+    @media (max-width: 768px) {
+        .faq-header {
+            padding: 15px;
+        }
+        
+        .faq-header h4 {
+            font-size: 14px;
+        }
+        
+        .faq-content.active {
+            padding: 15px;
+        }
     }
 </style>
 @endsection
@@ -164,6 +311,72 @@
                                     {!! $product->sale_content !!}
                                 </div>
                                 @endif
+                                
+                                <!-- FAQ Section -->
+                                <div class="wrap-faq wrap-property wrap-style">
+                                    <div class="titles"><h3>Câu hỏi thường gặp</h3></div>
+                                    <div class="faq-accordion" id="faqAccordion">
+                                        <div class="faq-item">
+                                            <div class="faq-header" onclick="toggleFaq(1)">
+                                                <h4>Dự án này có pháp lý đầy đủ không?</h4>
+                                                <span class="faq-icon" id="faq-icon-1">+</span>
+                                            </div>
+                                            <div class="faq-content" id="faq-content-1">
+                                                <p>Dự án {{$product->title}} được phát triển với pháp lý hoàn toàn minh bạch và đầy đủ. Chúng tôi cam kết cung cấp đầy đủ các giấy tờ pháp lý theo quy định của pháp luật, bao gồm giấy phép xây dựng, giấy chứng nhận quyền sử dụng đất, và các văn bản pháp lý liên quan khác.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item">
+                                            <div class="faq-header" onclick="toggleFaq(2)">
+                                                <h4>Có những hình thức thanh toán nào?</h4>
+                                                <span class="faq-icon" id="faq-icon-2">+</span>
+                                            </div>
+                                            <div class="faq-content" id="faq-content-2">
+                                                <p>Chúng tôi hỗ trợ nhiều hình thức thanh toán linh hoạt: thanh toán một lần, trả góp theo tiến độ xây dựng, hoặc vay ngân hàng với lãi suất ưu đãi. Khách hàng có thể lựa chọn phương thức thanh toán phù hợp với khả năng tài chính của mình.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item">
+                                            <div class="faq-header" onclick="toggleFaq(3)">
+                                                <h4>Dự án có tiện ích gì đi kèm?</h4>
+                                                <span class="faq-icon" id="faq-icon-3">+</span>
+                                            </div>
+                                            <div class="faq-content" id="faq-content-3">
+                                                <p>Dự án được trang bị đầy đủ các tiện ích hiện đại như: hệ thống an ninh 24/7, khu vui chơi trẻ em, sân thể thao, khu BBQ, hồ bơi, phòng gym, và nhiều tiện ích khác. Ngoài ra, dự án còn có vị trí thuận lợi gần các trường học, bệnh viện, và trung tâm thương mại.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item">
+                                            <div class="faq-header" onclick="toggleFaq(4)">
+                                                <h4>Thời gian bàn giao là khi nào?</h4>
+                                                <span class="faq-icon" id="faq-icon-4">+</span>
+                                            </div>
+                                            <div class="faq-content" id="faq-content-4">
+                                                <p>Dự án đang trong quá trình thi công và dự kiến bàn giao trong vòng 12-18 tháng tới. Chúng tôi cam kết bàn giao đúng tiến độ với chất lượng hoàn thiện cao cấp. Khách hàng sẽ được thông báo cụ thể về lịch bàn giao khi ký hợp đồng.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item">
+                                            <div class="faq-header" onclick="toggleFaq(5)">
+                                                <h4>Có chính sách hỗ trợ vay vốn không?</h4>
+                                                <span class="faq-icon" id="faq-icon-5">+</span>
+                                            </div>
+                                            <div class="faq-content" id="faq-content-5">
+                                                <p>Chúng tôi có hợp tác với các ngân hàng uy tín để hỗ trợ khách hàng vay vốn với lãi suất ưu đãi lên đến 70% giá trị bất động sản. Thời gian vay linh hoạt từ 10-20 năm. Đội ngũ tư vấn sẽ hỗ trợ khách hàng hoàn thiện hồ sơ vay một cách nhanh chóng và thuận lợi nhất.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item">
+                                            <div class="faq-header" onclick="toggleFaq(6)">
+                                                <h4>Có chính sách bảo hành sau bàn giao không?</h4>
+                                                <span class="faq-icon" id="faq-icon-6">+</span>
+                                            </div>
+                                            <div class="faq-content" id="faq-content-6">
+                                                <p>Dự án có chính sách bảo hành rõ ràng: bảo hành kết cấu 10 năm, hệ thống điện nước 2 năm, và các hạng mục hoàn thiện 1 năm. Ngoài ra, chúng tôi có đội ngũ dịch vụ hậu mãi chuyên nghiệp, sẵn sàng hỗ trợ khách hàng 24/7 sau khi bàn giao.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-4">
@@ -281,6 +494,35 @@
 @endsection
 @section('scripts')
 <script>
+    // FAQ Accordion functionality
+    function toggleFaq(index) {
+        const content = document.getElementById('faq-content-' + index);
+        const icon = document.getElementById('faq-icon-' + index);
+        
+        // Close all other FAQ items
+        const allContents = document.querySelectorAll('.faq-content');
+        const allIcons = document.querySelectorAll('.faq-icon');
+        
+        allContents.forEach((item, i) => {
+            if (i !== index - 1) {
+                item.classList.remove('active');
+                allIcons[i].classList.remove('active');
+                allIcons[i].textContent = '+';
+            }
+        });
+        
+        // Toggle current FAQ item
+        if (content.classList.contains('active')) {
+            content.classList.remove('active');
+            icon.classList.remove('active');
+            icon.textContent = '+';
+        } else {
+            content.classList.add('active');
+            icon.classList.add('active');
+            icon.textContent = '−';
+        }
+    }
+
     $(function(){
         console.log('Product detail ready');
         
