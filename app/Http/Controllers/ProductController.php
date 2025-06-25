@@ -51,6 +51,16 @@ class ProductController extends Controller
         $products = $query->paginate(20);
         return view('product.index',compact('catalogue','products','catalogues', 'wards', 'plans'));
     }
+    
+    public function searchPage()
+    {
+        $wards = Ward::All();
+        $plans = Plan::All();
+        $catalogues = Catalogue::orderBy('id','asc')->get();
+        $products = collect(); // Empty collection for initial page
+        return view('product.index',compact('catalogues','products', 'wards', 'plans'));
+    }
+    
     public function search(Request $request)
     {
         // Store search parameters in session if it's a POST request

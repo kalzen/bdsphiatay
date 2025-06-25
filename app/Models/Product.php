@@ -50,11 +50,11 @@ class Product extends Model
         $price = $this->price;
         if ($price < 1000000000 && $price > 100000000)
         {
-            return  ($price / 1000000) ."triệu ";
+            return  ($price / 1000000) ." triệu ";
         }
         if ($price >= 1000000000)
         {
-            return ($price / 1000000000)."tỷ";
+            return ($price / 1000000000)." tỷ";
         }
     }
     //public function attribute($id)

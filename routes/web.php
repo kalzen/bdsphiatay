@@ -38,7 +38,8 @@ Route::any('/gioi-thieu', [HomeController::class, 'about'])->name('about');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::any('/lien-he', [HomeController::class, 'contact'])->name('contact');
 Route::get('/du-an/{alias}', [App\Http\Controllers\ProductController::class, 'detail'])->name('product.detail');
-Route::any('/du-an/tim-kiem', [App\Http\Controllers\ProductController::class, 'search'])->name('product.search');
+Route::get('/du-an/tim-kiem', [App\Http\Controllers\ProductController::class, 'searchPage'])->name('product.search.page');
+Route::post('/du-an/tim-kiem', [App\Http\Controllers\ProductController::class, 'search'])->name('product.search');
 Route::get('/danh-muc/{alias}', [App\Http\Controllers\ProductController::class, 'catalogue'])->name('product.catalogue');
 
 // Change the ward route to use slug instead of ID
