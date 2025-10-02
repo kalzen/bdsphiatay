@@ -427,6 +427,17 @@ class ProductController extends Controller
             \Log::info('Simple Query Product (fixed): ' . $product->title . ' - Price: ' . $product->price);
         }
         
+        // Debug: Test query without with(['images', 'attributes'])
+        $noWithQuery = Product::where('status', 1)
+            ->where('price', '>=', 5000000000)
+            ->where('price', '<=', 10000000000)
+            ->where('ward_id', 1);
+        $noWithProducts = $noWithQuery->get();
+        \Log::info('Query without with() results: ' . $noWithProducts->count());
+        foreach($noWithProducts as $product) {
+            \Log::info('No with() Product: ' . $product->title . ' - Price: ' . $product->price);
+        }
+        
         // Debug: Test if price filter is being applied correctly
         $testQuery = clone $query;
         $testProducts = $testQuery->get();
@@ -460,7 +471,75 @@ class ProductController extends Controller
             \Log::info('Price filtered Product: ' . $product->title . ' - Price: ' . $product->price);
         }
         
-        $products = $query->orderBy('price', 'asc')->get();
+        // Final fix: Use raw SQL if price_range is set to avoid Laravel Query Builder bugs
+        if (isset($params['price_range']) && $params['price_range'] != '') {
+            \Log::info('Using raw SQL approach to avoid Query Builder bugs');
+            
+            $rawSql = "SELECT * FROM products WHERE status = 1";
+            $bindings = [1];
+            
+            // Apply price filter
+            if ($params['price_range'] == 1) {
+                $rawSql .= " AND price <= ?";
+                $bindings[] = 500000000;
+            } elseif ($params['price_range'] == 2) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 500000000;
+                $bindings[] = 1000000000;
+            } elseif ($params['price_range'] == 3) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 1000000000;
+                $bindings[] = 2000000000;
+            } elseif ($params['price_range'] == 4) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 2000000000;
+                $bindings[] = 3000000000;
+            } elseif ($params['price_range'] == 5) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 3000000000;
+                $bindings[] = 5000000000;
+            } elseif ($params['price_range'] == 6) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 5000000000;
+                $bindings[] = 10000000000;
+            } elseif ($params['price_range'] == 7) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 10000000000;
+                $bindings[] = 20000000000;
+            } elseif ($params['price_range'] == 8) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 20000000000;
+                $bindings[] = 30000000000;
+            } elseif ($params['price_range'] == 9) {
+                $rawSql .= " AND price >= ?";
+                $bindings[] = 30000000000;
+            }
+            
+            // Apply ward_id filter
+            if (isset($params['ward_id']) && $params['ward_id'] != '') {
+                $rawSql .= " AND ward_id = ?";
+                $bindings[] = $params['ward_id'];
+            }
+            
+            $rawSql .= " ORDER BY price ASC";
+            
+            \Log::info('Final Raw SQL: ' . $rawSql);
+            \Log::info('Final Raw SQL Bindings: ', $bindings);
+            
+            $rawResults = DB::select($rawSql, $bindings);
+            $productIds = collect($rawResults)->pluck('id')->toArray();
+            
+            if (!empty($productIds)) {
+                $products = Product::with(['images', 'attributes'])
+                    ->whereIn('id', $productIds)
+                    ->orderBy('price', 'asc')
+                    ->get();
+            } else {
+                $products = collect();
+            }
+        } else {
+            $products = $query->orderBy('price', 'asc')->get();
+        }
         
         // Debug: Log the results
         \Log::info('Products found: ' . $products->count());
