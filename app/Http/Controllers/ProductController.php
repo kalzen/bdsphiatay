@@ -504,13 +504,37 @@ class ProductController extends Controller
             \Log::info('Raw SQL: ' . $rawSql);
             \Log::info('Raw SQL Bindings: ', $bindings);
             
+            // Debug: Check price column data type
+            $priceColumnInfo = DB::select("DESCRIBE products price");
+            \Log::info('Price column info: ', $priceColumnInfo);
+            
+            // Debug: Check actual price values and types
+            $priceDebug = DB::select("SELECT id, title, price, TYPEOF(price) as price_type FROM products WHERE ward_id = 1 LIMIT 5");
+            \Log::info('Price debug info: ', $priceDebug);
+            
+            // Debug: Check MySQL version and configuration
+            $mysqlVersion = DB::select("SELECT VERSION() as version");
+            \Log::info('MySQL version: ', $mysqlVersion);
+            
+            // Debug: Test simple comparison
+            $simpleTest = DB::select("SELECT id, title, price FROM products WHERE ward_id = 1 AND price > 1000000000 LIMIT 3");
+            \Log::info('Simple price > 1 billion test: ', $simpleTest);
+            
             // Execute raw SQL
             $rawResults = DB::select($rawSql, $bindings);
             $productIds = collect($rawResults)->pluck('id')->toArray();
             
             \Log::info('Raw SQL results: ' . count($rawResults));
             foreach($rawResults as $product) {
-                \Log::info('Raw SQL Product: ' . $product->title . ' - Price: ' . $product->price);
+                \Log::info('Raw SQL Product: ' . $product->title . ' - Price: ' . $product->price . ' - Type: ' . gettype($product->price));
+            }
+            
+            // Debug: Test with explicit CAST
+            $castSql = "SELECT * FROM products WHERE status = ? AND ward_id = ? AND CAST(price AS DECIMAL(20,0)) >= ? AND CAST(price AS DECIMAL(20,0)) <= ? ORDER BY price ASC";
+            $castResults = DB::select($castSql, $bindings);
+            \Log::info('CAST SQL results: ' . count($castResults));
+            foreach($castResults as $product) {
+                \Log::info('CAST Product: ' . $product->title . ' - Price: ' . $product->price);
             }
             
             // Load products with relationships
