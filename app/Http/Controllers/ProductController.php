@@ -399,12 +399,48 @@ class ProductController extends Controller
         \Log::info('Final SQL Query: ' . $query->toSql());
         \Log::info('Query Bindings: ', $query->getBindings());
         
+        // Debug: Execute raw SQL to compare
+        $rawSql = "SELECT * FROM products WHERE status = 1 AND price BETWEEN 5000000000 AND 10000000000 AND ward_id = '1' ORDER BY price ASC";
+        $rawProducts = DB::select($rawSql);
+        \Log::info('Raw SQL results: ' . count($rawProducts));
+        foreach($rawProducts as $product) {
+            \Log::info('Raw SQL Product: ' . $product->title . ' - Price: ' . $product->price);
+        }
+        
         $products = $query->orderBy('price', 'asc')->get();
         
         // Debug: Log the results
         \Log::info('Products found: ' . $products->count());
         foreach($products as $product) {
-            \Log::info('Product: ' . $product->title . ' - Price: ' . $product->price);
+            \Log::info('Product: ' . $product->title . ' - Price: ' . $product->price . ' - Ward ID: ' . $product->ward_id);
+        }
+        
+        // Debug: Check if there are any products in the 5-10 billion range
+        $productsInRange = Product::where('status', 1)
+            ->whereBetween('price', [5000000000, 10000000000])
+            ->get();
+        \Log::info('Products in 5-10 billion range: ' . $productsInRange->count());
+        foreach($productsInRange as $product) {
+            \Log::info('Product in range: ' . $product->title . ' - Price: ' . $product->price);
+        }
+        
+        // Debug: Check products in ward_id = 1
+        $productsInWard = Product::where('status', 1)
+            ->where('ward_id', 1)
+            ->get();
+        \Log::info('Products in ward_id=1: ' . $productsInWard->count());
+        foreach($productsInWard as $product) {
+            \Log::info('Product in ward: ' . $product->title . ' - Price: ' . $product->price);
+        }
+        
+        // Debug: Check if there are products in ward_id=1 AND price range 5-10 billion
+        $productsInWardAndRange = Product::where('status', 1)
+            ->where('ward_id', 1)
+            ->whereBetween('price', [5000000000, 10000000000])
+            ->get();
+        \Log::info('Products in ward_id=1 AND 5-10 billion range: ' . $productsInWardAndRange->count());
+        foreach($productsInWardAndRange as $product) {
+            \Log::info('Product in ward and range: ' . $product->title . ' - Price: ' . $product->price);
         }
         
         return view('product.index',compact('products', 'wards', 'catalogues', 'plans'));
