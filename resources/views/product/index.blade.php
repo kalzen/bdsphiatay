@@ -25,7 +25,49 @@
     <meta property="og:url" content="{{url()->current()}}">
 @stop
 @section('styles')
+<style>
+/* Mobile responsive styles for product list */
+@media (max-width: 768px) {
+    .wrap-item {
+        padding: 0 10px !important;
+    }
+    
+    .col-sm-12 {
+        padding: 0 5px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .box-dream {
+        margin: 0 !important;
+    }
+    
+    .category-filter {
+        padding: 0 10px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .heading-listing {
+        font-size: 24px !important;
+        line-height: 32px !important;
+    }
+}
 
+@media (max-width: 480px) {
+    .wrap-item {
+        padding: 0 5px !important;
+    }
+    
+    .col-sm-12 {
+        padding: 0 2px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .heading-listing {
+        font-size: 20px !important;
+        line-height: 28px !important;
+    }
+}
+</style>
 @endsection
 @section('content')
 <section class="tf-map">
@@ -282,7 +324,7 @@
 </section>
 
             <section class="flat-featured flat-property-grid flat-property tf-section2 wg-dream home2" >
-                <div class="container">
+                <div class="container6">
                     <div class="row">                      
                         <div class="post">
                             <div class="category-filter flex justify-space align-center">
@@ -324,9 +366,9 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="wrap-item flex ">
+                            <div class="wrap-item flex " style="padding: 0 15px;">
                             @foreach($products as $product)
-                            <div class="col-lg-4 col-md-6 col-sm-12">
+                            <div class="col-lg-4 col-md-6 col-sm-12" style="padding: 0 10px; margin-bottom: 20px;">
                                                 <div class="box box-dream hv-one style-dream">
                                                     <div class="image-group relative ">
                                                         <span class="featured fs-12 fw-6">Nổi bật</span>   

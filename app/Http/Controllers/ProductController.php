@@ -81,18 +81,12 @@ class ProductController extends Controller
         if (isset($params['keyword'])) {
             $query->where('title','like','%'.$params['keyword'].'%');
         }
-        if (isset($params['price_range_min']) && $params['price_range_max'] > 0)
-        {
-            $query->where('price','>=',$params['price_range_min']*1000000);
-        }
-        if (isset($params['price_range_max']) && $params['price_range_max'] > 0)
-        {
-            $query->where('price','<=',$params['price_range_max']*1000000);
-        }
-        if(isset ($params['price_range']))
+        
+        // Price filtering logic - prioritize price_range over price_range_min/max
+        if(isset($params['price_range']) && $params['price_range'] != '')
         {
             if ($params['price_range'] == 1) {
-                $query->where('price','=<',500000000);
+                $query->where('price','<=',500000000);
               }
             elseif ($params['price_range'] == 2) {
                 $query->whereBetween('price',[500000000, 1000000000]);
@@ -118,7 +112,18 @@ class ProductController extends Controller
              elseif ($params['price_range'] == 9) {
                 $query->where('price','>=',30000000000);
               }      
-                  
+        }
+        else
+        {
+            // Fallback to price_range_min/max if price_range is not set
+            if (isset($params['price_range_min']) && $params['price_range_min'] > 0)
+            {
+                $query->where('price','>=',$params['price_range_min']*1000000);
+            }
+            if (isset($params['price_range_max']) && $params['price_range_max'] > 0)
+            {
+                $query->where('price','<=',$params['price_range_max']*1000000);
+            }
         }
         
         if (isset($params['direction']) && $params['direction'] !='')
