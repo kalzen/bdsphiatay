@@ -81,6 +81,15 @@ class ProductController extends Controller
         // Debug: Log the parameters being used
         \Log::info('Search Parameters: ', $params);
         
+        // Debug: Check which filters are being applied
+        \Log::info('Direction isset: ' . (isset($params['direction']) ? 'Yes' : 'No'));
+        \Log::info('Front isset: ' . (isset($params['front']) ? 'Yes' : 'No'));
+        \Log::info('Area isset: ' . (isset($params['area']) ? 'Yes' : 'No'));
+        \Log::info('Road isset: ' . (isset($params['road']) ? 'Yes' : 'No'));
+        \Log::info('Type isset: ' . (isset($params['type']) ? 'Yes' : 'No'));
+        \Log::info('Function isset: ' . (isset($params['function']) ? 'Yes' : 'No'));
+        \Log::info('Khuvuc isset: ' . (isset($params['khuvuc']) ? 'Yes' : 'No'));
+        
         $wards = Ward::All();
         $plans = Plan::All();
         $catalogues = Catalogue::orderBy('id','asc')->get();
@@ -142,14 +151,15 @@ class ProductController extends Controller
             }
         }
         
-        if (isset($params['direction']) && $params['direction'] !='')
+        if (isset($params['direction']) && is_array($params['direction']) && !empty(array_filter($params['direction'])))
         {
-            $direction = $params['direction'];
+            \Log::info('Applying direction filter: ', $params['direction']);
+            $direction = array_filter($params['direction']); // Remove empty values
             $query->whereHas('attributes',function ($query) use($direction)
                     {
                         foreach ($direction as $key => $value)
                         {
-                            if ($value)
+                            if ($value && trim($value) != '') // Check for non-empty values
                             {
                             if ($key == 0)
                             {
@@ -163,9 +173,10 @@ class ProductController extends Controller
                         }
                     });
         }
-        if (isset($params['front']))
+        if (isset($params['front']) && is_array($params['front']) && !empty(array_filter($params['front'])))
         {
-            $front = $params['front'];
+            \Log::info('Applying front filter: ', $params['front']);
+            $front = array_filter($params['front']);
             $query->whereHas('attributes',function ($query) use($front)
                     {
                         $query->where('attribute_id', '=', 6);
@@ -214,9 +225,10 @@ class ProductController extends Controller
                         }
                     });
         }
-        if (isset($params['area']))
+        if (isset($params['area']) && is_array($params['area']) && !empty(array_filter($params['area'])))
         {
-            $area = $params['area'];
+            \Log::info('Applying area filter: ', $params['area']);
+            $area = array_filter($params['area']);
             $query->whereHas('attributes',function ($query) use($area)
                     {
                         $query->where('attribute_id', '=', 3);
@@ -289,9 +301,9 @@ class ProductController extends Controller
                         }
                     });
         }
-        if (isset($params['road']))
+        if (isset($params['road']) && is_array($params['road']) && !empty(array_filter($params['road'])))
         {
-            $road = $params['road'];
+            $road = array_filter($params['road']);
             $query->whereHas('attributes',function ($query) use($road)
                     {
                         $query->where('attribute_id', '=', 3);
@@ -353,7 +365,7 @@ class ProductController extends Controller
         {
             $query->where('ward_id',$params['ward_id']);
         }
-        if (isset($params['type']))
+        if (isset($params['type']) && $params['type'] != '')
         {
             $type = $params['type'];
             $query->whereHas('attributes',function ($query) use($type)
@@ -362,7 +374,7 @@ class ProductController extends Controller
                 $query->where('value','like','%'.$type.'%');
             });
         }
-        if (isset($params['function']))
+        if (isset($params['function']) && $params['function'] != '')
         {
             $function = $params['function'];
             $query->whereHas('attributes',function ($query) use($function)
@@ -371,7 +383,7 @@ class ProductController extends Controller
                 $query->where('value','like','%'.$function.'%');
             });
         }
-        if (isset($params['khuvuc']))
+        if (isset($params['khuvuc']) && $params['khuvuc'] != '')
         {
             $khuvuc = $params['khuvuc'];
             $query->whereHas('attributes',function ($query) use($khuvuc)
