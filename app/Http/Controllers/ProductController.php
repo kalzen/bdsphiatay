@@ -72,6 +72,17 @@ class ProductController extends Controller
         // Get parameters - either from POST or from session for subsequent pages
         $params = $request->isMethod('post') ? $request->all() : session('search_params', []);
         
+        // Clear session if no parameters are provided (for debugging)
+        if ($request->has('clear_session')) {
+            $request->session()->forget('search_params');
+            $params = [];
+        }
+        
+        // Debug: Log the parameters being used
+        \Log::info('Search Parameters: ', $params);
+        \Log::info('Request Method: ' . $request->method());
+        \Log::info('Is POST: ' . ($request->isMethod('post') ? 'Yes' : 'No'));
+        
         $wards = Ward::All();
         $plans = Plan::All();
         $catalogues = Catalogue::orderBy('id','asc')->get();
@@ -85,32 +96,42 @@ class ProductController extends Controller
         // Price filtering logic - prioritize price_range over price_range_min/max
         if(isset($params['price_range']) && $params['price_range'] != '')
         {
+            \Log::info('Applying price_range filter: ' . $params['price_range']);
             if ($params['price_range'] == 1) {
                 $query->where('price','<=',500000000);
+                \Log::info('Price filter: <= 500,000,000');
               }
             elseif ($params['price_range'] == 2) {
                 $query->whereBetween('price',[500000000, 1000000000]);
+                \Log::info('Price filter: 500,000,000 - 1,000,000,000');
               }
             elseif ($params['price_range'] == 3) {
                 $query->whereBetween('price',[1000000000, 2000000000]);
+                \Log::info('Price filter: 1,000,000,000 - 2,000,000,000');
               }
             elseif ($params['price_range'] == 4) {
                 $query->whereBetween('price',[2000000000, 3000000000]);
+                \Log::info('Price filter: 2,000,000,000 - 3,000,000,000');
               }
             elseif ($params['price_range'] == 5) {
                 $query->whereBetween('price',[3000000000, 5000000000]);
+                \Log::info('Price filter: 3,000,000,000 - 5,000,000,000');
               }
             elseif ($params['price_range'] == 6) {
                 $query->whereBetween('price',[5000000000, 10000000000]);
+                \Log::info('Price filter: 5,000,000,000 - 10,000,000,000');
               }
             elseif ($params['price_range'] == 7) {
                 $query->whereBetween('price',[10000000000, 20000000000]);
+                \Log::info('Price filter: 10,000,000,000 - 20,000,000,000');
               }
             elseif ($params['price_range'] == 8) {
                 $query->whereBetween('price',[20000000000, 30000000000]);
+                \Log::info('Price filter: 20,000,000,000 - 30,000,000,000');
               }
              elseif ($params['price_range'] == 9) {
                 $query->where('price','>=',30000000000);
+                \Log::info('Price filter: >= 30,000,000,000');
               }      
         }
         else
@@ -333,8 +354,9 @@ class ProductController extends Controller
                         }
                     });
         }
-        if (isset($params['ward_id']))
+        if (isset($params['ward_id']) && $params['ward_id'] != '')
         {
+            \Log::info('Applying ward_id filter: ' . $params['ward_id']);
             $query->where('ward_id',$params['ward_id']);
         }
         if (isset($params['type']))
@@ -372,7 +394,18 @@ class ProductController extends Controller
            // var_dump($product_ids);
             $query->whereIn('id', $product_ids);
         }
+        
+        // Debug: Log the final query
+        \Log::info('Final SQL Query: ' . $query->toSql());
+        \Log::info('Query Bindings: ', $query->getBindings());
+        
         $products = $query->orderBy('price', 'asc')->get();
+        
+        // Debug: Log the results
+        \Log::info('Products found: ' . $products->count());
+        foreach($products as $product) {
+            \Log::info('Product: ' . $product->title . ' - Price: ' . $product->price);
+        }
         
         return view('product.index',compact('products', 'wards', 'catalogues', 'plans'));
     }
