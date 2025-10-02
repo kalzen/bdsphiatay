@@ -149,6 +149,7 @@ class ProductController extends Controller
         
         if (isset($params['direction']) && $params['direction'] !='')
         {
+            \Log::info('Applying direction filter: ', $params['direction']);
             $direction = $params['direction'];
             $query->whereHas('attributes',function ($query) use($direction)
                     {
@@ -405,6 +406,48 @@ class ProductController extends Controller
         \Log::info('Raw SQL results: ' . count($rawProducts));
         foreach($rawProducts as $product) {
             \Log::info('Raw SQL Product: ' . $product->title . ' - Price: ' . $product->price);
+        }
+        
+        // Debug: Test simple Laravel query without whereHas
+        $simpleQuery = Product::where('status', 1)
+            ->whereBetween('price', [5000000000, 10000000000])
+            ->where('ward_id', 1);
+        $simpleProducts = $simpleQuery->get();
+        \Log::info('Simple Laravel Query results: ' . $simpleProducts->count());
+        foreach($simpleProducts as $product) {
+            \Log::info('Simple Query Product: ' . $product->title . ' - Price: ' . $product->price);
+        }
+        
+        // Debug: Test if price filter is being applied correctly
+        $testQuery = clone $query;
+        $testProducts = $testQuery->get();
+        \Log::info('Test query results before price filter: ' . $testProducts->count());
+        
+        // Apply price filter separately to test
+        $priceFilteredQuery = Product::where('status', 1)
+            ->whereBetween('price', [5000000000, 10000000000])
+            ->where('ward_id', 1);
+        
+        // Apply other filters one by one
+        if (isset($params['direction']) && $params['direction'] != '') {
+            $direction = $params['direction'];
+            $priceFilteredQuery->whereHas('attributes', function ($q) use($direction) {
+                foreach ($direction as $key => $value) {
+                    if ($value) {
+                        if ($key == 0) {
+                            $q->where('value', '=', $value);
+                        } else {
+                            $q->orwhere('value', '=', $value);
+                        }
+                    }
+                }
+            });
+        }
+        
+        $priceFilteredProducts = $priceFilteredQuery->get();
+        \Log::info('Price filtered query results: ' . $priceFilteredProducts->count());
+        foreach($priceFilteredProducts as $product) {
+            \Log::info('Price filtered Product: ' . $product->title . ' - Price: ' . $product->price);
         }
         
         $products = $query->orderBy('price', 'asc')->get();
