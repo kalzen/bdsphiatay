@@ -102,31 +102,39 @@ class ProductController extends Controller
                 \Log::info('Price filter: <= 500,000,000');
               }
             elseif ($params['price_range'] == 2) {
-                $query->whereBetween('price',[500000000, 1000000000]);
+                $query->where('price', '>=', 500000000)
+                      ->where('price', '<=', 1000000000);
                 \Log::info('Price filter: 500,000,000 - 1,000,000,000');
               }
             elseif ($params['price_range'] == 3) {
-                $query->whereBetween('price',[1000000000, 2000000000]);
+                $query->where('price', '>=', 1000000000)
+                      ->where('price', '<=', 2000000000);
                 \Log::info('Price filter: 1,000,000,000 - 2,000,000,000');
               }
             elseif ($params['price_range'] == 4) {
-                $query->whereBetween('price',[2000000000, 3000000000]);
+                $query->where('price', '>=', 2000000000)
+                      ->where('price', '<=', 3000000000);
                 \Log::info('Price filter: 2,000,000,000 - 3,000,000,000');
               }
             elseif ($params['price_range'] == 5) {
-                $query->whereBetween('price',[3000000000, 5000000000]);
+                $query->where('price', '>=', 3000000000)
+                      ->where('price', '<=', 5000000000);
                 \Log::info('Price filter: 3,000,000,000 - 5,000,000,000');
               }
             elseif ($params['price_range'] == 6) {
-                $query->whereBetween('price',[5000000000, 10000000000]);
-                \Log::info('Price filter: 5,000,000,000 - 10,000,000,000');
+                // Fix Laravel Query Builder bug with whereBetween
+                $query->where('price', '>=', 5000000000)
+                      ->where('price', '<=', 10000000000);
+                \Log::info('Price filter: 5,000,000,000 - 10,000,000,000 (using separate where)');
               }
             elseif ($params['price_range'] == 7) {
-                $query->whereBetween('price',[10000000000, 20000000000]);
+                $query->where('price', '>=', 10000000000)
+                      ->where('price', '<=', 20000000000);
                 \Log::info('Price filter: 10,000,000,000 - 20,000,000,000');
               }
             elseif ($params['price_range'] == 8) {
-                $query->whereBetween('price',[20000000000, 30000000000]);
+                $query->where('price', '>=', 20000000000)
+                      ->where('price', '<=', 30000000000);
                 \Log::info('Price filter: 20,000,000,000 - 30,000,000,000');
               }
              elseif ($params['price_range'] == 9) {
@@ -408,14 +416,15 @@ class ProductController extends Controller
             \Log::info('Raw SQL Product: ' . $product->title . ' - Price: ' . $product->price);
         }
         
-        // Debug: Test simple Laravel query without whereHas
+        // Debug: Test simple Laravel query without whereHas (using separate where)
         $simpleQuery = Product::where('status', 1)
-            ->whereBetween('price', [5000000000, 10000000000])
+            ->where('price', '>=', 5000000000)
+            ->where('price', '<=', 10000000000)
             ->where('ward_id', 1);
         $simpleProducts = $simpleQuery->get();
-        \Log::info('Simple Laravel Query results: ' . $simpleProducts->count());
+        \Log::info('Simple Laravel Query results (fixed): ' . $simpleProducts->count());
         foreach($simpleProducts as $product) {
-            \Log::info('Simple Query Product: ' . $product->title . ' - Price: ' . $product->price);
+            \Log::info('Simple Query Product (fixed): ' . $product->title . ' - Price: ' . $product->price);
         }
         
         // Debug: Test if price filter is being applied correctly
@@ -423,9 +432,10 @@ class ProductController extends Controller
         $testProducts = $testQuery->get();
         \Log::info('Test query results before price filter: ' . $testProducts->count());
         
-        // Apply price filter separately to test
+        // Apply price filter separately to test (using separate where)
         $priceFilteredQuery = Product::where('status', 1)
-            ->whereBetween('price', [5000000000, 10000000000])
+            ->where('price', '>=', 5000000000)
+            ->where('price', '<=', 10000000000)
             ->where('ward_id', 1);
         
         // Apply other filters one by one
