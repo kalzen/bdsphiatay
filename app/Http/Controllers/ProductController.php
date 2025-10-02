@@ -448,8 +448,89 @@ class ProductController extends Controller
             \Log::info('All Product: ' . $product->title . ' - Price: ' . $product->price . ' - Status: ' . $product->status);
         }
         
-        // Optimized approach: Use simple Query Builder without complex relationships
-        $products = $query->orderBy('price', 'asc')->get();
+        // FINAL FIX: Use Raw SQL to bypass Laravel Query Builder bug
+        if (isset($params['price_range']) && $params['price_range'] != '') {
+            \Log::info('Using Raw SQL to bypass Laravel Query Builder bug');
+            
+            // Build Raw SQL query
+            $rawSql = "SELECT * FROM products WHERE status = 1";
+            $bindings = [1];
+            
+            // Apply price filter
+            if ($params['price_range'] == 1) {
+                $rawSql .= " AND price <= ?";
+                $bindings[] = 500000000;
+            } elseif ($params['price_range'] == 2) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 500000000;
+                $bindings[] = 1000000000;
+            } elseif ($params['price_range'] == 3) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 1000000000;
+                $bindings[] = 2000000000;
+            } elseif ($params['price_range'] == 4) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 2000000000;
+                $bindings[] = 3000000000;
+            } elseif ($params['price_range'] == 5) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 3000000000;
+                $bindings[] = 5000000000;
+            } elseif ($params['price_range'] == 6) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 5000000000;
+                $bindings[] = 10000000000;
+            } elseif ($params['price_range'] == 7) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 10000000000;
+                $bindings[] = 20000000000;
+            } elseif ($params['price_range'] == 8) {
+                $rawSql .= " AND price >= ? AND price <= ?";
+                $bindings[] = 20000000000;
+                $bindings[] = 30000000000;
+            } elseif ($params['price_range'] == 9) {
+                $rawSql .= " AND price >= ?";
+                $bindings[] = 30000000000;
+            }
+            
+            // Apply ward_id filter
+            if (isset($params['ward_id']) && $params['ward_id'] != '') {
+                $rawSql .= " AND ward_id = ?";
+                $bindings[] = $params['ward_id'];
+            }
+            
+            $rawSql .= " ORDER BY price ASC";
+            
+            \Log::info('Raw SQL: ' . $rawSql);
+            \Log::info('Raw SQL Bindings: ', $bindings);
+            
+            // Execute raw SQL
+            $rawResults = DB::select($rawSql, $bindings);
+            $productIds = collect($rawResults)->pluck('id')->toArray();
+            
+            \Log::info('Raw SQL results: ' . count($rawResults));
+            foreach($rawResults as $product) {
+                \Log::info('Raw SQL Product: ' . $product->title . ' - Price: ' . $product->price);
+            }
+            
+            // Load products with relationships
+            if (!empty($productIds)) {
+                $products = Product::with(['images', 'attributes'])
+                    ->whereIn('id', $productIds)
+                    ->orderBy('price', 'asc')
+                    ->get();
+            } else {
+                $products = collect();
+            }
+        } else {
+            // Use Query Builder for non-price-range searches
+            $products = $query->orderBy('price', 'asc')->get();
+            
+            // Load relationships separately
+            if ($products->count() > 0) {
+                $products->load(['images', 'attributes']);
+            }
+        }
         
       
         // Debug: Log the results
