@@ -505,11 +505,11 @@ class ProductController extends Controller
             \Log::info('Raw SQL Bindings: ', $bindings);
             
             // Debug: Check price column data type
-            $priceColumnInfo = DB::select("DESCRIBE products price");
-            \Log::info('Price column info: ', $priceColumnInfo);
+            $priceColumnInfo = DB::select("DESCRIBE products");
+            \Log::info('Products table structure: ', $priceColumnInfo);
             
-            // Debug: Check actual price values and types
-            $priceDebug = DB::select("SELECT id, title, price, TYPEOF(price) as price_type FROM products WHERE ward_id = 1 LIMIT 5");
+            // Debug: Check actual price values
+            $priceDebug = DB::select("SELECT id, title, price FROM products WHERE ward_id = 1 LIMIT 5");
             \Log::info('Price debug info: ', $priceDebug);
             
             // Debug: Check MySQL version and configuration
@@ -519,6 +519,10 @@ class ProductController extends Controller
             // Debug: Test simple comparison
             $simpleTest = DB::select("SELECT id, title, price FROM products WHERE ward_id = 1 AND price > 1000000000 LIMIT 3");
             \Log::info('Simple price > 1 billion test: ', $simpleTest);
+            
+            // Debug: Test exact values
+            $exactTest = DB::select("SELECT id, title, price FROM products WHERE ward_id = 1 AND price = 1050000000");
+            \Log::info('Exact price = 1050000000 test: ', $exactTest);
             
             // Execute raw SQL
             $rawResults = DB::select($rawSql, $bindings);
@@ -535,6 +539,19 @@ class ProductController extends Controller
             \Log::info('CAST SQL results: ' . count($castResults));
             foreach($castResults as $product) {
                 \Log::info('CAST Product: ' . $product->title . ' - Price: ' . $product->price);
+            }
+            
+            // Debug: Test with string comparison
+            $stringSql = "SELECT * FROM products WHERE status = ? AND ward_id = ? AND price >= ? AND price <= ? ORDER BY price ASC";
+            $stringResults = DB::select($stringSql, $bindings);
+            \Log::info('String SQL results: ' . count($stringResults));
+            
+            // Debug: Test with different approach - use the exact values from phpMyAdmin
+            $exactSql = "SELECT * FROM products WHERE status = 1 AND ward_id = 1 AND price BETWEEN 5000000000 AND 10000000000 ORDER BY price ASC";
+            $exactResults = DB::select($exactSql);
+            \Log::info('Exact BETWEEN SQL results: ' . count($exactResults));
+            foreach($exactResults as $product) {
+                \Log::info('Exact BETWEEN Product: ' . $product->title . ' - Price: ' . $product->price);
             }
             
             // Load products with relationships
