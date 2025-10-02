@@ -237,77 +237,89 @@ class ProductController extends Controller
             \Log::info('Applying area filter: ', $params['area']);
             $area = array_filter($params['area']);
             \Log::info('Area after filter: ', $area);
-            $query->whereHas('attributes',function ($query) use($area)
-                    {
-                        $query->where('attribute_id', '=', 3);
-                        foreach ($area as $key => $value)
+            
+            // Check if area contains only "0" values
+            $areaWithoutZero = array_filter($area, function($value) {
+                return $value != '0' && $value != 0;
+            });
+            \Log::info('Area without zero: ', $areaWithoutZero);
+            
+            if (empty($areaWithoutZero)) {
+                \Log::info('Area filter contains only zero values, skipping...');
+                // Don't apply area filter if it only contains "0"
+            } else {
+                $query->whereHas('attributes',function ($query) use($area)
                         {
+                            $query->where('attribute_id', '=', 3);
+                            foreach ($area as $key => $value)
+                            {
+                                
+                                if ($key == 0)
+                                {
+                                    if ($value == 1)
+                                    {
+                                    $query->whereRaw('CAST(value as float) < 100');
+                                    }
+                                    elseif ($value == 2)
+                                    {
+                                    $query->whereRaw('CAST(value as float) between 100 and 300');
+                                    }
+                                    elseif ($value == 3)
+                                    {
+                                    $query->whereRaw('CAST(value as float) between 300 and 500');
+                                    }
+                                    elseif ($value == 4)
+                                    {
+                                    $query->whereRaw('CAST(value as float) between 500 and 1000');
+                                    }
+                                    elseif ($value == 5)
+                                    {
+                                    $query->whereRaw('CAST(value as float) between 1000 and 5000');
+                                    }
+                                    elseif ($value == 6)
+                                    {
+                                    $query->whereRaw('CAST(value as float) between 10000 and 50000');
+                                    }
+                                    elseif ($value == 7)
+                                    {
+                                    $query->whereRaw('CAST(value as float) > 50000');
+                                    }
+                                }
+                                else
+                                {
+                                    if ($value == 1)
+                                    {
+                                    $query->orwhereRaw('CAST(value as float) < 100');
+                                    }
+                                    elseif ($value == 2)
+                                    {
+                                    $query->orwhereRaw('CAST(value as float) between 100 and 300');
+                                    }
+                                    elseif ($value == 3)
+                                    {
+                                    $query->orwhereRaw('CAST(value as float) between 300 and 500');
+                                    }
+                                    elseif ($value == 4)
+                                    {
+                                    $query->orwhereRaw('CAST(value as float) between 500 and 1000');
+                                    }
+                                    elseif ($value == 5)
+                                    {
+                                    $query->orwhereRaw('CAST(value as float) between 1000 and 5000');
+                                    }
+                                    elseif ($value == 6)
+                                    {
+                                    $query->orwhereRaw('CAST(value as float) between 10000 and 50000');
+                                    }
+                                    elseif ($value == 7)
+                                    {
+                                    $query->orwhereRaw('CAST(value as float) > 50000');
+                                    }
+                                }
                             
-                            if ($key == 0)
-                            {
-                                if ($value == 1)
-                                {
-                                $query->whereRaw('CAST(value as float) < 100');
-                                }
-                                elseif ($value == 2)
-                                {
-                                $query->whereRaw('CAST(value as float) between 100 and 300');
-                                }
-                                elseif ($value == 3)
-                                {
-                                $query->whereRaw('CAST(value as float) between 300 and 500');
-                                }
-                                elseif ($value == 4)
-                                {
-                                $query->whereRaw('CAST(value as float) between 500 and 1000');
-                                }
-                                elseif ($value == 5)
-                                {
-                                $query->whereRaw('CAST(value as float) between 1000 and 5000');
-                                }
-                                elseif ($value == 6)
-                                {
-                                $query->whereRaw('CAST(value as float) between 10000 and 50000');
-                                }
-                                elseif ($value == 7)
-                                {
-                                $query->whereRaw('CAST(value as float) > 50000');
-                                }
                             }
-                            else
-                            {
-                                if ($value == 1)
-                                {
-                                $query->orwhereRaw('CAST(value as float) < 100');
-                                }
-                                elseif ($value == 2)
-                                {
-                                $query->orwhereRaw('CAST(value as float) between 100 and 300');
-                                }
-                                elseif ($value == 3)
-                                {
-                                $query->orwhereRaw('CAST(value as float) between 300 and 500');
-                                }
-                                elseif ($value == 4)
-                                {
-                                $query->orwhereRaw('CAST(value as float) between 500 and 1000');
-                                }
-                                elseif ($value == 5)
-                                {
-                                $query->orwhereRaw('CAST(value as float) between 1000 and 5000');
-                                }
-                                elseif ($value == 6)
-                                {
-                                $query->orwhereRaw('CAST(value as float) between 10000 and 50000');
-                                }
-                                elseif ($value == 7)
-                                {
-                                $query->orwhereRaw('CAST(value as float) > 50000');
-                                }
-                            }
-                        
-                        }
-                    });
+                        });
+            }
         }
         if (isset($params['road']) && is_array($params['road']) && !empty(array_filter($params['road'])))
         {
@@ -423,6 +435,17 @@ class ProductController extends Controller
         \Log::info('Test query results: ' . $testProducts->count());
         foreach($testProducts as $product) {
             \Log::info('Test Product: ' . $product->title . ' - Price: ' . $product->price);
+        }
+        
+        // Debug: Check database connection and table
+        \Log::info('Database connection: ' . DB::connection()->getName());
+        \Log::info('Database name: ' . DB::connection()->getDatabaseName());
+        
+        // Debug: Check if products exist in database
+        $allProducts = Product::where('ward_id', 1)->get();
+        \Log::info('All products in ward_id=1: ' . $allProducts->count());
+        foreach($allProducts as $product) {
+            \Log::info('All Product: ' . $product->title . ' - Price: ' . $product->price . ' - Status: ' . $product->status);
         }
         
         // Optimized approach: Use simple Query Builder without complex relationships
