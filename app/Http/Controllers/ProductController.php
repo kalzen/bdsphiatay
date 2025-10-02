@@ -396,11 +396,7 @@ class ProductController extends Controller
         // Optimized approach: Use simple Query Builder without complex relationships
         $products = $query->orderBy('price', 'asc')->get();
         
-        // Load relationships separately to avoid exists clauses conflicts
-        if ($products->count() > 0) {
-            $products->load(['images', 'attributes']);
-        }
-        
+      
         // Debug: Log the results
         \Log::info('Products found: ' . $products->count());
         foreach($products as $product) {
