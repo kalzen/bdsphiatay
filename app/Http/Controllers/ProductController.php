@@ -452,9 +452,15 @@ class ProductController extends Controller
         if (isset($params['price_range']) && $params['price_range'] != '') {
             \Log::info('Using Raw SQL to bypass Laravel Query Builder bug');
             
-            // Build Raw SQL query
-            $rawSql = "SELECT * FROM products WHERE status = 1";
+            // Build Raw SQL query with proper parameter order
+            $rawSql = "SELECT * FROM products WHERE status = ?";
             $bindings = [1];
+            
+            // Apply ward_id filter first
+            if (isset($params['ward_id']) && $params['ward_id'] != '') {
+                $rawSql .= " AND ward_id = ?";
+                $bindings[] = $params['ward_id'];
+            }
             
             // Apply price filter
             if ($params['price_range'] == 1) {
@@ -491,12 +497,6 @@ class ProductController extends Controller
             } elseif ($params['price_range'] == 9) {
                 $rawSql .= " AND price >= ?";
                 $bindings[] = 30000000000;
-            }
-            
-            // Apply ward_id filter
-            if (isset($params['ward_id']) && $params['ward_id'] != '') {
-                $rawSql .= " AND ward_id = ?";
-                $bindings[] = $params['ward_id'];
             }
             
             $rawSql .= " ORDER BY price ASC";
