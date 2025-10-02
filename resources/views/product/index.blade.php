@@ -28,21 +28,28 @@
 <style>
 /* Mobile responsive styles for product list */
 @media (max-width: 768px) {
+    .container6 {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+    
     .wrap-item {
-        padding: 0 10px !important;
+        padding: 0 15px !important;
+        margin: 0 !important;
     }
     
     .col-sm-12 {
-        padding: 0 5px !important;
+        padding: 0 8px !important;
         margin-bottom: 15px !important;
     }
     
     .box-dream {
         margin: 0 !important;
+        width: 100% !important;
     }
     
     .category-filter {
-        padding: 0 10px !important;
+        padding: 0 15px !important;
         margin-bottom: 20px !important;
     }
     
@@ -50,22 +57,46 @@
         font-size: 24px !important;
         line-height: 32px !important;
     }
+    
+    .post {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
 }
 
 @media (max-width: 480px) {
+    .container6 {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+    
     .wrap-item {
-        padding: 0 5px !important;
+        padding: 0 10px !important;
+        margin: 0 !important;
     }
     
     .col-sm-12 {
-        padding: 0 2px !important;
+        padding: 0 5px !important;
         margin-bottom: 10px !important;
+    }
+    
+    .category-filter {
+        padding: 0 10px !important;
     }
     
     .heading-listing {
         font-size: 20px !important;
         line-height: 28px !important;
     }
+}
+
+/* Ensure no horizontal overflow */
+* {
+    box-sizing: border-box !important;
+}
+
+.wrap-item {
+    overflow-x: hidden !important;
 }
 </style>
 @endsection
@@ -366,9 +397,9 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="wrap-item flex " style="padding: 0 15px;">
+                            <div class="wrap-item flex">
                             @foreach($products as $product)
-                            <div class="col-lg-4 col-md-6 col-sm-12" style="padding: 0 10px; margin-bottom: 20px;">
+                            <div class="col-lg-4 col-md-6 col-sm-12">
                                                 <div class="box box-dream hv-one style-dream">
                                                     <div class="image-group relative ">
                                                         <span class="featured fs-12 fw-6">Nổi bật</span>   
