@@ -63,50 +63,28 @@ class ProductController extends Controller
     
     public function search(Request $request)
     {
-        // Store search parameters in session if it's a POST request
         if ($request->isMethod('post')) {
             $request->flash();
             $request->session()->put('search_params', $request->all());
         }
 
-        // Get parameters - either from POST or from session for subsequent pages
         $params = $request->isMethod('post') ? $request->all() : session('search_params', []);
         
-        // Clear session if no parameters are provided (for debugging)
         if ($request->has('clear_session')) {
             $request->session()->forget('search_params');
             $params = [];
         }
         
-        // Debug: Log the parameters being used
-        \Log::info('Search Parameters: ', $params);
-        
-        // Debug: Check which filters are being applied
-        \Log::info('Direction isset: ' . (isset($params['direction']) ? 'Yes' : 'No'));
-        if (isset($params['direction'])) {
-            \Log::info('Direction value: ', $params['direction']);
-        }
-        \Log::info('Front isset: ' . (isset($params['front']) ? 'Yes' : 'No'));
-        \Log::info('Area isset: ' . (isset($params['area']) ? 'Yes' : 'No'));
-        if (isset($params['area'])) {
-            \Log::info('Area value: ', $params['area']);
-        }
-        \Log::info('Road isset: ' . (isset($params['road']) ? 'Yes' : 'No'));
-        \Log::info('Type isset: ' . (isset($params['type']) ? 'Yes' : 'No'));
-        \Log::info('Function isset: ' . (isset($params['function']) ? 'Yes' : 'No'));
-        \Log::info('Khuvuc isset: ' . (isset($params['khuvuc']) ? 'Yes' : 'No'));
         
         $wards = Ward::All();
         $plans = Plan::All();
         $catalogues = Catalogue::orderBy('id','asc')->get();
-        $query = Product::active(); // Remove with() to avoid exists clauses conflicts
+        $query = Product::active();
 
-        // Use saved parameters for filtering
         if (isset($params['keyword'])) {
             $query->where('title','like','%'.$params['keyword'].'%');
         }
         
-        // Price filtering logic - prioritize price_range over price_range_min/max
         if(isset($params['price_range']) && $params['price_range'] != '')
         {
             if ($params['price_range'] == 1) {
@@ -146,7 +124,6 @@ class ProductController extends Controller
         }
         else
         {
-            // Fallback to price_range_min/max if price_range is not set
             if (isset($params['price_range_min']) && $params['price_range_min'] > 0)
             {
                 $query->where('price','>=',$params['price_range_min']*1000000);
@@ -159,14 +136,12 @@ class ProductController extends Controller
         
         if (isset($params['direction']) && is_array($params['direction']) && !empty(array_filter($params['direction'])))
         {
-            \Log::info('Applying direction filter: ', $params['direction']);
-            $direction = array_filter($params['direction']); // Remove empty values
-            \Log::info('Direction after filter: ', $direction);
+            $direction = array_filter($params['direction']);
             $query->whereHas('attributes',function ($query) use($direction)
                     {
                         foreach ($direction as $key => $value)
                         {
-                            if ($value && trim($value) != '') // Check for non-empty values
+                            if ($value && trim($value) != '')
                             {
                             if ($key == 0)
                             {
@@ -182,7 +157,6 @@ class ProductController extends Controller
         }
         if (isset($params['front']) && is_array($params['front']) && !empty(array_filter($params['front'])))
         {
-            \Log::info('Applying front filter: ', $params['front']);
             $front = array_filter($params['front']);
             $query->whereHas('attributes',function ($query) use($front)
                     {
@@ -234,19 +208,14 @@ class ProductController extends Controller
         }
         if (isset($params['area']) && is_array($params['area']) && !empty(array_filter($params['area'])))
         {
-            \Log::info('Applying area filter: ', $params['area']);
             $area = array_filter($params['area']);
-            \Log::info('Area after filter: ', $area);
             
             // Check if area contains only "0" values
             $areaWithoutZero = array_filter($area, function($value) {
                 return $value != '0' && $value != 0;
             });
-            \Log::info('Area without zero: ', $areaWithoutZero);
             
             if (empty($areaWithoutZero)) {
-                \Log::info('Area filter contains only zero values, skipping...');
-                // Don't apply area filter if it only contains "0"
             } else {
                 $query->whereHas('attributes',function ($query) use($area)
                         {
@@ -414,55 +383,21 @@ class ProductController extends Controller
         }
         if (isset($params['plan_id']))
         {
-            //$plans = $params['plans'];
             $product_ids = DB::table('plan_product')->whereIn('id',$params['plan_id'])->pluck('product_id')
                             ->toArray();
-           // var_dump($product_ids);
             $query->whereIn('id', $product_ids);
         }
         
-        // Debug: Log final query for verification
-        \Log::info('Final SQL Query: ' . $query->toSql());
-        \Log::info('Query Bindings: ', $query->getBindings());
         
-        // Test: Create a completely fresh query to compare
-        $testQuery = Product::where('status', 1)
-            ->where('price', '>=', 5000000000)
-            ->where('price', '<=', 10000000000)
-            ->where('ward_id', 1);
-        
-        $testProducts = $testQuery->get();
-        \Log::info('Test query results: ' . $testProducts->count());
-        foreach($testProducts as $product) {
-            \Log::info('Test Product: ' . $product->title . ' - Price: ' . $product->price);
-        }
-        
-        // Debug: Check database connection and table
-        \Log::info('Database connection: ' . DB::connection()->getName());
-        \Log::info('Database name: ' . DB::connection()->getDatabaseName());
-        
-        // Debug: Check if products exist in database
-        $allProducts = Product::where('ward_id', 1)->get();
-        \Log::info('All products in ward_id=1: ' . $allProducts->count());
-        foreach($allProducts as $product) {
-            \Log::info('All Product: ' . $product->title . ' - Price: ' . $product->price . ' - Status: ' . $product->status);
-        }
-        
-        // FINAL FIX: Use Raw SQL to bypass Laravel Query Builder bug
         if (isset($params['price_range']) && $params['price_range'] != '') {
-            \Log::info('Using Raw SQL to bypass Laravel Query Builder bug');
-            
-            // Build Raw SQL query with proper parameter order
             $rawSql = "SELECT * FROM products WHERE status = ?";
             $bindings = [1];
             
-            // Apply ward_id filter first
             if (isset($params['ward_id']) && $params['ward_id'] != '') {
                 $rawSql .= " AND ward_id = ?";
                 $bindings[] = $params['ward_id'];
             }
             
-            // Apply price filter
             if ($params['price_range'] == 1) {
                 $rawSql .= " AND price <= ?";
                 $bindings[] = 500000000;
@@ -501,60 +436,9 @@ class ProductController extends Controller
             
             $rawSql .= " ORDER BY price ASC";
             
-            \Log::info('Raw SQL: ' . $rawSql);
-            \Log::info('Raw SQL Bindings: ', $bindings);
-            
-            // Debug: Check price column data type
-            $priceColumnInfo = DB::select("DESCRIBE products");
-            \Log::info('Products table structure: ', $priceColumnInfo);
-            
-            // Debug: Check actual price values
-            $priceDebug = DB::select("SELECT id, title, price FROM products WHERE ward_id = 1 LIMIT 5");
-            \Log::info('Price debug info: ', $priceDebug);
-            
-            // Debug: Check MySQL version and configuration
-            $mysqlVersion = DB::select("SELECT VERSION() as version");
-            \Log::info('MySQL version: ', $mysqlVersion);
-            
-            // Debug: Test simple comparison
-            $simpleTest = DB::select("SELECT id, title, price FROM products WHERE ward_id = 1 AND price > 1000000000 LIMIT 3");
-            \Log::info('Simple price > 1 billion test: ', $simpleTest);
-            
-            // Debug: Test exact values
-            $exactTest = DB::select("SELECT id, title, price FROM products WHERE ward_id = 1 AND price = 1050000000");
-            \Log::info('Exact price = 1050000000 test: ', $exactTest);
-            
-            // Execute raw SQL
             $rawResults = DB::select($rawSql, $bindings);
             $productIds = collect($rawResults)->pluck('id')->toArray();
             
-            \Log::info('Raw SQL results: ' . count($rawResults));
-            foreach($rawResults as $product) {
-                \Log::info('Raw SQL Product: ' . $product->title . ' - Price: ' . $product->price . ' - Type: ' . gettype($product->price));
-            }
-            
-            // Debug: Test with explicit CAST
-            $castSql = "SELECT * FROM products WHERE status = ? AND ward_id = ? AND CAST(price AS DECIMAL(20,0)) >= ? AND CAST(price AS DECIMAL(20,0)) <= ? ORDER BY price ASC";
-            $castResults = DB::select($castSql, $bindings);
-            \Log::info('CAST SQL results: ' . count($castResults));
-            foreach($castResults as $product) {
-                \Log::info('CAST Product: ' . $product->title . ' - Price: ' . $product->price);
-            }
-            
-            // Debug: Test with string comparison
-            $stringSql = "SELECT * FROM products WHERE status = ? AND ward_id = ? AND price >= ? AND price <= ? ORDER BY price ASC";
-            $stringResults = DB::select($stringSql, $bindings);
-            \Log::info('String SQL results: ' . count($stringResults));
-            
-            // Debug: Test with different approach - use the exact values from phpMyAdmin
-            $exactSql = "SELECT * FROM products WHERE status = 1 AND ward_id = 1 AND price BETWEEN 5000000000 AND 10000000000 ORDER BY price ASC";
-            $exactResults = DB::select($exactSql);
-            \Log::info('Exact BETWEEN SQL results: ' . count($exactResults));
-            foreach($exactResults as $product) {
-                \Log::info('Exact BETWEEN Product: ' . $product->title . ' - Price: ' . $product->price);
-            }
-            
-            // Load products with relationships
             if (!empty($productIds)) {
                 $products = Product::with(['images', 'attributes'])
                     ->whereIn('id', $productIds)
@@ -564,49 +448,13 @@ class ProductController extends Controller
                 $products = collect();
             }
         } else {
-            // Use Query Builder for non-price-range searches
             $products = $query->orderBy('price', 'asc')->get();
             
-            // Load relationships separately
             if ($products->count() > 0) {
                 $products->load(['images', 'attributes']);
             }
         }
         
-      
-        // Debug: Log the results
-        \Log::info('Products found: ' . $products->count());
-        foreach($products as $product) {
-            \Log::info('Product: ' . $product->title . ' - Price: ' . $product->price . ' - Ward ID: ' . $product->ward_id);
-        }
-        
-        // Debug: Check if there are any products in the 5-10 billion range
-        $productsInRange = Product::where('status', 1)
-            ->whereBetween('price', [5000000000, 10000000000])
-            ->get();
-        \Log::info('Products in 5-10 billion range: ' . $productsInRange->count());
-        foreach($productsInRange as $product) {
-            \Log::info('Product in range: ' . $product->title . ' - Price: ' . $product->price);
-        }
-        
-        // Debug: Check products in ward_id = 1
-        $productsInWard = Product::where('status', 1)
-            ->where('ward_id', 1)
-            ->get();
-        \Log::info('Products in ward_id=1: ' . $productsInWard->count());
-        foreach($productsInWard as $product) {
-            \Log::info('Product in ward: ' . $product->title . ' - Price: ' . $product->price);
-        }
-        
-        // Debug: Check if there are products in ward_id=1 AND price range 5-10 billion
-        $productsInWardAndRange = Product::where('status', 1)
-            ->where('ward_id', 1)
-            ->whereBetween('price', [5000000000, 10000000000])
-            ->get();
-        \Log::info('Products in ward_id=1 AND 5-10 billion range: ' . $productsInWardAndRange->count());
-        foreach($productsInWardAndRange as $product) {
-            \Log::info('Product in ward and range: ' . $product->title . ' - Price: ' . $product->price);
-        }
         
         return view('product.index',compact('products', 'wards', 'catalogues', 'plans'));
     }
