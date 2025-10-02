@@ -83,8 +83,14 @@ class ProductController extends Controller
         
         // Debug: Check which filters are being applied
         \Log::info('Direction isset: ' . (isset($params['direction']) ? 'Yes' : 'No'));
+        if (isset($params['direction'])) {
+            \Log::info('Direction value: ', $params['direction']);
+        }
         \Log::info('Front isset: ' . (isset($params['front']) ? 'Yes' : 'No'));
         \Log::info('Area isset: ' . (isset($params['area']) ? 'Yes' : 'No'));
+        if (isset($params['area'])) {
+            \Log::info('Area value: ', $params['area']);
+        }
         \Log::info('Road isset: ' . (isset($params['road']) ? 'Yes' : 'No'));
         \Log::info('Type isset: ' . (isset($params['type']) ? 'Yes' : 'No'));
         \Log::info('Function isset: ' . (isset($params['function']) ? 'Yes' : 'No'));
@@ -155,6 +161,7 @@ class ProductController extends Controller
         {
             \Log::info('Applying direction filter: ', $params['direction']);
             $direction = array_filter($params['direction']); // Remove empty values
+            \Log::info('Direction after filter: ', $direction);
             $query->whereHas('attributes',function ($query) use($direction)
                     {
                         foreach ($direction as $key => $value)
@@ -229,6 +236,7 @@ class ProductController extends Controller
         {
             \Log::info('Applying area filter: ', $params['area']);
             $area = array_filter($params['area']);
+            \Log::info('Area after filter: ', $area);
             $query->whereHas('attributes',function ($query) use($area)
                     {
                         $query->where('attribute_id', '=', 3);
@@ -404,6 +412,18 @@ class ProductController extends Controller
         // Debug: Log final query for verification
         \Log::info('Final SQL Query: ' . $query->toSql());
         \Log::info('Query Bindings: ', $query->getBindings());
+        
+        // Test: Create a completely fresh query to compare
+        $testQuery = Product::where('status', 1)
+            ->where('price', '>=', 5000000000)
+            ->where('price', '<=', 10000000000)
+            ->where('ward_id', 1);
+        
+        $testProducts = $testQuery->get();
+        \Log::info('Test query results: ' . $testProducts->count());
+        foreach($testProducts as $product) {
+            \Log::info('Test Product: ' . $product->title . ' - Price: ' . $product->price);
+        }
         
         // Optimized approach: Use simple Query Builder without complex relationships
         $products = $query->orderBy('price', 'asc')->get();
