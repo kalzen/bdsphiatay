@@ -90,49 +90,49 @@ class ProductController extends Controller
         if(isset($params['price_range']) && $params['price_range'] != '')
         {
             if ($params['price_range'] == 1) {
-                $query->where('price','<=',500000000);
+                $query->whereRaw('CAST(price as UNSIGNED) <= ?', [500000000]);
               }
             elseif ($params['price_range'] == 2) {
-                $query->where('price', '>=', 500000000)
-                      ->where('price', '<=', 1000000000);
+                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [500000000])
+                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [1000000000]);
               }
             elseif ($params['price_range'] == 3) {
-                $query->where('price', '>=', 1000000000)
-                      ->where('price', '<=', 2000000000);
+                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [1000000000])
+                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [2000000000]);
               }
             elseif ($params['price_range'] == 4) {
-                $query->where('price', '>=', 2000000000)
-                      ->where('price', '<=', 3000000000);
+                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [2000000000])
+                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [3000000000]);
               }
             elseif ($params['price_range'] == 5) {
-                $query->where('price', '>=', 3000000000)
-                      ->where('price', '<=', 5000000000);
+                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [3000000000])
+                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [5000000000]);
               }
             elseif ($params['price_range'] == 6) {
-                $query->where('price', '>=', 5000000000)
-                      ->where('price', '<=', 10000000000);
+                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [5000000000])
+                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [10000000000]);
               }
             elseif ($params['price_range'] == 7) {
-                $query->where('price', '>=', 10000000000)
-                      ->where('price', '<=', 20000000000);
+                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [10000000000])
+                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [20000000000]);
               }
             elseif ($params['price_range'] == 8) {
-                $query->where('price', '>=', 20000000000)
-                      ->where('price', '<=', 30000000000);
+                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [20000000000])
+                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [30000000000]);
               }
              elseif ($params['price_range'] == 9) {
-                $query->where('price','>=',30000000000);
+                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [30000000000]);
               }      
         }
         else
         {
             if (isset($params['price_range_min']) && $params['price_range_min'] > 0)
             {
-                $query->where('price','>=',$params['price_range_min']*1000000);
+                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [$params['price_range_min']*1000000]);
             }
             if (isset($params['price_range_max']) && $params['price_range_max'] > 0)
             {
-                $query->where('price','<=',$params['price_range_max']*1000000);
+                $query->whereRaw('CAST(price as UNSIGNED) <= ?', [$params['price_range_max']*1000000]);
             }
         }
         
@@ -388,7 +388,7 @@ class ProductController extends Controller
         }
         // Bỏ toàn bộ điều kiện theo bảng liên quan (plan/attributes)
         // Luôn trả về bằng Eloquent thay vì SQL thô để đảm bảo đồng nhất
-        $products = $query->orderBy('price', 'asc')->get();
+        $products = $query->orderByRaw('CAST(price as UNSIGNED) asc')->get();
         
         // Fallback: nếu kết quả rỗng bất thường, thử truy vấn thô tối giản theo bảng products
         if ($products->count() === 0) {
