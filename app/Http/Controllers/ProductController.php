@@ -469,7 +469,8 @@ class ProductController extends Controller
         // Debug: Log results
         \Log::info('=== SEARCH RESULTS ===');
         \Log::info('Total Products Found: ' . $products->count());
-        \Log::info('Product IDs: ' . $products->pluck('id')->toArray());
+        // Log product IDs as context array to avoid "Array to string conversion"
+        \Log::info('Product IDs', $products->pluck('id')->toArray());
         \Log::info('=== SEARCH REQUEST END ===');
         
         return view('product.index',compact('products', 'wards', 'catalogues', 'plans'));
