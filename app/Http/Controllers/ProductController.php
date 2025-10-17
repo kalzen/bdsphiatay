@@ -90,49 +90,49 @@ class ProductController extends Controller
         if(isset($params['price_range']) && $params['price_range'] != '')
         {
             if ($params['price_range'] == 1) {
-                $query->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [500000000]);
+                $query->where('price','<=',500000000);
               }
             elseif ($params['price_range'] == 2) {
-                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [500000000])
-                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [1000000000]);
+                $query->where('price','>=',500000000)
+                      ->where('price','<=',1000000000);
               }
             elseif ($params['price_range'] == 3) {
-                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [1000000000])
-                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [2000000000]);
+                $query->where('price','>=',1000000000)
+                      ->where('price','<=',2000000000);
               }
             elseif ($params['price_range'] == 4) {
-                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [2000000000])
-                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [3000000000]);
+                $query->where('price','>=',2000000000)
+                      ->where('price','<=',3000000000);
               }
             elseif ($params['price_range'] == 5) {
-                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [3000000000])
-                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [5000000000]);
+                $query->where('price','>=',3000000000)
+                      ->where('price','<=',5000000000);
               }
             elseif ($params['price_range'] == 6) {
-                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [5000000000])
-                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [10000000000]);
+                $query->where('price','>=',5000000000)
+                      ->where('price','<=',10000000000);
               }
             elseif ($params['price_range'] == 7) {
-                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [10000000000])
-                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [20000000000]);
+                $query->where('price','>=',10000000000)
+                      ->where('price','<=',20000000000);
               }
             elseif ($params['price_range'] == 8) {
-                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [20000000000])
-                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [30000000000]);
+                $query->where('price','>=',20000000000)
+                      ->where('price','<=',30000000000);
               }
              elseif ($params['price_range'] == 9) {
-                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [30000000000]);
+                $query->where('price','>=',30000000000);
               }      
         }
         else
         {
             if (isset($params['price_range_min']) && $params['price_range_min'] > 0)
             {
-                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [$params['price_range_min']*1000000]);
+                $query->where('price','>=',$params['price_range_min']*1000000);
             }
             if (isset($params['price_range_max']) && $params['price_range_max'] > 0)
             {
-                $query->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [$params['price_range_max']*1000000]);
+                $query->where('price','<=',$params['price_range_max']*1000000);
             }
         }
         
@@ -388,71 +388,8 @@ class ProductController extends Controller
         }
         // Bỏ toàn bộ điều kiện theo bảng liên quan (plan/attributes)
         // Luôn trả về bằng Eloquent thay vì SQL thô để đảm bảo đồng nhất
-        $products = $query->orderByRaw('CAST(price as DECIMAL(20,0)) asc')->get();
+        $products = $query->orderBy('price', 'asc')->get();
         
-        // Fallback: nếu kết quả rỗng bất thường, thử truy vấn thô tối giản theo bảng products
-        if ($products->count() === 0) {
-            $rawSql = "SELECT id FROM products WHERE status = 1";
-            $bindings = [];
-            if (isset($params['ward_id']) && $params['ward_id'] != '') {
-                $rawSql .= " AND ward_id = ?";
-                $bindings[] = $params['ward_id'];
-            }
-            if(isset($params['price_range']) && $params['price_range'] != '')
-            {
-                if ($params['price_range'] == 1) {
-                    $rawSql .= " AND price <= ?";
-                    $bindings[] = 500000000;
-                } elseif ($params['price_range'] == 2) {
-                    $rawSql .= " AND price >= ? AND price <= ?";
-                    $bindings[] = 500000000;
-                    $bindings[] = 1000000000;
-                } elseif ($params['price_range'] == 3) {
-                    $rawSql .= " AND price >= ? AND price <= ?";
-                    $bindings[] = 1000000000;
-                    $bindings[] = 2000000000;
-                } elseif ($params['price_range'] == 4) {
-                    $rawSql .= " AND price >= ? AND price <= ?";
-                    $bindings[] = 2000000000;
-                    $bindings[] = 3000000000;
-                } elseif ($params['price_range'] == 5) {
-                    $rawSql .= " AND price >= ? AND price <= ?";
-                    $bindings[] = 3000000000;
-                    $bindings[] = 5000000000;
-                } elseif ($params['price_range'] == 6) {
-                    $rawSql .= " AND price >= ? AND price <= ?";
-                    $bindings[] = 5000000000;
-                    $bindings[] = 10000000000;
-                } elseif ($params['price_range'] == 7) {
-                    $rawSql .= " AND price >= ? AND price <= ?";
-                    $bindings[] = 10000000000;
-                    $bindings[] = 20000000000;
-                } elseif ($params['price_range'] == 8) {
-                    $rawSql .= " AND price >= ? AND price <= ?";
-                    $bindings[] = 20000000000;
-                    $bindings[] = 30000000000;
-                } elseif ($params['price_range'] == 9) {
-                    $rawSql .= " AND price >= ?";
-                    $bindings[] = 30000000000;
-                }
-            } else {
-                if (isset($params['price_range_min']) && $params['price_range_min'] > 0) {
-                    $rawSql .= " AND price >= ?";
-                    $bindings[] = $params['price_range_min']*1000000;
-                }
-                if (isset($params['price_range_max']) && $params['price_range_max'] > 0) {
-                    $rawSql .= " AND price <= ?";
-                    $bindings[] = $params['price_range_max']*1000000;
-                }
-            }
-            $rawSql .= " ORDER BY CAST(price AS DECIMAL(20,0)) ASC";
-            $rawIds = DB::select($rawSql, $bindings);
-            $ids = collect($rawIds)->pluck('id')->toArray();
-            if (!empty($ids)) {
-                \Log::info('Fallback raw returned IDs', $ids);
-                $products = Product::with(['images','attributes'])->whereIn('id', $ids)->orderBy('price','asc')->get();
-            }
-        }
         if ($products->count() > 0) {
             \Log::info('Products: ' . $products->count());
             $products->load(['images', 'attributes']);
