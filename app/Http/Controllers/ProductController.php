@@ -137,9 +137,14 @@ class ProductController extends Controller
         }
         
         // Giữ các điều kiện theo bảng attributes (trừ plan)
-        if (isset($params['direction']) && is_array($params['direction']) && !empty(array_filter($params['direction'])))
+        if (isset($params['direction']) && is_array($params['direction']))
         {
-            $direction = array_filter($params['direction']);
+            // Loại bỏ giá trị rỗng/khoảng trắng để tránh áp filter sai khi direction[]=" "
+            $direction = array_values(array_filter($params['direction'], function($v){
+                return trim((string)$v) !== '';
+            }));
+            if (!empty($direction))
+            {
             $query->whereHas('attributes',function ($query) use($direction)
                     {
                         foreach ($direction as $key => $value)
@@ -157,6 +162,7 @@ class ProductController extends Controller
                             }
                         }
                     });
+            }
         }
         if (isset($params['front']) && is_array($params['front']) && !empty(array_filter($params['front'])))
         {
@@ -209,9 +215,14 @@ class ProductController extends Controller
                         }
                     });
         }
-        if (isset($params['area']) && is_array($params['area']) && !empty(array_filter($params['area'])))
+        if (isset($params['area']) && is_array($params['area']))
         {
-            $area = array_filter($params['area']);
+            // Loại bỏ "0" (không chọn) và giá trị rỗng
+            $area = array_values(array_filter($params['area'], function($v){
+                return trim((string)$v) !== '' && (string)$v !== '0';
+            }));
+            if (!empty($area))
+            {
             
             // Check if area contains only "0" values
             $areaWithoutZero = array_filter($area, function($value) {
@@ -291,6 +302,7 @@ class ProductController extends Controller
                             
                             }
                         });
+            }
             }
         }
         if (isset($params['road']) && is_array($params['road']) && !empty(array_filter($params['road'])))
@@ -388,6 +400,46 @@ class ProductController extends Controller
         }
         // Bỏ toàn bộ điều kiện theo bảng liên quan (plan/attributes)
         // Luôn trả về bằng Eloquent thay vì SQL thô để đảm bảo đồng nhất
+
+        // Diagnostics: so sánh đếm DB::table với Eloquent
+        try {
+            $minBound = null; $maxBound = null;
+            if (isset($params['price_range']) && $params['price_range'] != '') {
+                $map = [
+                    1 => [0, 500000000],
+                    2 => [500000000, 1000000000],
+                    3 => [1000000000, 2000000000],
+                    4 => [2000000000, 3000000000],
+                    5 => [3000000000, 5000000000],
+                    6 => [5000000000, 10000000000],
+                    7 => [10000000000, 20000000000],
+                    8 => [20000000000, 30000000000],
+                    9 => [30000000000, PHP_INT_MAX],
+                ];
+                if (isset($map[(int)$params['price_range']])) {
+                    [$minBound, $maxBound] = $map[(int)$params['price_range']];
+                }
+            } else {
+                if (isset($params['price_range_min']) && $params['price_range_min'] > 0) {
+                    $minBound = (int)$params['price_range_min'] * 1000000;
+                }
+                if (isset($params['price_range_max']) && $params['price_range_max'] > 0) {
+                    $maxBound = (int)$params['price_range_max'] * 1000000;
+                }
+            }
+            if ($minBound !== null || $maxBound !== null) {
+                $qb = \DB::table('products')->where('status', 1);
+                if ($minBound !== null) { $qb->where('price', '>=', $minBound); }
+                if ($maxBound !== null) { $qb->where('price', '<=', $maxBound); }
+                $dbCount = $qb->count();
+                \Log::info('DIAG products count via DB::table', ['min'=>$minBound,'max'=>$maxBound,'count'=>$dbCount]);
+                $idsSample = $qb->orderBy('price','asc')->limit(5)->pluck('id')->toArray();
+                \Log::info('DIAG sample IDs via DB::table', $idsSample);
+            }
+        } catch (\Throwable $e) {
+            \Log::error('DIAG error: '.$e->getMessage());
+        }
+
         $products = $query->orderBy('price', 'asc')->get();
         
         if ($products->count() > 0) {
