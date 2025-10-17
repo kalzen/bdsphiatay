@@ -90,49 +90,49 @@ class ProductController extends Controller
         if(isset($params['price_range']) && $params['price_range'] != '')
         {
             if ($params['price_range'] == 1) {
-                $query->whereRaw('CAST(price as UNSIGNED) <= ?', [500000000]);
+                $query->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [500000000]);
               }
             elseif ($params['price_range'] == 2) {
-                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [500000000])
-                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [1000000000]);
+                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [500000000])
+                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [1000000000]);
               }
             elseif ($params['price_range'] == 3) {
-                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [1000000000])
-                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [2000000000]);
+                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [1000000000])
+                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [2000000000]);
               }
             elseif ($params['price_range'] == 4) {
-                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [2000000000])
-                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [3000000000]);
+                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [2000000000])
+                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [3000000000]);
               }
             elseif ($params['price_range'] == 5) {
-                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [3000000000])
-                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [5000000000]);
+                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [3000000000])
+                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [5000000000]);
               }
             elseif ($params['price_range'] == 6) {
-                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [5000000000])
-                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [10000000000]);
+                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [5000000000])
+                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [10000000000]);
               }
             elseif ($params['price_range'] == 7) {
-                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [10000000000])
-                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [20000000000]);
+                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [10000000000])
+                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [20000000000]);
               }
             elseif ($params['price_range'] == 8) {
-                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [20000000000])
-                      ->whereRaw('CAST(price as UNSIGNED) <= ?', [30000000000]);
+                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [20000000000])
+                      ->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [30000000000]);
               }
              elseif ($params['price_range'] == 9) {
-                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [30000000000]);
+                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [30000000000]);
               }      
         }
         else
         {
             if (isset($params['price_range_min']) && $params['price_range_min'] > 0)
             {
-                $query->whereRaw('CAST(price as UNSIGNED) >= ?', [$params['price_range_min']*1000000]);
+                $query->whereRaw('CAST(price as DECIMAL(20,0)) >= ?', [$params['price_range_min']*1000000]);
             }
             if (isset($params['price_range_max']) && $params['price_range_max'] > 0)
             {
-                $query->whereRaw('CAST(price as UNSIGNED) <= ?', [$params['price_range_max']*1000000]);
+                $query->whereRaw('CAST(price as DECIMAL(20,0)) <= ?', [$params['price_range_max']*1000000]);
             }
         }
         
@@ -388,7 +388,7 @@ class ProductController extends Controller
         }
         // Bỏ toàn bộ điều kiện theo bảng liên quan (plan/attributes)
         // Luôn trả về bằng Eloquent thay vì SQL thô để đảm bảo đồng nhất
-        $products = $query->orderByRaw('CAST(price as UNSIGNED) asc')->get();
+        $products = $query->orderByRaw('CAST(price as DECIMAL(20,0)) asc')->get();
         
         // Fallback: nếu kết quả rỗng bất thường, thử truy vấn thô tối giản theo bảng products
         if ($products->count() === 0) {
@@ -445,7 +445,7 @@ class ProductController extends Controller
                     $bindings[] = $params['price_range_max']*1000000;
                 }
             }
-            $rawSql .= " ORDER BY price ASC";
+            $rawSql .= " ORDER BY CAST(price AS DECIMAL(20,0)) ASC";
             $rawIds = DB::select($rawSql, $bindings);
             $ids = collect($rawIds)->pluck('id')->toArray();
             if (!empty($ids)) {
