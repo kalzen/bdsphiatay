@@ -63,15 +63,14 @@ class ProductController extends Controller
     
     public function search(Request $request)
     {
-        if ($request->isMethod('post')) {
-            $request->flash();
-            $request->session()->put('search_params', $request->all());
-        }
-
-        $params = $request->isMethod('post') ? $request->all() : session('search_params', []);
+        // Debug: Log all request parameters
+        \Log::info('=== SEARCH REQUEST START ===');
+        \Log::info('Request Method: ' . $request->method());
+        \Log::info('Request Params: ', $request->all());
+        
+        $params = $request->all();
         
         if ($request->has('clear_session')) {
-            $request->session()->forget('search_params');
             $params = [];
         }
         
@@ -80,6 +79,9 @@ class ProductController extends Controller
         $plans = Plan::All();
         $catalogues = Catalogue::orderBy('id','asc')->get();
         $query = Product::active();
+        
+        // Enable query logging
+        \DB::enableQueryLog();
 
         if (isset($params['keyword'])) {
             $query->where('title','like','%'.$params['keyword'].'%');
@@ -455,6 +457,20 @@ class ProductController extends Controller
             }
         }
         
+        // Debug: Log all executed queries
+        $queries = \DB::getQueryLog();
+        \Log::info('=== EXECUTED SQL QUERIES ===');
+        foreach ($queries as $index => $query) {
+            \Log::info('Query #' . ($index + 1) . ': ' . $query['query']);
+            \Log::info('Bindings: ', $query['bindings']);
+            \Log::info('Time: ' . $query['time'] . 'ms');
+        }
+        
+        // Debug: Log results
+        \Log::info('=== SEARCH RESULTS ===');
+        \Log::info('Total Products Found: ' . $products->count());
+        \Log::info('Product IDs: ' . $products->pluck('id')->toArray());
+        \Log::info('=== SEARCH REQUEST END ===');
         
         return view('product.index',compact('products', 'wards', 'catalogues', 'plans'));
     }

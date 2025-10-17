@@ -129,8 +129,7 @@
                                 <div class="content-tab">
                                     <div class="content-inner tab-content">
                                         <div class="form-sl">
-                                            <form method="post" action="{{route('product.search')}}">
-                                                        @csrf
+                                            <form method="get" action="{{route('product.search')}}">
                                                 <div class="wd-find-select flex">
                                                     <div class="form-group-1 search-form form-style relative">
                                                         <i class="far fa-search"></i>
