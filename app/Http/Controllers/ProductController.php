@@ -390,6 +390,7 @@ class ProductController extends Controller
         // Luôn trả về bằng Eloquent thay vì SQL thô để đảm bảo đồng nhất
         $products = $query->orderBy('price', 'asc')->get();
         if ($products->count() > 0) {
+            \Log::info('Products: ' . $products->count());
             $products->load(['images', 'attributes']);
         }
         
