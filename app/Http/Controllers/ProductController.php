@@ -136,6 +136,7 @@ class ProductController extends Controller
             }
         }
         
+        // Giữ các điều kiện theo bảng attributes (trừ plan)
         if (isset($params['direction']) && is_array($params['direction']) && !empty(array_filter($params['direction'])))
         {
             $direction = array_filter($params['direction']);
@@ -352,10 +353,6 @@ class ProductController extends Controller
                         }
                     });
         }
-        if (isset($params['ward_id']) && $params['ward_id'] != '')
-        {
-            $query->where('ward_id',$params['ward_id']);
-        }
         if (isset($params['type']) && $params['type'] != '')
         {
             $type = $params['type'];
@@ -383,78 +380,17 @@ class ProductController extends Controller
                 $query->where('value','like','%'.$khuvuc.'%');
             });
         }
-        if (isset($params['plan_id']))
+        
+        // Chỉ lọc trực tiếp trên bảng products
+        if (isset($params['ward_id']) && $params['ward_id'] != '')
         {
-            $product_ids = DB::table('plan_product')->whereIn('id',$params['plan_id'])->pluck('product_id')
-                            ->toArray();
-            $query->whereIn('id', $product_ids);
+            $query->where('ward_id',$params['ward_id']);
         }
-        
-        
-        if (isset($params['price_range']) && $params['price_range'] != '') {
-            $rawSql = "SELECT * FROM products WHERE status = ?";
-            $bindings = [1];
-            
-            if (isset($params['ward_id']) && $params['ward_id'] != '') {
-                $rawSql .= " AND ward_id = ?";
-                $bindings[] = $params['ward_id'];
-            }
-            
-            if ($params['price_range'] == 1) {
-                $rawSql .= " AND price <= ?";
-                $bindings[] = 500000000;
-            } elseif ($params['price_range'] == 2) {
-                $rawSql .= " AND price >= ? AND price <= ?";
-                $bindings[] = 500000000;
-                $bindings[] = 1000000000;
-            } elseif ($params['price_range'] == 3) {
-                $rawSql .= " AND price >= ? AND price <= ?";
-                $bindings[] = 1000000000;
-                $bindings[] = 2000000000;
-            } elseif ($params['price_range'] == 4) {
-                $rawSql .= " AND price >= ? AND price <= ?";
-                $bindings[] = 2000000000;
-                $bindings[] = 3000000000;
-            } elseif ($params['price_range'] == 5) {
-                $rawSql .= " AND price >= ? AND price <= ?";
-                $bindings[] = 3000000000;
-                $bindings[] = 5000000000;
-            } elseif ($params['price_range'] == 6) {
-                $rawSql .= " AND price >= ? AND price <= ?";
-                $bindings[] = 5000000000;
-                $bindings[] = 10000000000;
-            } elseif ($params['price_range'] == 7) {
-                $rawSql .= " AND price >= ? AND price <= ?";
-                $bindings[] = 10000000000;
-                $bindings[] = 20000000000;
-            } elseif ($params['price_range'] == 8) {
-                $rawSql .= " AND price >= ? AND price <= ?";
-                $bindings[] = 20000000000;
-                $bindings[] = 30000000000;
-            } elseif ($params['price_range'] == 9) {
-                $rawSql .= " AND price >= ?";
-                $bindings[] = 30000000000;
-            }
-            
-            $rawSql .= " ORDER BY price ASC";
-            
-            $rawResults = DB::select($rawSql, $bindings);
-            $productIds = collect($rawResults)->pluck('id')->toArray();
-            
-            if (!empty($productIds)) {
-                $products = Product::with(['images', 'attributes'])
-                    ->whereIn('id', $productIds)
-                    ->orderBy('price', 'asc')
-                    ->get();
-            } else {
-                $products = collect();
-            }
-        } else {
-            $products = $query->orderBy('price', 'asc')->get();
-            
-            if ($products->count() > 0) {
-                $products->load(['images', 'attributes']);
-            }
+        // Bỏ toàn bộ điều kiện theo bảng liên quan (plan/attributes)
+        // Luôn trả về bằng Eloquent thay vì SQL thô để đảm bảo đồng nhất
+        $products = $query->orderBy('price', 'asc')->get();
+        if ($products->count() > 0) {
+            $products->load(['images', 'attributes']);
         }
         
         // Debug: Log all executed queries
