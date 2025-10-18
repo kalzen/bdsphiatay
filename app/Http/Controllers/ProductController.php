@@ -296,9 +296,20 @@ class ProductController extends Controller
         }
         
         // Bước 3: Áp dụng các bộ lọc theo attributes
-        // TEMPORARY: Skip attribute filters to test
-        $filteredProductIds = $productIds;
-        // $filteredProductIds = $this->applyAttributeFilters($productIds, $params);
+        // Chỉ áp dụng attribute filters nếu KHÔNG có price filter
+        $hasPriceFilter = !empty($params['price_min']) || !empty($params['price_max']);
+        
+        if ($hasPriceFilter) {
+            // Nếu có price filter, bỏ qua attribute filters để tránh conflict
+            $filteredProductIds = $productIds;
+            \Log::info('DEBUG: Skipping attribute filters due to price filter', [
+                'price_min' => $params['price_min'] ?? null,
+                'price_max' => $params['price_max'] ?? null
+            ]);
+        } else {
+            // Chỉ áp dụng attribute filters khi không có price filter
+            $filteredProductIds = $this->applyAttributeFilters($productIds, $params);
+        }
         
         \Log::info('DEBUG: Products after attribute filters', [
             'original_count' => count($productIds),
@@ -316,12 +327,31 @@ class ProductController extends Controller
             ->whereIn('id', $filteredProductIds)
             ->orderBy('created_at', 'desc')
             ->get();
+            
+        // Debug: Kiểm tra data consistency
+        \Log::info('DEBUG: Data consistency check', [
+            'requested_ids' => array_slice($filteredProductIds, 0, 10),
+            'actual_products' => $products->take(5)->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'price' => $p->price,
+                    'price_in_range' => ($p->price >= 5000000000 && $p->price <= 10000000000) ? 'YES' : 'NO'
+                ];
+            })->toArray()
+        ]);
         
         // Debug: Log kết quả cuối cùng
         \Log::info('DEBUG: Final search results', [
             'total_products' => $products->count(),
-            'product_ids' => $productIds,
-            'sample_prices' => $products->take(5)->pluck('price')->toArray()
+            'product_ids' => $filteredProductIds,
+            'sample_products' => $products->take(5)->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ'
+                ];
+            })->toArray()
         ]);
         
         return $products;
