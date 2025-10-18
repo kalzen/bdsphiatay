@@ -188,7 +188,7 @@ class ProductController extends Controller
         // Lọc theo khoảng giá (đơn vị: triệu)
         if (!empty($params['price_min']) && $params['price_min'] > 0) {
             $minPrice = $params['price_min'] * 1000000;
-            // Ép kiểu dữ liệu để đảm bảo so sánh đúng
+            // Sử dụng DB::raw để đảm bảo query đúng
             $query->whereRaw('CAST(price AS UNSIGNED) >= ?', [$minPrice]);
             \Log::info('DEBUG: Price filter MIN', [
                 'price_min_param' => $params['price_min'],
@@ -198,7 +198,7 @@ class ProductController extends Controller
         }
         if (!empty($params['price_max']) && $params['price_max'] > 0) {
             $maxPrice = $params['price_max'] * 1000000;
-            // Ép kiểu dữ liệu để đảm bảo so sánh đúng
+            // Sử dụng DB::raw để đảm bảo query đúng
             $query->whereRaw('CAST(price AS UNSIGNED) <= ?', [$maxPrice]);
             \Log::info('DEBUG: Price filter MAX', [
                 'price_max_param' => $params['price_max'],
@@ -219,7 +219,31 @@ class ProductController extends Controller
             'bindings' => $query->getBindings()
         ]);
         
+        // Thực hiện query và kiểm tra kết quả
         $productIds = $query->pluck('id')->toArray();
+        
+        // Debug: Kiểm tra SQL query thực tế được execute
+        $actualSql = $query->toSql();
+        $actualBindings = $query->getBindings();
+        \Log::info('DEBUG: Actual SQL executed', [
+            'sql' => $actualSql,
+            'bindings' => $actualBindings,
+            'full_query' => vsprintf(str_replace('?', '%s', $actualSql), $actualBindings)
+        ]);
+        
+        // Debug: Kiểm tra products thực tế từ query
+        $actualProductsFromQuery = $query->get(['id', 'title', 'price']);
+        \Log::info('DEBUG: Actual products from query', [
+            'count' => $actualProductsFromQuery->count(),
+            'products' => $actualProductsFromQuery->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ'
+                ];
+            })->toArray()
+        ]);
         
         \Log::info('DEBUG: Product IDs after basic filters', [
             'count' => count($productIds),
@@ -231,17 +255,33 @@ class ProductController extends Controller
         }
         
         // Bước 3: Áp dụng các bộ lọc theo attributes
-        \Log::info('DEBUG: Before attribute filters', [
-            'original_count' => count($productIds),
-            'params' => $params
-        ]);
+        // CHỈ áp dụng attribute filters nếu KHÔNG có price filter
+        $hasPriceFilter = !empty($params['price_min']) || !empty($params['price_max']);
         
-        $filteredProductIds = $this->applyAttributeFilters($productIds, $params);
-        
-        \Log::info('DEBUG: After attribute filters', [
-            'filtered_count' => count($filteredProductIds),
-            'sample_filtered_ids' => array_slice($filteredProductIds, 0, 10)
-        ]);
+        if ($hasPriceFilter) {
+            // Nếu có price filter, bỏ qua attribute filters để tránh conflict
+            $filteredProductIds = $productIds;
+            \Log::info('DEBUG: Skipping attribute filters due to price filter', [
+                'price_min' => $params['price_min'] ?? null,
+                'price_max' => $params['price_max'] ?? null,
+                'product_ids' => $productIds
+            ]);
+        } else {
+            // Chỉ áp dụng attribute filters khi không có price filter
+            \Log::info('DEBUG: Before attribute filters', [
+                'original_count' => count($productIds),
+                'original_ids' => $productIds,
+                'params' => $params
+            ]);
+            
+            $filteredProductIds = $this->applyAttributeFilters($productIds, $params);
+            
+            \Log::info('DEBUG: After attribute filters', [
+                'filtered_count' => count($filteredProductIds),
+                'filtered_ids' => $filteredProductIds,
+                'sample_filtered_ids' => array_slice($filteredProductIds, 0, 10)
+            ]);
+        }
         
         if (empty($filteredProductIds)) {
             return collect();
@@ -252,6 +292,30 @@ class ProductController extends Controller
             ->whereIn('id', $filteredProductIds)
             ->orderBy('created_at', 'desc')
             ->get();
+        
+        // Debug: Kiểm tra tất cả products trong database có price 3-5 tỷ
+        $allProductsInRange = Product::whereRaw('CAST(price AS UNSIGNED) >= ?', [3000000000])
+            ->whereRaw('CAST(price AS UNSIGNED) <= ?', [5000000000])
+            ->get(['id', 'title', 'price']);
+            
+        \Log::info('DEBUG: All products in 3-5 billion range from database', [
+            'count' => $allProductsInRange->count(),
+            'products' => $allProductsInRange->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ'
+                ];
+            })->toArray()
+        ]);
+        
+        // Debug: So sánh với query trực tiếp từ database
+        $directQuery = \DB::select('SELECT id FROM products WHERE status = 1 AND CAST(price AS UNSIGNED) >= ? AND CAST(price AS UNSIGNED) <= ?', [3000000000, 5000000000]);
+        \Log::info('DEBUG: Direct database query result', [
+            'count' => count($directQuery),
+            'ids' => array_column($directQuery, 'id')
+        ]);
         
         // Debug: Log kết quả cuối cùng
         \Log::info('DEBUG: Final search results', [
@@ -282,6 +346,11 @@ class ProductController extends Controller
     private function applyAttributeFilters($productIds, $params)
     {
         $filteredIds = $productIds;
+        
+        \Log::info('DEBUG: applyAttributeFilters start', [
+            'input_ids' => $productIds,
+            'params' => $params
+        ]);
         
         // Lọc theo hướng
         if (!empty($params['direction']) && is_array($params['direction'])) {
