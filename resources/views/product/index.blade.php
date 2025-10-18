@@ -130,10 +130,6 @@
                                     <div class="content-inner tab-content">
                                         <div class="form-sl">
                                             <form method="get" action="{{route('product.search')}}">
-                                                <!-- Hidden inputs for price range -->
-                                                <input type="hidden" id="price_min" name="price_min" value="{{request('price_min')}}">
-                                                <input type="hidden" id="price_max" name="price_max" value="{{request('price_max')}}">
-                                                
                                                 <div class="wd-find-select flex">
                                                     <div class="form-group-1 search-form form-style relative">
                                                         <i class="far fa-search"></i>
@@ -536,8 +532,6 @@
         const area = urlParams.getAll('area[]');
         
         // Restore price filter
-        console.log('URL params:', {priceMin, priceMax});
-        
         if (priceMin || priceMax) {
             $('#price_min').val(priceMin || '');
             $('#price_max').val(priceMax || '');
@@ -547,18 +541,15 @@
             $('#price_range_select option').each(function() {
                 const optMin = $(this).data('min');
                 const optMax = $(this).data('max');
-                console.log('Checking option:', {optMin, optMax, priceMin, priceMax});
                 if (optMin == priceMin && optMax == priceMax) {
                     $(this).prop('selected', true);
                     foundMatch = true;
-                    console.log('Found match!');
                     return false; // break loop
                 }
             });
             
             // Nếu không match dropdown thì là custom price
             if (!foundMatch) {
-                console.log('No dropdown match, using custom inputs');
                 $('#custom_price_min').val(priceMin || '');
                 $('#custom_price_max').val(priceMax || '');
             }
