@@ -130,6 +130,10 @@
                                     <div class="content-inner tab-content">
                                         <div class="form-sl">
                                             <form method="get" action="{{route('product.search')}}">
+                                                <!-- Hidden inputs for price range -->
+                                                <input type="hidden" id="price_min" name="price_min" value="{{request('price_min')}}">
+                                                <input type="hidden" id="price_max" name="price_max" value="{{request('price_max')}}">
+                                                
                                                 <div class="wd-find-select flex">
                                                     <div class="form-group-1 search-form form-style relative">
                                                         <i class="far fa-search"></i>

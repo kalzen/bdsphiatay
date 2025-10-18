@@ -189,10 +189,20 @@ class ProductController extends Controller
         if (!empty($params['price_min']) && $params['price_min'] > 0) {
             $minPrice = $params['price_min'] * 1000000;
             $query->where('price', '>=', $minPrice);
+            \Log::info('DEBUG: Price filter MIN', [
+                'price_min_param' => $params['price_min'],
+                'min_price_vnd' => $minPrice,
+                'min_price_formatted' => number_format($minPrice) . ' VNĐ'
+            ]);
         }
         if (!empty($params['price_max']) && $params['price_max'] > 0) {
             $maxPrice = $params['price_max'] * 1000000;
             $query->where('price', '<=', $maxPrice);
+            \Log::info('DEBUG: Price filter MAX', [
+                'price_max_param' => $params['price_max'],
+                'max_price_vnd' => $maxPrice,
+                'max_price_formatted' => number_format($maxPrice) . ' VNĐ'
+            ]);
         }
         
         
@@ -202,14 +212,34 @@ class ProductController extends Controller
         }
         
         // Bước 2: Lấy product IDs sau khi lọc cơ bản
+        \Log::info('DEBUG: SQL Query before execution', [
+            'sql' => $query->toSql(),
+            'bindings' => $query->getBindings()
+        ]);
+        
         $productIds = $query->pluck('id')->toArray();
+        
+        \Log::info('DEBUG: Product IDs after basic filters', [
+            'count' => count($productIds),
+            'sample_ids' => array_slice($productIds, 0, 10)
+        ]);
         
         if (empty($productIds)) {
             return collect();
         }
         
         // Bước 3: Áp dụng các bộ lọc theo attributes
+        \Log::info('DEBUG: Before attribute filters', [
+            'original_count' => count($productIds),
+            'params' => $params
+        ]);
+        
         $filteredProductIds = $this->applyAttributeFilters($productIds, $params);
+        
+        \Log::info('DEBUG: After attribute filters', [
+            'filtered_count' => count($filteredProductIds),
+            'sample_filtered_ids' => array_slice($filteredProductIds, 0, 10)
+        ]);
         
         if (empty($filteredProductIds)) {
             return collect();
@@ -220,6 +250,22 @@ class ProductController extends Controller
             ->whereIn('id', $filteredProductIds)
             ->orderBy('created_at', 'desc')
             ->get();
+        
+        // Debug: Log kết quả cuối cùng
+        \Log::info('DEBUG: Final search results', [
+            'total_products' => $products->count(),
+            'price_min' => $params['price_min'] ?? null,
+            'price_max' => $params['price_max'] ?? null,
+            'sample_products' => $products->take(5)->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ',
+                    'price_in_range' => ($p->price >= ($params['price_min'] ?? 0) * 1000000 && $p->price <= ($params['price_max'] ?? 999999999999) * 1000000) ? 'YES' : 'NO'
+                ];
+            })->toArray()
+        ]);
         
         return $products;
     }
