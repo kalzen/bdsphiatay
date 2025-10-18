@@ -296,7 +296,7 @@ class ProductController extends Controller
         // Debug: Kiểm tra tất cả products trong database có price 3-5 tỷ
         $allProductsInRange = Product::whereRaw('CAST(price AS UNSIGNED) >= ?', [3000000000])
             ->whereRaw('CAST(price AS UNSIGNED) <= ?', [5000000000])
-            ->get(['id', 'title', 'price']);
+            ->get(['id', 'title', 'price', 'status']);
             
         \Log::info('DEBUG: All products in 3-5 billion range from database', [
             'count' => $allProductsInRange->count(),
@@ -305,6 +305,26 @@ class ProductController extends Controller
                     'id' => $p->id,
                     'title' => $p->title,
                     'price' => $p->price,
+                    'status' => $p->status,
+                    'price_formatted' => number_format($p->price) . ' VNĐ'
+                ];
+            })->toArray()
+        ]);
+        
+        // Debug: Kiểm tra products có status = 1 trong khoảng 3-5 tỷ
+        $activeProductsInRange = Product::where('status', 1)
+            ->whereRaw('CAST(price AS UNSIGNED) >= ?', [3000000000])
+            ->whereRaw('CAST(price AS UNSIGNED) <= ?', [5000000000])
+            ->get(['id', 'title', 'price', 'status']);
+            
+        \Log::info('DEBUG: Active products (status=1) in 3-5 billion range', [
+            'count' => $activeProductsInRange->count(),
+            'products' => $activeProductsInRange->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price,
+                    'status' => $p->status,
                     'price_formatted' => number_format($p->price) . ' VNĐ'
                 ];
             })->toArray()
@@ -315,6 +335,13 @@ class ProductController extends Controller
         \Log::info('DEBUG: Direct database query result', [
             'count' => count($directQuery),
             'ids' => array_column($directQuery, 'id')
+        ]);
+        
+        // Debug: So sánh với query KHÔNG có status filter
+        $directQueryNoStatus = \DB::select('SELECT id FROM products WHERE CAST(price AS UNSIGNED) >= ? AND CAST(price AS UNSIGNED) <= ?', [3000000000, 5000000000]);
+        \Log::info('DEBUG: Direct database query WITHOUT status filter', [
+            'count' => count($directQueryNoStatus),
+            'ids' => array_column($directQueryNoStatus, 'id')
         ]);
         
         // Debug: Log kết quả cuối cùng
