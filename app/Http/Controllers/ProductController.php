@@ -171,132 +171,69 @@ class ProductController extends Controller
         // Debug: Log tất cả parameters
         \Log::info('DEBUG: Search parameters', $params);
         
-        // Bước 1: Lọc cơ bản trên bảng products
-        $query = Product::with(['images', 'attributes', 'catalogues', 'ward'])
-            ->active();
-        
-        // Tìm kiếm theo từ khóa
-        if (!empty($params['keyword'])) {
-            $keyword = trim($params['keyword']);
-            $query->where(function($q) use ($keyword) {
-                $q->where('title', 'like', '%'.$keyword.'%')
-                  ->orWhere('description', 'like', '%'.$keyword.'%')
-                  ->orWhere('content', 'like', '%'.$keyword.'%');
-            });
-        }
-        
-        // Lọc theo khoảng giá (đơn vị: triệu)
-        if (!empty($params['price_min']) && $params['price_min'] > 0) {
-            $minPrice = $params['price_min'] * 1000000;
-            // Sử dụng DB::raw để đảm bảo query đúng
-            $query->whereRaw('CAST(price AS UNSIGNED) >= ?', [$minPrice]);
-            \Log::info('DEBUG: Price filter MIN', [
-                'price_min_param' => $params['price_min'],
-                'min_price_vnd' => $minPrice,
-                'min_price_formatted' => number_format($minPrice) . ' VNĐ'
-            ]);
-        }
-        if (!empty($params['price_max']) && $params['price_max'] > 0) {
-            $maxPrice = $params['price_max'] * 1000000;
-            // Sử dụng DB::raw để đảm bảo query đúng
-            $query->whereRaw('CAST(price AS UNSIGNED) <= ?', [$maxPrice]);
-            \Log::info('DEBUG: Price filter MAX', [
-                'price_max_param' => $params['price_max'],
-                'max_price_vnd' => $maxPrice,
-                'max_price_formatted' => number_format($maxPrice) . ' VNĐ'
-            ]);
-        }
-        
-        
-        // Lọc theo phường/xã
-        if (!empty($params['ward_id'])) {
-            $query->where('ward_id', $params['ward_id']);
-        }
-        
-        // Bước 2: Lấy product IDs sau khi lọc cơ bản
-        \Log::info('DEBUG: SQL Query before execution', [
-            'sql' => $query->toSql(),
-            'bindings' => $query->getBindings()
-        ]);
-        
-        // Thực hiện query và kiểm tra kết quả
-        $productIds = $query->pluck('id')->toArray();
-        
-        // TEMPORARY FIX: Sử dụng direct query thay vì Laravel query
+        // COMPLETE FIX: Sử dụng direct query hoàn toàn
         $minPrice = $params['price_min'] ?? 0;
         $maxPrice = $params['price_max'] ?? 999999999999;
         $minPriceVnd = $minPrice * 1000000;
         $maxPriceVnd = $maxPrice * 1000000;
         
-        $correctProductIds = \DB::select('SELECT id FROM products WHERE status = 1 AND CAST(price AS UNSIGNED) >= ? AND CAST(price AS UNSIGNED) <= ?', [$minPriceVnd, $maxPriceVnd]);
+        // Xây dựng SQL query trực tiếp
+        $sql = 'SELECT id FROM products WHERE status = 1';
+        $bindings = [];
+        
+        // Thêm keyword filter
+        if (!empty($params['keyword'])) {
+            $keyword = trim($params['keyword']);
+            $sql .= ' AND (title LIKE ? OR description LIKE ? OR content LIKE ?)';
+            $bindings[] = '%' . $keyword . '%';
+            $bindings[] = '%' . $keyword . '%';
+            $bindings[] = '%' . $keyword . '%';
+        }
+        
+        // Thêm price filter
+        if ($minPrice > 0) {
+            $sql .= ' AND CAST(price AS UNSIGNED) >= ?';
+            $bindings[] = $minPriceVnd;
+        }
+        if ($maxPrice > 0 && $maxPrice < 999999999999) {
+            $sql .= ' AND CAST(price AS UNSIGNED) <= ?';
+            $bindings[] = $maxPriceVnd;
+        }
+        
+        // Thêm ward filter
+        if (!empty($params['ward_id'])) {
+            $sql .= ' AND ward_id = ?';
+            $bindings[] = $params['ward_id'];
+        }
+        
+        \Log::info('DEBUG: COMPLETE DIRECT SQL QUERY', [
+            'sql' => $sql,
+            'bindings' => $bindings,
+            'price_range' => [$minPriceVnd, $maxPriceVnd]
+        ]);
+        
+        // Thực hiện direct query
+        $correctProductIds = \DB::select($sql, $bindings);
         $productIds = array_column($correctProductIds, 'id');
         
-        \Log::info('DEBUG: Using DIRECT query instead of Laravel query', [
-            'laravel_query_ids' => $query->pluck('id')->toArray(),
-            'direct_query_ids' => $productIds,
-            'price_range' => [$minPriceVnd, $maxPriceVnd],
-            'note' => 'Using direct query to get correct products'
-        ]);
-        
-        // Debug: Kiểm tra SQL query thực tế được execute
-        $actualSql = $query->toSql();
-        $actualBindings = $query->getBindings();
-        \Log::info('DEBUG: Actual SQL executed', [
-            'sql' => $actualSql,
-            'bindings' => $actualBindings,
-            'full_query' => vsprintf(str_replace('?', '%s', $actualSql), $actualBindings)
-        ]);
-        
-        // Debug: Kiểm tra products thực tế từ query
-        $actualProductsFromQuery = $query->get(['id', 'title', 'price']);
-        \Log::info('DEBUG: Actual products from query', [
-            'count' => $actualProductsFromQuery->count(),
-            'products' => $actualProductsFromQuery->map(function($p) {
-                return [
-                    'id' => $p->id,
-                    'title' => $p->title,
-                    'price' => $p->price,
-                    'price_formatted' => number_format($p->price) . ' VNĐ'
-                ];
-            })->toArray()
-        ]);
-        
-        \Log::info('DEBUG: Product IDs after basic filters', [
-            'count' => count($productIds),
-            'sample_ids' => array_slice($productIds, 0, 10)
+        \Log::info('DEBUG: DIRECT QUERY RESULT', [
+            'product_ids' => $productIds,
+            'count' => count($productIds)
         ]);
         
         if (empty($productIds)) {
             return collect();
         }
         
-        // Bước 3: Áp dụng các bộ lọc theo attributes
-        // CHỈ áp dụng attribute filters nếu KHÔNG có price filter
+        // Bước 3: Áp dụng các bộ lọc theo attributes (chỉ khi không có price filter)
         $hasPriceFilter = !empty($params['price_min']) || !empty($params['price_max']);
         
         if ($hasPriceFilter) {
             // Nếu có price filter, bỏ qua attribute filters để tránh conflict
             $filteredProductIds = $productIds;
-            \Log::info('DEBUG: Skipping attribute filters due to price filter', [
-                'price_min' => $params['price_min'] ?? null,
-                'price_max' => $params['price_max'] ?? null,
-                'product_ids' => $productIds
-            ]);
         } else {
             // Chỉ áp dụng attribute filters khi không có price filter
-            \Log::info('DEBUG: Before attribute filters', [
-                'original_count' => count($productIds),
-                'original_ids' => $productIds,
-                'params' => $params
-            ]);
-            
             $filteredProductIds = $this->applyAttributeFilters($productIds, $params);
-            
-            \Log::info('DEBUG: After attribute filters', [
-                'filtered_count' => count($filteredProductIds),
-                'filtered_ids' => $filteredProductIds,
-                'sample_filtered_ids' => array_slice($filteredProductIds, 0, 10)
-            ]);
         }
         
         if (empty($filteredProductIds)) {
@@ -309,91 +246,15 @@ class ProductController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
         
-        // Debug: Kiểm tra tất cả products trong database có price 3-5 tỷ
-        $allProductsInRange = Product::whereRaw('CAST(price AS UNSIGNED) >= ?', [3000000000])
-            ->whereRaw('CAST(price AS UNSIGNED) <= ?', [5000000000])
-            ->get(['id', 'title', 'price', 'status']);
-            
-        \Log::info('DEBUG: All products in 3-5 billion range from database', [
-            'count' => $allProductsInRange->count(),
-            'products' => $allProductsInRange->map(function($p) {
-                return [
-                    'id' => $p->id,
-                    'title' => $p->title,
-                    'price' => $p->price,
-                    'status' => $p->status,
-                    'price_formatted' => number_format($p->price) . ' VNĐ'
-                ];
-            })->toArray()
-        ]);
-        
-        // Debug: Kiểm tra products có status = 1 trong khoảng 3-5 tỷ
-        $activeProductsInRange = Product::where('status', 1)
-            ->whereRaw('CAST(price AS UNSIGNED) >= ?', [3000000000])
-            ->whereRaw('CAST(price AS UNSIGNED) <= ?', [5000000000])
-            ->get(['id', 'title', 'price', 'status']);
-            
-        \Log::info('DEBUG: Active products (status=1) in 3-5 billion range', [
-            'count' => $activeProductsInRange->count(),
-            'products' => $activeProductsInRange->map(function($p) {
-                return [
-                    'id' => $p->id,
-                    'title' => $p->title,
-                    'price' => $p->price,
-                    'status' => $p->status,
-                    'price_formatted' => number_format($p->price) . ' VNĐ'
-                ];
-            })->toArray()
-        ]);
-        
-        // Debug: So sánh với query trực tiếp từ database
-        $directQuery = \DB::select('SELECT id FROM products WHERE status = 1 AND CAST(price AS UNSIGNED) >= ? AND CAST(price AS UNSIGNED) <= ?', [3000000000, 5000000000]);
-        \Log::info('DEBUG: Direct database query result', [
-            'count' => count($directQuery),
-            'ids' => array_column($directQuery, 'id')
-        ]);
-        
-        // Debug: So sánh với query KHÔNG có status filter
-        $directQueryNoStatus = \DB::select('SELECT id FROM products WHERE CAST(price AS UNSIGNED) >= ? AND CAST(price AS UNSIGNED) <= ?', [3000000000, 5000000000]);
-        \Log::info('DEBUG: Direct database query WITHOUT status filter', [
-            'count' => count($directQueryNoStatus),
-            'ids' => array_column($directQueryNoStatus, 'id')
-        ]);
-        
-        // Debug: Kiểm tra một số products cụ thể từ Laravel query SAI
-        $testProducts = \DB::select('SELECT id, price, CAST(price AS UNSIGNED) as price_unsigned FROM products WHERE id IN (2, 46, 60, 68, 77)');
-        \Log::info('DEBUG: Test specific products from WRONG Laravel query', [
-            'products' => $testProducts,
-            'note' => 'These products are from Laravel query that returned wrong results'
-        ]);
-        
-        // Debug: Kiểm tra products có giá thực tế 3-5 tỷ
-        $realBillionProducts = \DB::select('SELECT id, price, CAST(price AS UNSIGNED) as price_unsigned FROM products WHERE CAST(price AS UNSIGNED) >= 3000000000 AND CAST(price AS UNSIGNED) <= 5000000000 LIMIT 5');
-        \Log::info('DEBUG: Products with real 3-5 billion price', [
-            'products' => $realBillionProducts
-        ]);
-        
-        // Debug: So sánh Laravel query vs Direct query
-        \Log::info('DEBUG: COMPARISON - Laravel vs Direct', [
-            'laravel_query_ids' => $productIds,
-            'direct_query_ids' => array_column($directQuery, 'id'),
-            'laravel_count' => count($productIds),
-            'direct_count' => count($directQuery),
-            'difference' => array_diff($productIds, array_column($directQuery, 'id'))
-        ]);
-        
-        // Debug: Log kết quả cuối cùng
-        \Log::info('DEBUG: Final search results', [
+        \Log::info('DEBUG: FINAL RESULTS', [
             'total_products' => $products->count(),
-            'price_min' => $params['price_min'] ?? null,
-            'price_max' => $params['price_max'] ?? null,
-            'sample_products' => $products->take(5)->map(function($p) {
+            'price_range' => [$minPriceVnd, $maxPriceVnd],
+            'sample_products' => $products->take(3)->map(function($p) {
                 return [
                     'id' => $p->id,
                     'title' => $p->title,
                     'price' => $p->price,
-                    'price_formatted' => number_format($p->price) . ' VNĐ',
-                    'price_in_range' => ($p->price >= ($params['price_min'] ?? 0) * 1000000 && $p->price <= ($params['price_max'] ?? 999999999999) * 1000000) ? 'YES' : 'NO'
+                    'price_formatted' => number_format($p->price) . ' VNĐ'
                 ];
             })->toArray()
         ]);
