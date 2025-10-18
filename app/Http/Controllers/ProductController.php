@@ -171,65 +171,51 @@ class ProductController extends Controller
         // Debug: Log tất cả parameters
         \Log::info('DEBUG: Search parameters', $params);
         
-        // COMPLETE FIX: Sử dụng direct query hoàn toàn
+        // FINAL FIX: Sử dụng Laravel Query Builder đơn giản
+        $query = Product::where('status', 1);
+        
+        // Thêm keyword filter
+        if (!empty($params['keyword'])) {
+            $keyword = trim($params['keyword']);
+            $query->where(function($q) use ($keyword) {
+                $q->where('title', 'like', '%'.$keyword.'%')
+                  ->orWhere('description', 'like', '%'.$keyword.'%')
+                  ->orWhere('content', 'like', '%'.$keyword.'%');
+            });
+        }
+        
+        // Thêm ward filter
+        if (!empty($params['ward_id'])) {
+            $query->where('ward_id', $params['ward_id']);
+        }
+        
+        // Lấy tất cả products trước
+        $allProducts = $query->get(['id', 'price']);
+        
+        // Lọc theo price trong PHP (không dùng SQL)
         $minPrice = $params['price_min'] ?? 0;
         $maxPrice = $params['price_max'] ?? 999999999999;
         $minPriceVnd = $minPrice * 1000000;
         $maxPriceVnd = $maxPrice * 1000000;
         
-        // Xây dựng SQL query trực tiếp
-        $sql = 'SELECT id FROM products WHERE status = 1';
-        $bindings = [];
+        $filteredProducts = $allProducts->filter(function($product) use ($minPriceVnd, $maxPriceVnd) {
+            $price = (int) $product->price;
+            return $price >= $minPriceVnd && $price <= $maxPriceVnd;
+        });
         
-        // Thêm keyword filter
-        if (!empty($params['keyword'])) {
-            $keyword = trim($params['keyword']);
-            $sql .= ' AND (title LIKE ? OR description LIKE ? OR content LIKE ?)';
-            $bindings[] = '%' . $keyword . '%';
-            $bindings[] = '%' . $keyword . '%';
-            $bindings[] = '%' . $keyword . '%';
-        }
+        $productIds = $filteredProducts->pluck('id')->toArray();
         
-        // Thêm price filter
-        if ($minPrice > 0) {
-            $sql .= ' AND CAST(price AS UNSIGNED) >= ?';
-            $bindings[] = $minPriceVnd;
-        }
-        if ($maxPrice > 0 && $maxPrice < 999999999999) {
-            $sql .= ' AND CAST(price AS UNSIGNED) <= ?';
-            $bindings[] = $maxPriceVnd;
-        }
-        
-        // Thêm ward filter
-        if (!empty($params['ward_id'])) {
-            $sql .= ' AND ward_id = ?';
-            $bindings[] = $params['ward_id'];
-        }
-        
-        \Log::info('DEBUG: COMPLETE DIRECT SQL QUERY', [
-            'sql' => $sql,
-            'bindings' => $bindings,
-            'price_range' => [$minPriceVnd, $maxPriceVnd]
-        ]);
-        
-        // Thực hiện direct query
-        $correctProductIds = \DB::select($sql, $bindings);
-        $productIds = array_column($correctProductIds, 'id');
-        
-        // Debug: Kiểm tra products thực tế từ direct query
-        $actualProducts = \DB::select('SELECT id, price, CAST(price AS UNSIGNED) as price_unsigned FROM products WHERE id IN (' . implode(',', $productIds) . ')');
-        
-        \Log::info('DEBUG: DIRECT QUERY RESULT', [
-            'product_ids' => $productIds,
-            'count' => count($productIds),
-            'actual_products' => $actualProducts,
-            'price_range_check' => [
-                'min_expected' => $minPriceVnd,
-                'max_expected' => $maxPriceVnd,
-                'products_in_range' => array_filter($actualProducts, function($p) use ($minPriceVnd, $maxPriceVnd) {
-                    return $p->price_unsigned >= $minPriceVnd && $p->price_unsigned <= $maxPriceVnd;
-                })
-            ]
+        \Log::info('DEBUG: PHP FILTER RESULT', [
+            'all_products_count' => $allProducts->count(),
+            'filtered_products_count' => count($productIds),
+            'price_range' => [$minPriceVnd, $maxPriceVnd],
+            'sample_filtered_products' => $filteredProducts->take(3)->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ'
+                ];
+            })->toArray()
         ]);
         
         if (empty($productIds)) {
