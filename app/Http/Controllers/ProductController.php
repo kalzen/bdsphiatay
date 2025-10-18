@@ -83,7 +83,7 @@ class ProductController extends Controller
     public function ward($slug)
     {
         // Tìm ward theo slug
-        $ward = Ward::where('slug', $slug)->firstOrFail();
+            $ward = Ward::where('slug', $slug)->firstOrFail();
         
         $wards = Ward::all();
         $plans = Plan::all();
@@ -224,23 +224,38 @@ class ProductController extends Controller
             $query->where('ward_id', $params['ward_id']);
         }
         
-        // Bước 2: Lấy product IDs để lọc theo attributes
+        // Bước 2: Lấy product IDs sau khi lọc cơ bản
         $productIds = $query->pluck('id')->toArray();
         
+        \Log::info('DEBUG: Products after basic filters', [
+            'count' => count($productIds),
+            'sample_ids' => array_slice($productIds, 0, 10)
+        ]);
+        
         if (empty($productIds)) {
+            \Log::info('DEBUG: No products after basic filters');
             return collect();
         }
         
         // Bước 3: Áp dụng các bộ lọc theo attributes
-        $productIds = $this->applyAttributeFilters($productIds, $params);
+        // TEMPORARY: Skip attribute filters to test
+        $filteredProductIds = $productIds;
+        // $filteredProductIds = $this->applyAttributeFilters($productIds, $params);
         
-        if (empty($productIds)) {
+        \Log::info('DEBUG: Products after attribute filters', [
+            'original_count' => count($productIds),
+            'filtered_count' => count($filteredProductIds),
+            'sample_filtered_ids' => array_slice($filteredProductIds, 0, 10)
+        ]);
+        
+        if (empty($filteredProductIds)) {
+            \Log::info('DEBUG: No products after attribute filters');
             return collect();
         }
         
         // Bước 4: Lấy danh sách sản phẩm cuối cùng
         $products = Product::with(['images', 'attributes', 'catalogues', 'ward'])
-            ->whereIn('id', $productIds)
+            ->whereIn('id', $filteredProductIds)
             ->orderBy('created_at', 'desc')
             ->get();
         
@@ -265,11 +280,21 @@ class ProductController extends Controller
     {
         $filteredIds = $productIds;
         
+        \Log::info('DEBUG: Starting attribute filters', [
+            'input_product_ids_count' => count($productIds),
+            'params' => $params
+        ]);
+        
         // Lọc theo hướng
         if (!empty($params['direction']) && is_array($params['direction'])) {
             $directions = array_filter($params['direction'], function($v) {
                 return !empty(trim($v)) && trim($v) != ' ';
             });
+            
+            \Log::info('DEBUG: Direction filter', [
+                'directions' => $directions,
+                'before_count' => count($filteredIds)
+            ]);
             
             if (!empty($directions)) {
                 $ids = DB::table('attribute_product')
@@ -284,6 +309,11 @@ class ProductController extends Controller
                     ->toArray();
                 
                 $filteredIds = array_intersect($filteredIds, $ids);
+                
+                \Log::info('DEBUG: Direction filter result', [
+                    'after_count' => count($filteredIds),
+                    'found_ids' => array_slice($ids, 0, 10)
+                ]);
             }
         }
         
@@ -293,9 +323,19 @@ class ProductController extends Controller
                 return $v != '0' && !empty(trim($v));
             });
             
+            \Log::info('DEBUG: Area filter', [
+                'areas' => $areas,
+                'before_count' => count($filteredIds)
+            ]);
+            
             if (!empty($areas)) {
                 $ids = $this->filterByArea($filteredIds, $areas);
                 $filteredIds = array_intersect($filteredIds, $ids);
+                
+                \Log::info('DEBUG: Area filter result', [
+                    'after_count' => count($filteredIds),
+                    'found_ids' => array_slice($ids, 0, 10)
+                ]);
             }
         }
         
@@ -334,6 +374,11 @@ class ProductController extends Controller
                 $filteredIds = array_intersect($filteredIds, $ids);
             }
         }
+        
+        \Log::info('DEBUG: Final attribute filter result', [
+            'final_count' => count($filteredIds),
+            'final_ids' => array_slice($filteredIds, 0, 20)
+        ]);
         
         return array_values($filteredIds);
     }
