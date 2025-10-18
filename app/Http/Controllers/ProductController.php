@@ -116,7 +116,22 @@ class ProductController extends Controller
         $catalogues = Catalogue::orderBy('id', 'asc')->get();
         
         // Tìm kiếm sản phẩm
+        \Log::info('DEBUG: Search method called', [
+            'params' => $params
+        ]);
+        
         $products = $this->performSearch($params);
+        
+        \Log::info('DEBUG: Search method returning', [
+            'products_count' => $products->count(),
+            'first_3_products' => $products->take(3)->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price
+                ];
+            })->toArray()
+        ]);
         
         return view('product.index', compact('products', 'wards', 'catalogues', 'plans'));
     }
@@ -323,10 +338,28 @@ class ProductController extends Controller
         }
         
         // Bước 4: Lấy danh sách sản phẩm cuối cùng
-        $products = Product::with(['images', 'attributes', 'catalogues', 'ward'])
-            ->whereIn('id', $filteredProductIds)
+        \Log::info('DEBUG: Fetching products with IDs', [
+            'filtered_product_ids' => array_slice($filteredProductIds, 0, 10),
+            'total_ids' => count($filteredProductIds)
+        ]);
+        
+        // TEMPORARY: Fetch products without relationships to test
+        $products = Product::whereIn('id', $filteredProductIds)
             ->orderBy('created_at', 'desc')
             ->get();
+            
+        \Log::info('DEBUG: Products fetched from database', [
+            'fetched_count' => $products->count(),
+            'fetched_ids' => $products->pluck('id')->toArray(),
+            'first_5_fetched' => $products->take(5)->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ'
+                ];
+            })->toArray()
+        ]);
             
         // Debug: Kiểm tra data consistency
         \Log::info('DEBUG: Data consistency check', [
