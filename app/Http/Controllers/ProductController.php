@@ -241,38 +241,45 @@ class ProductController extends Controller
             $query->where('ward_id', $params['ward_id']);
         }
         
-        // Debug: Check price column type and test with CAST
-        \Log::info('DEBUG: Testing price column type');
+        // Debug: Check what's actually in database
+        \Log::info('DEBUG: Checking database data integrity');
         
-        // Test 1: Original query
+        // Check some sample products to see their actual prices
+        $sampleProducts = \DB::table('products')
+            ->where('status', 1)
+            ->select('id', 'title', 'price')
+            ->orderBy('price', 'desc')
+            ->limit(10)
+            ->get();
+            
+        \Log::info('DEBUG: Sample products (highest prices)', [
+            'products' => $sampleProducts->toArray()
+        ]);
+        
+        // Check products in the 5-10 billion range specifically
+        $targetProducts = \DB::table('products')
+            ->where('status', 1)
+            ->where('price', '>=', 5000000000)
+            ->where('price', '<=', 10000000000)
+            ->select('id', 'title', 'price')
+            ->orderBy('price', 'asc')
+            ->limit(5)
+            ->get();
+            
+        \Log::info('DEBUG: Products in 5-10 billion range', [
+            'count' => $targetProducts->count(),
+            'products' => $targetProducts->toArray()
+        ]);
+        
+        // Execute the original query
         \DB::enableQueryLog();
         $productIds = $query->orderBy('price', 'asc')->pluck('id')->toArray();
         $queries = \DB::getQueryLog();
-        \Log::info('DEBUG: Original SQL query', [
+        \Log::info('DEBUG: Query executed', [
             'sql' => $queries[0]['query'],
             'bindings' => $queries[0]['bindings'],
-            'time' => $queries[0]['time']
+            'result_count' => count($productIds)
         ]);
-        
-        // Test 2: Query with CAST to force numeric comparison
-        $castQuery = \DB::table('products')
-            ->where('status', 1)
-            ->whereRaw('CAST(price AS UNSIGNED) BETWEEN ? AND ?', [$query->getBindings()[1], $query->getBindings()[2]])
-            ->orderByRaw('CAST(price AS UNSIGNED) ASC');
-            
-        $castProductIds = $castQuery->pluck('id')->toArray();
-        \Log::info('DEBUG: CAST query results', [
-            'original_count' => count($productIds),
-            'cast_count' => count($castProductIds),
-            'original_ids' => array_slice($productIds, 0, 5),
-            'cast_ids' => array_slice($castProductIds, 0, 5)
-        ]);
-        
-        // Use CAST results if different
-        if (count($castProductIds) != count($productIds)) {
-            \Log::info('DEBUG: Using CAST results due to difference');
-            return $castProductIds;
-        }
         
         return $productIds;
     }
