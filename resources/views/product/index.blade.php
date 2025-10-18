@@ -137,18 +137,21 @@
                                                     </div>                                                  
                                                     <div class="form-group-2 form-style">
                                                                         <div class="group-select">
-                                                                                <select name="price_range" class="select_js">    
-                                                                                    <option value="0" class="option" {{request('price_range') == '0' || !request('price_range') ? 'selected' : ''}}>Khoảng giá</option>
-                                                                                    <option value="1" class="option" {{request('price_range') == '1' ? 'selected' : ''}}>Dưới 500 triệu</option>
-                                                                                    <option value="2" class="option" {{request('price_range') == '2' ? 'selected' : ''}}>500 - 1 tỷ</option>
-                                                                                    <option value="3" class="option" {{request('price_range') == '3' ? 'selected' : ''}}>1 - 2 tỷ</option>
-                                                                                    <option value="4" class="option" {{request('price_range') == '4' ? 'selected' : ''}}>2 - 3 tỷ</option>                                                      
-                                                                                    <option value="5" class="option" {{request('price_range') == '5' ? 'selected' : ''}}>3 - 5 tỷ</option>
-                                                                                    <option value="6" class="option" {{request('price_range') == '6' ? 'selected' : ''}}>5 - 10 tỷ</option>
-                                                                                    <option value="7" class="option" {{request('price_range') == '7' ? 'selected' : ''}}>10 - 20 tỷ</option>                                                      
-                                                                                    <option value="8" class="option" {{request('price_range') == '8' ? 'selected' : ''}}>20 - 30 tỷ</option>
-                                                                                    <option value="9" class="option" {{request('price_range') == '9' ? 'selected' : ''}}>Trên 30 tỷ</option>
+                                                                                <select id="price_range_select" class="select_js">    
+                                                                                    <option value="" data-min="" data-max="">Khoảng giá</option>
+                                                                                    <option value="1" data-min="0" data-max="500">Dưới 500 triệu</option>
+                                                                                    <option value="2" data-min="500" data-max="1000">500 triệu - 1 tỷ</option>
+                                                                                    <option value="3" data-min="1000" data-max="2000">1 - 2 tỷ</option>
+                                                                                    <option value="4" data-min="2000" data-max="3000">2 - 3 tỷ</option>                                                      
+                                                                                    <option value="5" data-min="3000" data-max="5000">3 - 5 tỷ</option>
+                                                                                    <option value="6" data-min="5000" data-max="10000">5 - 10 tỷ</option>
+                                                                                    <option value="7" data-min="10000" data-max="20000">10 - 20 tỷ</option>                                                      
+                                                                                    <option value="8" data-min="20000" data-max="30000">20 - 30 tỷ</option>
+                                                                                    <option value="9" data-min="30000" data-max="999999">Trên 30 tỷ</option>
                                                                                 </select>
+                                                                                <!-- Hidden inputs để gửi lên backend -->
+                                                                                <input type="hidden" name="price_min" id="price_min" value="{{request('price_min')}}">
+                                                                                <input type="hidden" name="price_max" id="price_max" value="{{request('price_max')}}">
                                                                         </div>
                                                                     </div>
                                                     <div class="form-group-3 form-style">
@@ -217,10 +220,19 @@
                                                                         </div>                                                  
                                                                     </div> 
                                                                 <div class="form-group wg-box3">
-                                                                    <h6 style="margin-bottom: 20px;">Khoảng giá (đơn vị triệu)</h6>
+                                                                    <h6 style="margin-bottom: 20px;">Khoảng giá tùy chỉnh (đơn vị triệu)</h6>
                                                                         <div class="tf-amenities bg-white">
-                                                                             Min: <input name="price_range_min" type="number" value="{{request('price_range_min')}}" />  
-                                                                             Max: <input name="price_range_max" type="number" value="{{request('price_range_max')}}" />  
+                                                                             <div style="display: flex; gap: 10px; align-items: center;">
+                                                                                 <div>
+                                                                                     <label style="font-size: 12px; color: #666;">Từ:</label>
+                                                                                     <input id="custom_price_min" type="number" placeholder="VD: 500" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                                                                                 </div>
+                                                                                 <div>
+                                                                                     <label style="font-size: 12px; color: #666;">Đến:</label>
+                                                                                     <input id="custom_price_max" type="number" placeholder="VD: 2000" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                                                                                 </div>
+                                                                             </div>
+                                                                             <small style="color: #999; font-size: 11px;">Nhập số triệu VNĐ (VD: 500 = 500 triệu)</small>
                                                                         </div>                                                  
                                                                     </div> 
                                                                 <div class="boder-wg"></div>
@@ -472,9 +484,72 @@
         $('#header-search').append(`<input name="sort" type="hidden" value="${order}"/>`)
         $('#header-search').trigger('submit')
     }
+    
     $(function(){
-        console.log('Product list ready')
-    })
+        console.log('Product list ready');
+        
+        // Xử lý khi chọn dropdown khoảng giá
+        $('#price_range_select').on('change', function() {
+            const selectedOption = $(this).find('option:selected');
+            const minPrice = selectedOption.data('min');
+            const maxPrice = selectedOption.data('max');
+            
+            // Set giá trị cho hidden inputs
+            $('#price_min').val(minPrice || '');
+            $('#price_max').val(maxPrice || '');
+            
+            // Clear custom inputs
+            $('#custom_price_min').val('');
+            $('#custom_price_max').val('');
+            
+            console.log('Price range selected:', {min: minPrice, max: maxPrice});
+        });
+        
+        // Xử lý khi nhập giá tùy chỉnh
+        $('#custom_price_min, #custom_price_max').on('input', function() {
+            const customMin = $('#custom_price_min').val();
+            const customMax = $('#custom_price_max').val();
+            
+            // Nếu có nhập custom, update hidden inputs
+            if (customMin || customMax) {
+                $('#price_min').val(customMin || '');
+                $('#price_max').val(customMax || '');
+                
+                // Reset dropdown về "Khoảng giá"
+                $('#price_range_select').val('');
+                
+                console.log('Custom price set:', {min: customMin, max: customMax});
+            }
+        });
+        
+        // Khôi phục giá trị khi page load (nếu có query params)
+        const urlParams = new URLSearchParams(window.location.search);
+        const priceMin = urlParams.get('price_min');
+        const priceMax = urlParams.get('price_max');
+        
+        if (priceMin || priceMax) {
+            $('#price_min').val(priceMin || '');
+            $('#price_max').val(priceMax || '');
+            
+            // Kiểm tra xem có match với dropdown nào không
+            let foundMatch = false;
+            $('#price_range_select option').each(function() {
+                const optMin = $(this).data('min');
+                const optMax = $(this).data('max');
+                if (optMin == priceMin && optMax == priceMax) {
+                    $(this).prop('selected', true);
+                    foundMatch = true;
+                    return false; // break loop
+                }
+            });
+            
+            // Nếu không match dropdown thì là custom price
+            if (!foundMatch) {
+                $('#custom_price_min').val(priceMin || '');
+                $('#custom_price_max').val(priceMax || '');
+            }
+        }
+    });
 </script>
 <script>
     "use strict";

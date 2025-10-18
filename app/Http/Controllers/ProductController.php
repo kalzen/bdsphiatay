@@ -182,33 +182,12 @@ class ProductController extends Controller
             });
         }
         
-        // Lọc theo khoảng giá định sẵn
-        if (!empty($params['price_range'])) {
-            $priceRanges = [
-                1 => [0, 500000000],                    // Dưới 500 triệu
-                2 => [500000000, 1000000000],           // 500 triệu - 1 tỷ
-                3 => [1000000000, 2000000000],          // 1 - 2 tỷ
-                4 => [2000000000, 3000000000],          // 2 - 3 tỷ
-                5 => [3000000000, 5000000000],          // 3 - 5 tỷ
-                6 => [5000000000, 10000000000],         // 5 - 10 tỷ
-                7 => [10000000000, 20000000000],        // 10 - 20 tỷ
-                8 => [20000000000, 30000000000],        // 20 - 30 tỷ
-                9 => [30000000000, PHP_INT_MAX],        // Trên 30 tỷ
-            ];
-            
-            if (isset($priceRanges[$params['price_range']])) {
-                [$minPrice, $maxPrice] = $priceRanges[$params['price_range']];
-                $query->whereBetween('price', [$minPrice, $maxPrice]);
-            }
-        } 
-        // Lọc theo khoảng giá tùy chỉnh (đơn vị: triệu)
-        else {
-            if (!empty($params['price_range_min']) && $params['price_range_min'] > 0) {
-                $query->where('price', '>=', $params['price_range_min'] * 1000000);
-            }
-            if (!empty($params['price_range_max']) && $params['price_range_max'] > 0) {
-                $query->where('price', '<=', $params['price_range_max'] * 1000000);
-            }
+        // Lọc theo khoảng giá (đơn vị: triệu)
+        if (!empty($params['price_min']) && $params['price_min'] > 0) {
+            $query->where('price', '>=', $params['price_min'] * 1000000);
+        }
+        if (!empty($params['price_max']) && $params['price_max'] > 0) {
+            $query->where('price', '<=', $params['price_max'] * 1000000);
         }
         
         // Lọc theo phường/xã

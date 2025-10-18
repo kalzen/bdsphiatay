@@ -80,18 +80,21 @@
                                                                     </div>
                                                                     <div class="form-group-2 form-style">
                                                                         <div class="group-select">
-                                                                                <select name="price_range" class="select_js">    
-                                                                                    <option value="0" class="option selected">Khoảng giá</option>
-                                                                                    <option value="1" class="option">Dưới 500 triệu</option>
-                                                                                    <option value="2" class="option">500 - 1 tỷ</option>
-                                                                                    <option value="3" class="option">1 - 2 tỷ</option>
-                                                                                    <option value="4" class="option">2 - 3 tỷ</option>                                                      
-                                                                                    <option value="5" class="option">3 - 5 tỷ</option>
-                                                                                    <option value="6" class="option">5 - 10 tỷ</option>
-                                                                                    <option value="7" class="option">10 - 20 tỷ</option>                                                      
-                                                                                    <option value="8" class="option">20 - 30 tỷ</option>
-                                                                                    <option value="9" class="option">Trên 30 tỷ</option>
+                                                                                <select id="home_price_range_select" class="select_js">    
+                                                                                    <option value="" data-min="" data-max="">Khoảng giá</option>
+                                                                                    <option value="1" data-min="0" data-max="500">Dưới 500 triệu</option>
+                                                                                    <option value="2" data-min="500" data-max="1000">500 triệu - 1 tỷ</option>
+                                                                                    <option value="3" data-min="1000" data-max="2000">1 - 2 tỷ</option>
+                                                                                    <option value="4" data-min="2000" data-max="3000">2 - 3 tỷ</option>                                                      
+                                                                                    <option value="5" data-min="3000" data-max="5000">3 - 5 tỷ</option>
+                                                                                    <option value="6" data-min="5000" data-max="10000">5 - 10 tỷ</option>
+                                                                                    <option value="7" data-min="10000" data-max="20000">10 - 20 tỷ</option>                                                      
+                                                                                    <option value="8" data-min="20000" data-max="30000">20 - 30 tỷ</option>
+                                                                                    <option value="9" data-min="30000" data-max="999999">Trên 30 tỷ</option>
                                                                                 </select>
+                                                                                <!-- Hidden inputs để gửi lên backend -->
+                                                                                <input type="hidden" name="price_min" id="home_price_min" value="">
+                                                                                <input type="hidden" name="price_max" id="home_price_max" value="">
                                                                         </div>
                                                                     </div>
                                                                     <div class="form-group-3 form-style">
@@ -133,10 +136,19 @@
                                                                         </div>                                                  
                                                                     </div>
                                                                     <div class="form-group wg-box3">
-                                                                    <h6 style="margin-bottom: 20px;">Khoảng giá (đơn vị triệu)</h6>
+                                                                    <h6 style="margin-bottom: 20px;">Khoảng giá tùy chỉnh (đơn vị triệu)</h6>
                                                                         <div class="tf-amenities bg-white">
-                                                                             Min: <input name="price_range_min" type="number" value="" />  
-                                                                             Max: <input name="price_range_max" type="number" value="" />  
+                                                                             <div style="display: flex; gap: 10px; align-items: center;">
+                                                                                 <div>
+                                                                                     <label style="font-size: 12px; color: #666;">Từ:</label>
+                                                                                     <input id="home_custom_price_min" type="number" placeholder="VD: 500" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                                                                                 </div>
+                                                                                 <div>
+                                                                                     <label style="font-size: 12px; color: #666;">Đến:</label>
+                                                                                     <input id="home_custom_price_max" type="number" placeholder="VD: 2000" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+                                                                                 </div>
+                                                                             </div>
+                                                                             <small style="color: #999; font-size: 11px;">Nhập số triệu VNĐ (VD: 500 = 500 triệu)</small>
                                                                         </div>                                                  
                                                                     </div> 
                                                                 <div class="boder-wg"></div>
@@ -305,4 +317,46 @@
                 @include('home.product')                
 @include('home.featured_product')     
 @include('home.news')
+@endsection
+
+@section('scripts')
+<script>
+    $(function(){
+        console.log('Home page ready');
+        
+        // Xử lý khi chọn dropdown khoảng giá
+        $('#home_price_range_select').on('change', function() {
+            const selectedOption = $(this).find('option:selected');
+            const minPrice = selectedOption.data('min');
+            const maxPrice = selectedOption.data('max');
+            
+            // Set giá trị cho hidden inputs
+            $('#home_price_min').val(minPrice || '');
+            $('#home_price_max').val(maxPrice || '');
+            
+            // Clear custom inputs
+            $('#home_custom_price_min').val('');
+            $('#home_custom_price_max').val('');
+            
+            console.log('Home price range selected:', {min: minPrice, max: maxPrice});
+        });
+        
+        // Xử lý khi nhập giá tùy chỉnh
+        $('#home_custom_price_min, #home_custom_price_max').on('input', function() {
+            const customMin = $('#home_custom_price_min').val();
+            const customMax = $('#home_custom_price_max').val();
+            
+            // Nếu có nhập custom, update hidden inputs
+            if (customMin || customMax) {
+                $('#home_price_min').val(customMin || '');
+                $('#home_price_max').val(customMax || '');
+                
+                // Reset dropdown về "Khoảng giá"
+                $('#home_price_range_select').val('');
+                
+                console.log('Home custom price set:', {min: customMin, max: customMax});
+            }
+        });
+    });
+</script>
 @endsection
