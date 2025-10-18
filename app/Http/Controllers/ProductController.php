@@ -350,10 +350,15 @@ class ProductController extends Controller
         $idsString = implode(',', $filteredProductIds);
         \Log::info('DEBUG: Raw SQL test', [
             'ids_string' => $idsString,
-            'sql_query' => "SELECT * FROM products WHERE id IN ($idsString) ORDER BY created_at DESC"
+            'sql_query' => "SELECT * FROM products WHERE id IN ($idsString) ORDER BY created_at DESC",
+            'filtered_product_ids_before_raw' => array_slice($filteredProductIds, 0, 10)
         ]);
         
         // TEMPORARY: Test with DB::select() to bypass Eloquent
+        \Log::info('DEBUG: Before raw DB query', [
+            'filtered_product_ids_before_raw_query' => array_slice($filteredProductIds, 0, 10)
+        ]);
+        
         $rawResults = \DB::select("SELECT * FROM products WHERE id IN ($idsString) ORDER BY created_at DESC");
         \Log::info('DEBUG: Raw DB results', [
             'count' => count($rawResults),
@@ -370,19 +375,24 @@ class ProductController extends Controller
         
         $products = $query->get();
         
-        // TEMPORARY: Use raw DB results if Eloquent fails
-        if ($products->count() != count($rawResults)) {
-            \Log::info('DEBUG: Eloquent vs Raw DB mismatch', [
-                'eloquent_count' => $products->count(),
-                'raw_count' => count($rawResults),
-                'using_raw_results' => true
-            ]);
-            
-            // Convert raw results to Eloquent models
-            $products = collect($rawResults)->map(function($item) {
-                return new Product((array) $item);
-            });
-        }
+        \Log::info('DEBUG: After Eloquent fetch', [
+            'filtered_product_ids_after_eloquent' => array_slice($filteredProductIds, 0, 10),
+            'products_count' => $products->count(),
+            'products_ids' => $products->pluck('id')->toArray()
+        ]);
+        
+        // TEMPORARY: Force use raw DB results due to Eloquent issue
+        \Log::info('DEBUG: Forcing raw DB results due to Eloquent issue', [
+            'eloquent_count' => $products->count(),
+            'raw_count' => count($rawResults),
+            'eloquent_ids' => $products->pluck('id')->toArray(),
+            'raw_ids' => array_column($rawResults, 'id')
+        ]);
+        
+        // Always use raw DB results for now
+        $products = collect($rawResults)->map(function($item) {
+            return new Product((array) $item);
+        });
             
         \Log::info('DEBUG: Actual SQL executed', [
             'sql' => 'Cannot get SQL from Collection',
