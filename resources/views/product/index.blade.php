@@ -157,7 +157,7 @@
                                                     <div class="form-group-3 form-style">
                                                                         <div class="group-select">
                                                                                 <select class="select_js" name="ward_id">  
-                                                                                    <option value class="option" {{!request('ward_id') ? 'selected' : ''}}>Phường/Xã</li>   
+                                                                                    <option value="" class="option" {{!request('ward_id') ? 'selected' : ''}}>Phường/Xã</option>   
                                                                                     @foreach ($wards as $ward)
                                                                                     <option value="{{$ward->id}}" class="option" {{request('ward_id') == $ward->id ? 'selected' : ''}}>{{$ward->name}}</option>
                                                                                     @endforeach                                  
@@ -167,7 +167,7 @@
                                                     <div class="form-group-3 form-style">
                                                         <div class="group-select">
                                                             <select class="select_js" name="direction[]">  
-                                                                                    <option value=" " class="option" {{!request('direction') || (is_array(request('direction')) && in_array(' ', request('direction'))) ? 'selected' : ''}}>Hướng</li>   
+                                                                                    <option value="" class="option" {{!request('direction') || (is_array(request('direction')) && in_array('', request('direction'))) ? 'selected' : ''}}>Hướng</option>   
                                                                                     <option value="Đông" class="option" {{is_array(request('direction')) && in_array('Đông', request('direction')) ? 'selected' : ''}}>Đông</option>
                                                                                     <option value="Tây" class="option" {{is_array(request('direction')) && in_array('Tây', request('direction')) ? 'selected' : ''}}>Tây</option>
                                                                                     <option value="Nam" class="option" {{is_array(request('direction')) && in_array('Nam', request('direction')) ? 'selected' : ''}}>Nam</option>
@@ -182,7 +182,7 @@
                                                     <div class="form-group-3 form-style">
                                                         <div class="group-select">
                                                             <select class="select_js" name="area[]">  
-                                                                                    <option value="0" class="option" {{!request('area') || (is_array(request('area')) && in_array('0', request('area'))) ? 'selected' : ''}}>Diện tích</li>   
+                                                                                    <option value="" class="option" {{!request('area') || (is_array(request('area')) && in_array('', request('area'))) ? 'selected' : ''}}>Diện tích</option>   
                                                                                     <option value="1" class="option" {{is_array(request('area')) && in_array('1', request('area')) ? 'selected' : ''}}>< 100m</option>
                                                                                     <option value="2" class="option" {{is_array(request('area')) && in_array('2', request('area')) ? 'selected' : ''}}>100 - 300m2</option>
                                                                                     <option value="3" class="option" {{is_array(request('area')) && in_array('3', request('area')) ? 'selected' : ''}}>300 - 500m2</option>
@@ -551,7 +551,11 @@
         const urlParams = new URLSearchParams(window.location.search);
         const priceMin = urlParams.get('price_min');
         const priceMax = urlParams.get('price_max');
+        const wardId = urlParams.get('ward_id');
+        const direction = urlParams.getAll('direction[]');
+        const area = urlParams.getAll('area[]');
         
+        // Restore price filter
         if (priceMin || priceMax) {
             $('#price_min').val(priceMin || '');
             $('#price_max').val(priceMax || '');
@@ -574,6 +578,79 @@
                 $('#custom_price_max').val(priceMax || '');
             }
         }
+        
+        // Restore ward filter
+        if (wardId) {
+            $('select[name="ward_id"]').val(wardId);
+        }
+        
+        // Restore direction filter
+        if (direction.length > 0) {
+            direction.forEach(function(dir) {
+                if (dir && dir !== ' ') {
+                    $('select[name="direction[]"] option[value="' + dir + '"]').prop('selected', true);
+                }
+            });
+        }
+        
+        // Restore area filter
+        if (area.length > 0) {
+            area.forEach(function(ar) {
+                if (ar && ar !== '0') {
+                    $('select[name="area[]"] option[value="' + ar + '"]').prop('selected', true);
+                }
+            });
+        }
+        
+        // Clean URL - remove empty parameters
+        function cleanUrl() {
+            const url = new URL(window.location);
+            const params = new URLSearchParams(url.search);
+            
+            // Remove empty parameters
+            const emptyParams = [];
+            for (const [key, value] of params.entries()) {
+                if (!value || value === ' ' || value === '0' || value === '') {
+                    emptyParams.push(key);
+                }
+            }
+            
+            emptyParams.forEach(param => {
+                params.delete(param);
+            });
+            
+            // Update URL without page reload
+            const newUrl = url.pathname + (params.toString() ? '?' + params.toString() : '');
+            if (newUrl !== window.location.pathname + window.location.search) {
+                window.history.replaceState({}, '', newUrl);
+            }
+        }
+        
+        // Clean URL on page load
+        cleanUrl();
+        
+        // Clean URL when form is submitted
+        $('form[method="get"]').on('submit', function(e) {
+            // Remove empty inputs before submit
+            $(this).find('input, select').each(function() {
+                const $this = $(this);
+                const value = $this.val();
+                
+                // Remove empty values
+                if (!value || value === ' ' || value === '0' || value === '') {
+                    if ($this.attr('type') === 'hidden') {
+                        $this.remove();
+                    } else {
+                        $this.val('');
+                    }
+                }
+            });
+            
+            // Let form submit normally first
+            setTimeout(function() {
+                cleanUrl();
+            }, 100);
+        });
     });
 </script>
 <script>
