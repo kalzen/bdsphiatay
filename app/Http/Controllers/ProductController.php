@@ -186,30 +186,55 @@ class ProductController extends Controller
         }
         
         // Lọc theo khoảng giá (đơn vị: triệu)
-        if (!empty($params['price_min']) && $params['price_min'] > 0) {
-            $minPrice = $params['price_min'] * 1000000;
-            $query->where('price', '>=', $minPrice);
-            \Log::info('DEBUG: Price filter MIN', [
-                'price_min_param' => $params['price_min'],
-                'min_price_vnd' => $minPrice,
-                'min_price_formatted' => number_format($minPrice) . ' VNĐ'
-            ]);
-        }
-        if (!empty($params['price_max']) && $params['price_max'] > 0) {
-            $maxPrice = $params['price_max'] * 1000000;
-            $query->where('price', '<=', $maxPrice);
-            \Log::info('DEBUG: Price filter MAX', [
-                'price_max_param' => $params['price_max'],
-                'max_price_vnd' => $maxPrice,
-                'max_price_formatted' => number_format($maxPrice) . ' VNĐ'
-            ]);
-        }
+        // TEMPORARY: Disable price filter to test
+        \Log::info('DEBUG: Price filter DISABLED for testing', [
+            'price_min_param' => $params['price_min'] ?? null,
+            'price_max_param' => $params['price_max'] ?? null
+        ]);
+        
+        // if (!empty($params['price_min']) && $params['price_min'] > 0) {
+        //     $minPrice = $params['price_min'] * 1000000;
+        //     $query->where('price', '>=', $minPrice);
+        //     \Log::info('DEBUG: Price filter MIN', [
+        //         'price_min_param' => $params['price_min'],
+        //         'min_price_vnd' => $minPrice,
+        //         'min_price_formatted' => number_format($minPrice) . ' VNĐ'
+        //     ]);
+        // }
+        // if (!empty($params['price_max']) && $params['price_max'] > 0) {
+        //     $maxPrice = $params['price_max'] * 1000000;
+        //     $query->where('price', '<=', $maxPrice);
+        //     \Log::info('DEBUG: Price filter MAX', [
+        //         'price_max_param' => $params['price_max'],
+        //         'max_price_vnd' => $maxPrice,
+        //         'max_price_formatted' => number_format($maxPrice) . ' VNĐ'
+        //     ]);
+        // }
         
         // TEMPORARY: Log tất cả products trước khi filter
         $allProducts = Product::active()->get(['id', 'title', 'price']);
         \Log::info('DEBUG: All products before filter', [
             'count' => $allProducts->count(),
             'sample' => $allProducts->take(5)->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ',
+                    'price_type' => gettype($p->price)
+                ];
+            })->toArray()
+        ]);
+        
+        // Kiểm tra products trong khoảng 5-10 tỷ
+        $targetProducts = Product::active()
+            ->where('price', '>=', 5000000000)
+            ->where('price', '<=', 10000000000)
+            ->get(['id', 'title', 'price']);
+            
+        \Log::info('DEBUG: Products in 5-10 billion range', [
+            'count' => $targetProducts->count(),
+            'sample' => $targetProducts->take(5)->map(function($p) {
                 return [
                     'id' => $p->id,
                     'title' => $p->title,
@@ -225,12 +250,33 @@ class ProductController extends Controller
         }
         
         // Bước 2: Lấy product IDs sau khi lọc cơ bản
+        \Log::info('DEBUG: SQL Query before execution', [
+            'sql' => $query->toSql(),
+            'bindings' => $query->getBindings()
+        ]);
+        
         $productIds = $query->pluck('id')->toArray();
         
         \Log::info('DEBUG: Products after basic filters', [
             'count' => count($productIds),
             'sample_ids' => array_slice($productIds, 0, 10)
         ]);
+        
+        // Kiểm tra giá của các sản phẩm được trả về
+        if (!empty($productIds)) {
+            $returnedProducts = Product::whereIn('id', array_slice($productIds, 0, 10))
+                ->get(['id', 'title', 'price']);
+            \Log::info('DEBUG: Sample returned products', [
+                'products' => $returnedProducts->map(function($p) {
+                    return [
+                        'id' => $p->id,
+                        'title' => $p->title,
+                        'price' => $p->price,
+                        'price_formatted' => number_format($p->price) . ' VNĐ'
+                    ];
+                })->toArray()
+            ]);
+        }
         
         if (empty($productIds)) {
             \Log::info('DEBUG: No products after basic filters');
