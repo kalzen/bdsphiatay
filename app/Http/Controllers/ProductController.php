@@ -234,11 +234,19 @@ class ProductController extends Controller
         \Cache::flush();
         \Session::flush();
         
-        // Execute query with explicit casting to ensure numeric comparison
-        $products = $query->whereRaw('CAST(price AS UNSIGNED) BETWEEN ? AND ?', [3000000000, 5000000000])
-                         ->with(['images', 'attributes'])
-                         ->orderBy('price', 'asc')
-                         ->get();
+        // Use completely fresh query builder to avoid any global scopes
+        $products = \DB::table('products')
+            ->where('status', 1)
+            ->whereRaw('CAST(price AS UNSIGNED) BETWEEN ? AND ?', [3000000000, 5000000000])
+                    ->orderBy('price', 'asc')
+                    ->get();
+        
+        // Convert to Eloquent models and load relationships
+        $productIds = $products->pluck('id')->toArray();
+        $products = Product::whereIn('id', $productIds)
+            ->with(['images', 'attributes'])
+            ->orderBy('price', 'asc')
+            ->get();
         
         return view('product.index', compact('products', 'wards', 'catalogues', 'plans'));
     }
