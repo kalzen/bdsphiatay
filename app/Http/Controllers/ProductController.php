@@ -58,7 +58,7 @@ class ProductController extends Controller
                   ->orWhereHas('catalogues', function($cat) use ($keyword) {
                       $cat->where('name', 'like', '%'.$keyword.'%')
                           ->orWhere('slug', 'like', '%'.$keyword.'%');
-                  });
+                });
             });
         }
         
@@ -142,22 +142,41 @@ class ProductController extends Controller
         // Step 1: Basic filters on products table
         $productIds = $this->getBasicFilteredProducts($params);
         
+        \Log::info('DEBUG: Basic filtered product IDs', $productIds);
+        
         if (empty($productIds)) {
             return collect();
         }
         
-        // Step 2: Apply attribute-based filters
-        $finalProductIds = $this->applyAttributeFilters($productIds, $params);
+        // Step 2: Apply attribute-based filters ONLY if there are attribute filters
+        $hasAttributeFilters = $this->hasAttributeFilters($params);
         
-        if (empty($finalProductIds)) {
-            return collect();
+        \Log::info('DEBUG: Has attribute filters', ['has' => $hasAttributeFilters]);
+        
+        if ($hasAttributeFilters) {
+            $finalProductIds = $this->applyAttributeFilters($productIds, $params);
+            \Log::info('DEBUG: After attribute filters', $finalProductIds);
+            if (empty($finalProductIds)) {
+                return collect();
+            }
+        } else {
+            // No attribute filters, use original product IDs
+            $finalProductIds = $productIds;
+            \Log::info('DEBUG: No attribute filters, using original IDs', $finalProductIds);
         }
         
         // Step 3: Load final products with relationships
-        return Product::whereIn('id', $finalProductIds)
+        $products = Product::whereIn('id', $finalProductIds)
             ->with(['images', 'attributes'])
             ->orderBy('price', 'asc')
             ->get();
+            
+        \Log::info('DEBUG: Final products loaded', [
+            'count' => $products->count(),
+            'prices' => $products->pluck('price')->toArray()
+        ]);
+        
+        return $products;
     }
     
     /**
@@ -357,5 +376,20 @@ class ProductController extends Controller
         
         // Get final product IDs
         return $query->distinct()->pluck('product_id')->toArray();
+    }
+    
+    /**
+     * Check if there are any attribute-based filters
+     */
+    private function hasAttributeFilters($params)
+    {
+        return !empty($params['direction']) || 
+               !empty($params['area']) || 
+               !empty($params['front']) || 
+               !empty($params['road']) || 
+               !empty($params['type']) || 
+               !empty($params['function']) || 
+               !empty($params['khuvuc']) || 
+               !empty($params['plan_id']);
     }
 }
