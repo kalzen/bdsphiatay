@@ -344,6 +344,18 @@ class ProductController extends Controller
             'ids' => array_column($directQueryNoStatus, 'id')
         ]);
         
+        // Debug: Kiểm tra một số products cụ thể
+        $testProducts = \DB::select('SELECT id, price, CAST(price AS UNSIGNED) as price_unsigned FROM products WHERE id IN (2, 46, 60, 68, 77)');
+        \Log::info('DEBUG: Test specific products', [
+            'products' => $testProducts
+        ]);
+        
+        // Debug: Kiểm tra products có giá thực tế 3-5 tỷ
+        $realBillionProducts = \DB::select('SELECT id, price, CAST(price AS UNSIGNED) as price_unsigned FROM products WHERE CAST(price AS UNSIGNED) >= 3000000000 AND CAST(price AS UNSIGNED) <= 5000000000 LIMIT 5');
+        \Log::info('DEBUG: Products with real 3-5 billion price', [
+            'products' => $realBillionProducts
+        ]);
+        
         // Debug: Log kết quả cuối cùng
         \Log::info('DEBUG: Final search results', [
             'total_products' => $products->count(),
