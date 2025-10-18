@@ -203,7 +203,7 @@ class ProductController extends Controller
             $query->where('title', 'like', '%'.trim($params['keyword']).'%');
         }
         
-        // Price range filter
+        // Price range filter - FORCE numeric comparison with CAST
         if (!empty($params['price_range'])) {
             $priceRanges = [
                 1 => [0, 500000000],
@@ -224,15 +224,16 @@ class ProductController extends Controller
                     'min_price' => $minPrice,
                     'max_price' => $maxPrice
                 ]);
-                $query->whereBetween('price', [$minPrice, $maxPrice]);
+                // Use CAST to force numeric comparison
+                $query->whereRaw('CAST(price AS UNSIGNED) BETWEEN ? AND ?', [$minPrice, $maxPrice]);
             }
         } else {
-            // Custom price range (min/max in millions)
+            // Custom price range (min/max in millions) - FORCE numeric comparison
             if (!empty($params['price_range_min']) && $params['price_range_min'] > 0) {
-                $query->where('price', '>=', $params['price_range_min'] * 1000000);
+                $query->whereRaw('CAST(price AS UNSIGNED) >= ?', [$params['price_range_min'] * 1000000]);
             }
             if (!empty($params['price_range_max']) && $params['price_range_max'] > 0) {
-                $query->where('price', '<=', $params['price_range_max'] * 1000000);
+                $query->whereRaw('CAST(price AS UNSIGNED) <= ?', [$params['price_range_max'] * 1000000]);
             }
         }
         
