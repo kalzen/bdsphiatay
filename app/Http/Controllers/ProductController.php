@@ -188,7 +188,8 @@ class ProductController extends Controller
         // Lọc theo khoảng giá (đơn vị: triệu)
         if (!empty($params['price_min']) && $params['price_min'] > 0) {
             $minPrice = $params['price_min'] * 1000000;
-            $query->where('price', '>=', $minPrice);
+            // Ép kiểu dữ liệu để đảm bảo so sánh đúng
+            $query->whereRaw('CAST(price AS UNSIGNED) >= ?', [$minPrice]);
             \Log::info('DEBUG: Price filter MIN', [
                 'price_min_param' => $params['price_min'],
                 'min_price_vnd' => $minPrice,
@@ -197,7 +198,8 @@ class ProductController extends Controller
         }
         if (!empty($params['price_max']) && $params['price_max'] > 0) {
             $maxPrice = $params['price_max'] * 1000000;
-            $query->where('price', '<=', $maxPrice);
+            // Ép kiểu dữ liệu để đảm bảo so sánh đúng
+            $query->whereRaw('CAST(price AS UNSIGNED) <= ?', [$maxPrice]);
             \Log::info('DEBUG: Price filter MAX', [
                 'price_max_param' => $params['price_max'],
                 'max_price_vnd' => $maxPrice,
