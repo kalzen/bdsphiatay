@@ -230,10 +230,13 @@ class ProductController extends Controller
             });
         }
 
-        // Execute query with eager loading for better performance
-        $products = $query->with(['images', 'attributes'])
-                    ->orderBy('price', 'asc')
-                    ->get();
+        // Execute query first, then load relationships
+        $products = $query->orderBy('price', 'asc')->get();
+        
+        // Load relationships only for the filtered products
+            if ($products->count() > 0) {
+                $products->load(['images', 'attributes']);
+        }
         
         return view('product.index', compact('products', 'wards', 'catalogues', 'plans'));
     }
