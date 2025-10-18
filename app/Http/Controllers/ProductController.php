@@ -166,6 +166,18 @@ class ProductController extends Controller
         }
         
         // Step 3: Load final products with relationships
+        // Debug: Check what's actually in database for these IDs
+        $debugProducts = \DB::table('products')
+            ->whereIn('id', $finalProductIds)
+            ->select('id', 'title', 'price')
+            ->orderBy('price', 'asc')
+            ->get();
+            
+        \Log::info('DEBUG: Raw database check', [
+            'count' => $debugProducts->count(),
+            'products' => $debugProducts->toArray()
+        ]);
+        
         $products = Product::whereIn('id', $finalProductIds)
             ->with(['images', 'attributes'])
             ->orderBy('price', 'asc')
