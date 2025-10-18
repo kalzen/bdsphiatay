@@ -186,30 +186,24 @@ class ProductController extends Controller
         }
         
         // Lọc theo khoảng giá (đơn vị: triệu)
-        // TEMPORARY: Disable price filter to test
-        \Log::info('DEBUG: Price filter DISABLED for testing', [
-            'price_min_param' => $params['price_min'] ?? null,
-            'price_max_param' => $params['price_max'] ?? null
-        ]);
-        
-        // if (!empty($params['price_min']) && $params['price_min'] > 0) {
-        //     $minPrice = $params['price_min'] * 1000000;
-        //     $query->where('price', '>=', $minPrice);
-        //     \Log::info('DEBUG: Price filter MIN', [
-        //         'price_min_param' => $params['price_min'],
-        //         'min_price_vnd' => $minPrice,
-        //         'min_price_formatted' => number_format($minPrice) . ' VNĐ'
-        //     ]);
-        // }
-        // if (!empty($params['price_max']) && $params['price_max'] > 0) {
-        //     $maxPrice = $params['price_max'] * 1000000;
-        //     $query->where('price', '<=', $maxPrice);
-        //     \Log::info('DEBUG: Price filter MAX', [
-        //         'price_max_param' => $params['price_max'],
-        //         'max_price_vnd' => $maxPrice,
-        //         'max_price_formatted' => number_format($maxPrice) . ' VNĐ'
-        //     ]);
-        // }
+        if (!empty($params['price_min']) && $params['price_min'] > 0) {
+            $minPrice = $params['price_min'] * 1000000;
+            $query->where('price', '>=', $minPrice);
+            \Log::info('DEBUG: Price filter MIN', [
+                'price_min_param' => $params['price_min'],
+                'min_price_vnd' => $minPrice,
+                'min_price_formatted' => number_format($minPrice) . ' VNĐ'
+            ]);
+        }
+        if (!empty($params['price_max']) && $params['price_max'] > 0) {
+            $maxPrice = $params['price_max'] * 1000000;
+            $query->where('price', '<=', $maxPrice);
+            \Log::info('DEBUG: Price filter MAX', [
+                'price_max_param' => $params['price_max'],
+                'max_price_vnd' => $maxPrice,
+                'max_price_formatted' => number_format($maxPrice) . ' VNĐ'
+            ]);
+        }
         
         // TEMPORARY: Log tất cả products trước khi filter
         $allProducts = Product::active()->get(['id', 'title', 'price']);
@@ -235,6 +229,24 @@ class ProductController extends Controller
         \Log::info('DEBUG: Products in 5-10 billion range', [
             'count' => $targetProducts->count(),
             'sample' => $targetProducts->take(5)->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ'
+                ];
+            })->toArray()
+        ]);
+        
+        // Kiểm tra products trong khoảng 0-2 tỷ (để so sánh)
+        $lowPriceProducts = Product::active()
+            ->where('price', '>=', 0)
+            ->where('price', '<=', 2000000000)
+            ->get(['id', 'title', 'price']);
+            
+        \Log::info('DEBUG: Products in 0-2 billion range', [
+            'count' => $lowPriceProducts->count(),
+            'sample' => $lowPriceProducts->take(5)->map(function($p) {
                 return [
                     'id' => $p->id,
                     'title' => $p->title,
