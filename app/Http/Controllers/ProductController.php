@@ -344,16 +344,26 @@ class ProductController extends Controller
             'ids' => array_column($directQueryNoStatus, 'id')
         ]);
         
-        // Debug: Kiểm tra một số products cụ thể
+        // Debug: Kiểm tra một số products cụ thể từ Laravel query SAI
         $testProducts = \DB::select('SELECT id, price, CAST(price AS UNSIGNED) as price_unsigned FROM products WHERE id IN (2, 46, 60, 68, 77)');
-        \Log::info('DEBUG: Test specific products', [
-            'products' => $testProducts
+        \Log::info('DEBUG: Test specific products from WRONG Laravel query', [
+            'products' => $testProducts,
+            'note' => 'These products are from Laravel query that returned wrong results'
         ]);
         
         // Debug: Kiểm tra products có giá thực tế 3-5 tỷ
         $realBillionProducts = \DB::select('SELECT id, price, CAST(price AS UNSIGNED) as price_unsigned FROM products WHERE CAST(price AS UNSIGNED) >= 3000000000 AND CAST(price AS UNSIGNED) <= 5000000000 LIMIT 5');
         \Log::info('DEBUG: Products with real 3-5 billion price', [
             'products' => $realBillionProducts
+        ]);
+        
+        // Debug: So sánh Laravel query vs Direct query
+        \Log::info('DEBUG: COMPARISON - Laravel vs Direct', [
+            'laravel_query_ids' => $productIds,
+            'direct_query_ids' => array_column($directQuery, 'id'),
+            'laravel_count' => count($productIds),
+            'direct_count' => count($directQuery),
+            'difference' => array_diff($productIds, array_column($directQuery, 'id'))
         ]);
         
         // Debug: Log kết quả cuối cùng
