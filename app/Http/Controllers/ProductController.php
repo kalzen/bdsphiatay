@@ -232,7 +232,7 @@ class ProductController extends Controller
 
         // Execute query first, then load relationships
         $products = $query->orderBy('price', 'asc')->get();
-        
+        dd($products);
         // Load relationships only for the filtered products
             if ($products->count() > 0) {
                 $products->load(['images', 'attributes']);
