@@ -340,13 +340,34 @@ class ProductController extends Controller
         // Bước 4: Lấy danh sách sản phẩm cuối cùng
         \Log::info('DEBUG: Fetching products with IDs', [
             'filtered_product_ids' => array_slice($filteredProductIds, 0, 10),
-            'total_ids' => count($filteredProductIds)
+            'total_ids' => count($filteredProductIds),
+            'ids_type' => gettype($filteredProductIds),
+            'first_id_type' => isset($filteredProductIds[0]) ? gettype($filteredProductIds[0]) : 'N/A',
+            'first_id_value' => isset($filteredProductIds[0]) ? $filteredProductIds[0] : 'N/A'
         ]);
         
-        // TEMPORARY: Fetch products without relationships to test
-        $products = Product::whereIn('id', $filteredProductIds)
+        // TEMPORARY: Fetch products with raw SQL to test
+        $idsString = implode(',', $filteredProductIds);
+        \Log::info('DEBUG: Raw SQL test', [
+            'ids_string' => $idsString,
+            'sql_query' => "SELECT * FROM products WHERE id IN ($idsString) ORDER BY created_at DESC"
+        ]);
+        
+        // TEMPORARY: Test with DB::select() to bypass Eloquent
+        $rawResults = \DB::select("SELECT * FROM products WHERE id IN ($idsString) ORDER BY created_at DESC");
+        \Log::info('DEBUG: Raw DB results', [
+            'count' => count($rawResults),
+            'first_5_ids' => array_slice(array_column($rawResults, 'id'), 0, 5)
+        ]);
+        
+        $products = Product::whereRaw("id IN ($idsString)")
             ->orderBy('created_at', 'desc')
             ->get();
+            
+        \Log::info('DEBUG: Actual SQL executed', [
+            'sql' => $products->toSql(),
+            'bindings' => $products->getBindings()
+        ]);
             
         \Log::info('DEBUG: Products fetched from database', [
             'fetched_count' => $products->count(),
