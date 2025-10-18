@@ -63,407 +63,179 @@ class ProductController extends Controller
     
     public function search(Request $request)
     {
-        // Debug: Log all request parameters
-        \Log::info('=== SEARCH REQUEST START ===');
-        \Log::info('Request Method: ' . $request->method());
-        \Log::info('Request Params: ', $request->all());
-        
         $params = $request->all();
         
         if ($request->has('clear_session')) {
             $params = [];
         }
         
-        
-        $wards = Ward::All();
-        $plans = Plan::All();
+        $wards = Ward::all();
+        $plans = Plan::all();
         $catalogues = Catalogue::orderBy('id','asc')->get();
         $query = Product::active();
-        
-        // Enable query logging
-        \DB::enableQueryLog();
 
-        if (isset($params['keyword'])) {
+        // Keyword search
+        if (!empty($params['keyword'])) {
             $query->where('title','like','%'.$params['keyword'].'%');
         }
         
-        if(isset($params['price_range']) && $params['price_range'] != '')
-        {
-            if ($params['price_range'] == 1) {
-                $query->where('price','<=',500000000);
-              }
-            elseif ($params['price_range'] == 2) {
-                $query->where('price','>=',500000000)
-                      ->where('price','<=',1000000000);
-              }
-            elseif ($params['price_range'] == 3) {
-                $query->where('price','>=',1000000000)
-                      ->where('price','<=',2000000000);
-              }
-            elseif ($params['price_range'] == 4) {
-                $query->where('price','>=',2000000000)
-                      ->where('price','<=',3000000000);
-              }
-            elseif ($params['price_range'] == 5) {
-                $query->where('price','>=',3000000000)
-                      ->where('price','<=',5000000000);
-              }
-            elseif ($params['price_range'] == 6) {
-                $query->where('price','>=',5000000000)
-                      ->where('price','<=',10000000000);
-              }
-            elseif ($params['price_range'] == 7) {
-                $query->where('price','>=',10000000000)
-                      ->where('price','<=',20000000000);
-              }
-            elseif ($params['price_range'] == 8) {
-                $query->where('price','>=',20000000000)
-                      ->where('price','<=',30000000000);
-              }
-             elseif ($params['price_range'] == 9) {
-                $query->where('price','>=',30000000000);
-              }      
-        }
-        else
-        {
-            if (isset($params['price_range_min']) && $params['price_range_min'] > 0)
-            {
-                $query->where('price','>=',$params['price_range_min']*1000000);
+        // Price range filter - optimized
+        if (!empty($params['price_range'])) {
+            $priceRanges = [
+                1 => [0, 500000000],
+                2 => [500000000, 1000000000],
+                3 => [1000000000, 2000000000],
+                4 => [2000000000, 3000000000],
+                5 => [3000000000, 5000000000],
+                6 => [5000000000, 10000000000],
+                7 => [10000000000, 20000000000],
+                8 => [20000000000, 30000000000],
+                9 => [30000000000, PHP_INT_MAX],
+            ];
+            
+            if (isset($priceRanges[$params['price_range']])) {
+                [$minPrice, $maxPrice] = $priceRanges[$params['price_range']];
+                $query->whereBetween('price', [$minPrice, $maxPrice]);
             }
-            if (isset($params['price_range_max']) && $params['price_range_max'] > 0)
-            {
-                $query->where('price','<=',$params['price_range_max']*1000000);
+        } else {
+            // Custom price range
+            if (!empty($params['price_range_min']) && $params['price_range_min'] > 0) {
+                $query->where('price', '>=', $params['price_range_min'] * 1000000);
+            }
+            if (!empty($params['price_range_max']) && $params['price_range_max'] > 0) {
+                $query->where('price', '<=', $params['price_range_max'] * 1000000);
             }
         }
         
-        // Giữ các điều kiện theo bảng attributes (trừ plan)
-        if (isset($params['direction']) && is_array($params['direction']))
-        {
-            // Loại bỏ giá trị rỗng/khoảng trắng để tránh áp filter sai khi direction[]=" "
-            $direction = array_values(array_filter($params['direction'], function($v){
-                return trim((string)$v) !== '';
-            }));
-            if (!empty($direction))
-            {
-            $query->whereHas('attributes',function ($query) use($direction)
-                    {
-                        foreach ($direction as $key => $value)
-                        {
-                            if ($value && trim($value) != '')
-                            {
-                            if ($key == 0)
-                            {
-                                $query->where('value', '=', $value);
-                            }
-                            else
-                            {
-                                $query->orwhere('value', '=', $value);
-                            }
-                            }
-                        }
-                    });
-            }
+        // Ward filter
+        if (!empty($params['ward_id'])) {
+            $query->where('ward_id', $params['ward_id']);
         }
-        if (isset($params['front']) && is_array($params['front']) && !empty(array_filter($params['front'])))
-        {
-            $front = array_filter($params['front']);
-            $query->whereHas('attributes',function ($query) use($front)
-                    {
-                        $query->where('attribute_id', '=', 6);
-                        foreach ($front as $key => $value)
-                        {
-                            
-                            if ($key == 0)
-                            {
-                                if ($value == 1)
-                                {
-                                $query->whereRaw('CAST(value as float) < 5');
-                                }
-                                elseif ($value == 2)
-                                {
-                                $query->whereRaw('CAST(value as float) between 5 and 8');
-                                }
-                                elseif ($value == 3)
-                                {
-                                $query->whereRaw('CAST(value as float) between 8 and 12');
-                                }
-                                elseif ($value == 4)
-                                {
-                                $query->whereRaw('CAST(value as float) > 12');
-                                }
-                            }
-                            else
-                            {
-                                if ($value == 1)
-                                {
-                                $query->orwhereRaw('CAST(value as float) < 5');
-                                }
-                                elseif ($value == 2)
-                                {
-                                $query->orwhereRaw('CAST(value as float) between 5 and 8');
-                                }
-                                elseif ($value == 3)
-                                {
-                                $query->orwhereRaw('CAST(value as float) between 8 and 12');
-                                }
-                                elseif ($value == 4)
-                                {
-                                $query->orwhereRaw('CAST(value as float) > 12');
-                                }
-                            }
-                        
-                        }
-                    });
-        }
-        if (isset($params['area']) && is_array($params['area']))
-        {
-            // Loại bỏ "0" (không chọn) và giá trị rỗng
-            $area = array_values(array_filter($params['area'], function($v){
-                return trim((string)$v) !== '' && (string)$v !== '0';
-            }));
-            if (!empty($area))
-            {
-            
-            // Check if area contains only "0" values
-            $areaWithoutZero = array_filter($area, function($value) {
-                return $value != '0' && $value != 0;
+        
+        // Direction filter - optimized
+        if (!empty($params['direction']) && is_array($params['direction'])) {
+            $directions = array_filter($params['direction'], function($v) {
+                return !empty(trim($v));
             });
             
-            if (empty($areaWithoutZero)) {
-            } else {
-                $query->whereHas('attributes',function ($query) use($area)
-                        {
-                            $query->where('attribute_id', '=', 3);
-                            foreach ($area as $key => $value)
-                            {
-                                
-                                if ($key == 0)
-                                {
-                                    if ($value == 1)
-                                    {
-                                    $query->whereRaw('CAST(value as float) < 100');
-                                    }
-                                    elseif ($value == 2)
-                                    {
-                                    $query->whereRaw('CAST(value as float) between 100 and 300');
-                                    }
-                                    elseif ($value == 3)
-                                    {
-                                    $query->whereRaw('CAST(value as float) between 300 and 500');
-                                    }
-                                    elseif ($value == 4)
-                                    {
-                                    $query->whereRaw('CAST(value as float) between 500 and 1000');
-                                    }
-                                    elseif ($value == 5)
-                                    {
-                                    $query->whereRaw('CAST(value as float) between 1000 and 5000');
-                                    }
-                                    elseif ($value == 6)
-                                    {
-                                    $query->whereRaw('CAST(value as float) between 10000 and 50000');
-                                    }
-                                    elseif ($value == 7)
-                                    {
-                                    $query->whereRaw('CAST(value as float) > 50000');
-                                    }
-                                }
-                                else
-                                {
-                                    if ($value == 1)
-                                    {
-                                    $query->orwhereRaw('CAST(value as float) < 100');
-                                    }
-                                    elseif ($value == 2)
-                                    {
-                                    $query->orwhereRaw('CAST(value as float) between 100 and 300');
-                                    }
-                                    elseif ($value == 3)
-                                    {
-                                    $query->orwhereRaw('CAST(value as float) between 300 and 500');
-                                    }
-                                    elseif ($value == 4)
-                                    {
-                                    $query->orwhereRaw('CAST(value as float) between 500 and 1000');
-                                    }
-                                    elseif ($value == 5)
-                                    {
-                                    $query->orwhereRaw('CAST(value as float) between 1000 and 5000');
-                                    }
-                                    elseif ($value == 6)
-                                    {
-                                    $query->orwhereRaw('CAST(value as float) between 10000 and 50000');
-                                    }
-                                    elseif ($value == 7)
-                                    {
-                                    $query->orwhereRaw('CAST(value as float) > 50000');
-                                    }
-                                }
-                            
+            if (!empty($directions)) {
+                $query->whereHas('attributes', function($q) use($directions) {
+                    $q->whereIn('value', $directions);
+                });
+            }
+        }
+        
+        // Area filter - optimized
+        if (!empty($params['area']) && is_array($params['area'])) {
+            $areas = array_filter($params['area'], function($v) {
+                return $v != '0' && !empty(trim($v));
+            });
+            
+            if (!empty($areas)) {
+                $query->whereHas('attributes', function($q) use($areas) {
+                    $q->where('attribute_id', 3);
+                    $areaConditions = [];
+                    
+                    foreach ($areas as $area) {
+                        switch ($area) {
+                            case '1': $areaConditions[] = 'CAST(value as DECIMAL) < 100'; break;
+                            case '2': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 100 AND 300'; break;
+                            case '3': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 300 AND 500'; break;
+                            case '4': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 500 AND 1000'; break;
+                            case '5': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 1000 AND 5000'; break;
+                            case '6': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 10000 AND 50000'; break;
+                            case '7': $areaConditions[] = 'CAST(value as DECIMAL) > 50000'; break;
+                        }
+                    }
+                    
+                    if (!empty($areaConditions)) {
+                        $q->whereRaw('(' . implode(' OR ', $areaConditions) . ')');
                             }
                         });
             }
+        }
+        
+        // Front filter - optimized
+        if (!empty($params['front']) && is_array($params['front'])) {
+            $fronts = array_filter($params['front']);
+            
+            if (!empty($fronts)) {
+                $query->whereHas('attributes', function($q) use($fronts) {
+                    $q->where('attribute_id', 6);
+                    $frontConditions = [];
+                    
+                    foreach ($fronts as $front) {
+                        switch ($front) {
+                            case '1': $frontConditions[] = 'CAST(value as DECIMAL) < 5'; break;
+                            case '2': $frontConditions[] = 'CAST(value as DECIMAL) BETWEEN 5 AND 8'; break;
+                            case '3': $frontConditions[] = 'CAST(value as DECIMAL) BETWEEN 8 AND 12'; break;
+                            case '4': $frontConditions[] = 'CAST(value as DECIMAL) > 12'; break;
+                        }
+                    }
+                    
+                    if (!empty($frontConditions)) {
+                        $q->whereRaw('(' . implode(' OR ', $frontConditions) . ')');
+                    }
+                });
             }
         }
-        if (isset($params['road']) && is_array($params['road']) && !empty(array_filter($params['road'])))
-        {
-            $road = array_filter($params['road']);
-            $query->whereHas('attributes',function ($query) use($road)
-                    {
-                        $query->where('attribute_id', '=', 3);
-                        foreach ($road as $key => $value)
-                        {
-                            
-                            if ($key == 0)
-                            {
-                                if ($value == 1)
-                                {
-                                $query->whereRaw('CAST(value as float) < 2');
-                                }
-                                elseif ($value == 2)
-                                {
-                                $query->whereRaw('CAST(value as float) between 2 and 3');
-                                }
-                                elseif ($value == 3)
-                                {
-                                $query->whereRaw('CAST(value as float) between 3 and 5');
-                                }
-                                elseif ($value == 4)
-                                {
-                                $query->whereRaw('CAST(value as float) between 5 and 10');
-                                }
-                                elseif ($value == 5)
-                                {
-                                $query->where('value','like','%QL%');
-                                }
-                                
-                            }
-                            else
-                            {
-                                 if ($value == 1)
-                                {
-                                $query->orwhereRaw('CAST(value as float) < 2');
-                                }
-                                elseif ($value == 2)
-                                {
-                                $query->orwhereRaw('CAST(value as float) between 2 and 3');
-                                }
-                                elseif ($value == 3)
-                                {
-                                $query->orwhereRaw('CAST(value as float) between 3 and 5');
-                                }
-                                elseif ($value == 4)
-                                {
-                                $query->orwhereRaw('CAST(value as float) between 5 and 10');
-                                }
-                                elseif ($value == 5)
-                                {
-                                $query->orwhere('value','like','%QL%');
-                                }
-                            }
-                        
+        
+        // Road filter - optimized
+        if (!empty($params['road']) && is_array($params['road'])) {
+            $roads = array_filter($params['road']);
+            
+            if (!empty($roads)) {
+                $query->whereHas('attributes', function($q) use($roads) {
+                    $q->where('attribute_id', 3);
+                    $roadConditions = [];
+                    
+                    foreach ($roads as $road) {
+                        switch ($road) {
+                            case '1': $roadConditions[] = 'CAST(value as DECIMAL) < 2'; break;
+                            case '2': $roadConditions[] = 'CAST(value as DECIMAL) BETWEEN 2 AND 3'; break;
+                            case '3': $roadConditions[] = 'CAST(value as DECIMAL) BETWEEN 3 AND 5'; break;
+                            case '4': $roadConditions[] = 'CAST(value as DECIMAL) BETWEEN 5 AND 10'; break;
+                            case '5': $roadConditions[] = "value LIKE '%QL%'"; break;
+                        }
+                    }
+                    
+                    if (!empty($roadConditions)) {
+                        $q->whereRaw('(' . implode(' OR ', $roadConditions) . ')');
                         }
                     });
         }
-        if (isset($params['type']) && $params['type'] != '')
-        {
-            $type = $params['type'];
-            $query->whereHas('attributes',function ($query) use($type)
-            {
-                $query->where('attribute_id', '=', 8);
-                $query->where('value','like','%'.$type.'%');
-            });
         }
-        if (isset($params['function']) && $params['function'] != '')
-        {
-            $function = $params['function'];
-            $query->whereHas('attributes',function ($query) use($function)
-            {
-                $query->where('attribute_id', '=', 10);
-                $query->where('value','like','%'.$function.'%');
-            });
-        }
-        if (isset($params['khuvuc']) && $params['khuvuc'] != '')
-        {
-            $khuvuc = $params['khuvuc'];
-            $query->whereHas('attributes',function ($query) use($khuvuc)
-            {
-                $query->where('attribute_id', '=', 9);
-                $query->where('value','like','%'.$khuvuc.'%');
+        
+        // Type filter
+        if (!empty($params['type'])) {
+            $query->whereHas('attributes', function($q) use($params) {
+                $q->where('attribute_id', 8)
+                  ->where('value', 'like', '%'.$params['type'].'%');
             });
         }
         
-        // Chỉ lọc trực tiếp trên bảng products
-        if (isset($params['ward_id']) && $params['ward_id'] != '')
-        {
-            $query->where('ward_id',$params['ward_id']);
+        // Function filter
+        if (!empty($params['function'])) {
+            $query->whereHas('attributes', function($q) use($params) {
+                $q->where('attribute_id', 10)
+                  ->where('value', 'like', '%'.$params['function'].'%');
+            });
         }
-        // Bỏ toàn bộ điều kiện theo bảng liên quan (plan/attributes)
-        // Luôn trả về bằng Eloquent thay vì SQL thô để đảm bảo đồng nhất
-
-        // Diagnostics: so sánh đếm DB::table với Eloquent
-        try {
-            $minBound = null; $maxBound = null;
-            if (isset($params['price_range']) && $params['price_range'] != '') {
-                $map = [
-                    1 => [0, 500000000],
-                    2 => [500000000, 1000000000],
-                    3 => [1000000000, 2000000000],
-                    4 => [2000000000, 3000000000],
-                    5 => [3000000000, 5000000000],
-                    6 => [5000000000, 10000000000],
-                    7 => [10000000000, 20000000000],
-                    8 => [20000000000, 30000000000],
-                    9 => [30000000000, PHP_INT_MAX],
-                ];
-                if (isset($map[(int)$params['price_range']])) {
-                    [$minBound, $maxBound] = $map[(int)$params['price_range']];
-                }
-            } else {
-                if (isset($params['price_range_min']) && $params['price_range_min'] > 0) {
-                    $minBound = (int)$params['price_range_min'] * 1000000;
-                }
-                if (isset($params['price_range_max']) && $params['price_range_max'] > 0) {
-                    $maxBound = (int)$params['price_range_max'] * 1000000;
-                }
-            }
-            if ($minBound !== null || $maxBound !== null) {
-                $qb = \DB::table('products')->where('status', 1);
-                if ($minBound !== null) { $qb->where('price', '>=', $minBound); }
-                if ($maxBound !== null) { $qb->where('price', '<=', $maxBound); }
-                $dbCount = $qb->count();
-                \Log::info('DIAG products count via DB::table', ['min'=>$minBound,'max'=>$maxBound,'count'=>$dbCount]);
-                $idsSample = $qb->orderBy('price','asc')->limit(5)->pluck('id')->toArray();
-                \Log::info('DIAG sample IDs via DB::table', $idsSample);
-            }
-        } catch (\Throwable $e) {
-            \Log::error('DIAG error: '.$e->getMessage());
+        
+        // Khu vực filter
+        if (!empty($params['khuvuc'])) {
+            $query->whereHas('attributes', function($q) use($params) {
+                $q->where('attribute_id', 9)
+                  ->where('value', 'like', '%'.$params['khuvuc'].'%');
+            });
         }
 
-        $products = $query->orderBy('price', 'asc')->get();
+        // Execute query with eager loading for better performance
+        $products = $query->with(['images', 'attributes'])
+                    ->orderBy('price', 'asc')
+                    ->get();
         
-        if ($products->count() > 0) {
-            \Log::info('Products: ' . $products->count());
-            $products->load(['images', 'attributes']);
-        }
-        
-        // Debug: Log all executed queries
-        $queries = \DB::getQueryLog();
-        \Log::info('=== EXECUTED SQL QUERIES ===');
-        foreach ($queries as $index => $query) {
-            \Log::info('Query #' . ($index + 1) . ': ' . $query['query']);
-            \Log::info('Bindings: ', $query['bindings']);
-            \Log::info('Time: ' . $query['time'] . 'ms');
-        }
-        
-        // Debug: Log results
-        \Log::info('=== SEARCH RESULTS ===');
-        \Log::info('Total Products Found: ' . $products->count());
-        // Log product IDs as context array to avoid "Array to string conversion"
-        \Log::info('Product IDs', $products->pluck('id')->toArray());
-        \Log::info('=== SEARCH REQUEST END ===');
-        
-        return view('product.index',compact('products', 'wards', 'catalogues', 'plans'));
+        return view('product.index', compact('products', 'wards', 'catalogues', 'plans'));
     }
     public function detail($alias)
     {

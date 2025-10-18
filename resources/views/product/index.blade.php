@@ -133,30 +133,30 @@
                                                 <div class="wd-find-select flex">
                                                     <div class="form-group-1 search-form form-style relative">
                                                         <i class="far fa-search"></i>
-                                                        <input type="search" class="search-field" placeholder="Tìm kiếm từ khóa" value="" name="keyword" title="Search for" >
+                                                        <input type="search" class="search-field" placeholder="Tìm kiếm từ khóa" value="{{request('keyword')}}" name="keyword" title="Search for" >
                                                     </div>                                                  
                                                     <div class="form-group-2 form-style">
                                                                         <div class="group-select">
                                                                                 <select name="price_range" class="select_js">    
-                                                                                    <option value="0" class="option selected">Khoảng giá</option>
-                                                                                    <option value="1" class="option">Dưới 500 triệu</option>
-                                                                                    <option value="2" class="option">500 - 1 tỷ</option>
-                                                                                    <option value="3" class="option">1 - 2 tỷ</option>
-                                                                                    <option value="4" class="option">2 - 3 tỷ</option>                                                      
-                                                                                    <option value="5" class="option">3 - 5 tỷ</option>
-                                                                                    <option value="6" class="option">5 - 10 tỷ</option>
-                                                                                    <option value="7" class="option">10 - 20 tỷ</option>                                                      
-                                                                                    <option value="8" class="option">20 - 30 tỷ</option>
-                                                                                    <option value="9" class="option">Trên 30 tỷ</option>
+                                                                                    <option value="0" class="option" {{request('price_range') == '0' || !request('price_range') ? 'selected' : ''}}>Khoảng giá</option>
+                                                                                    <option value="1" class="option" {{request('price_range') == '1' ? 'selected' : ''}}>Dưới 500 triệu</option>
+                                                                                    <option value="2" class="option" {{request('price_range') == '2' ? 'selected' : ''}}>500 - 1 tỷ</option>
+                                                                                    <option value="3" class="option" {{request('price_range') == '3' ? 'selected' : ''}}>1 - 2 tỷ</option>
+                                                                                    <option value="4" class="option" {{request('price_range') == '4' ? 'selected' : ''}}>2 - 3 tỷ</option>                                                      
+                                                                                    <option value="5" class="option" {{request('price_range') == '5' ? 'selected' : ''}}>3 - 5 tỷ</option>
+                                                                                    <option value="6" class="option" {{request('price_range') == '6' ? 'selected' : ''}}>5 - 10 tỷ</option>
+                                                                                    <option value="7" class="option" {{request('price_range') == '7' ? 'selected' : ''}}>10 - 20 tỷ</option>                                                      
+                                                                                    <option value="8" class="option" {{request('price_range') == '8' ? 'selected' : ''}}>20 - 30 tỷ</option>
+                                                                                    <option value="9" class="option" {{request('price_range') == '9' ? 'selected' : ''}}>Trên 30 tỷ</option>
                                                                                 </select>
                                                                         </div>
                                                                     </div>
                                                     <div class="form-group-3 form-style">
                                                                         <div class="group-select">
                                                                                 <select class="select_js" name="ward_id">  
-                                                                                    <option value class="option selected">Phường/Xã</li>   
+                                                                                    <option value class="option" {{!request('ward_id') ? 'selected' : ''}}>Phường/Xã</li>   
                                                                                     @foreach ($wards as $ward)
-                                                                                    <option value="{{$ward->id}}" class="option">{{$ward->name}}</option>
+                                                                                    <option value="{{$ward->id}}" class="option" {{request('ward_id') == $ward->id ? 'selected' : ''}}>{{$ward->name}}</option>
                                                                                     @endforeach                                  
                                                                                 </select>
                                                                         </div>                                                    
@@ -164,29 +164,29 @@
                                                     <div class="form-group-3 form-style">
                                                         <div class="group-select">
                                                             <select class="select_js" name="direction[]">  
-                                                                                    <option value=" " class="option selected">Hướng</li>   
-                                                                                    <option value="Đông" class="option">Đông</option>
-                                                                                    <option value="Tây" class="option">Tây</option>
-                                                                                    <option value="Nam" class="option">Nam</option>
-                                                                                    <option value="Bắc" class="option">Bắc</option>
-                                                                                    <option value="Đông Nam" class="option">Đông Nam</option>                                                      
-                                                                                    <option value="Đông Bắc" class="option">Đông Bắc</option>
-                                                                                    <option value="Tây Nam" class="option">Tây Nam</option>
-                                                                                    <option value="Tây Bắc" class="option">Tây Bắc</option>                          
+                                                                                    <option value=" " class="option" {{!request('direction') || (is_array(request('direction')) && in_array(' ', request('direction'))) ? 'selected' : ''}}>Hướng</li>   
+                                                                                    <option value="Đông" class="option" {{is_array(request('direction')) && in_array('Đông', request('direction')) ? 'selected' : ''}}>Đông</option>
+                                                                                    <option value="Tây" class="option" {{is_array(request('direction')) && in_array('Tây', request('direction')) ? 'selected' : ''}}>Tây</option>
+                                                                                    <option value="Nam" class="option" {{is_array(request('direction')) && in_array('Nam', request('direction')) ? 'selected' : ''}}>Nam</option>
+                                                                                    <option value="Bắc" class="option" {{is_array(request('direction')) && in_array('Bắc', request('direction')) ? 'selected' : ''}}>Bắc</option>
+                                                                                    <option value="Đông Nam" class="option" {{is_array(request('direction')) && in_array('Đông Nam', request('direction')) ? 'selected' : ''}}>Đông Nam</option>                                                      
+                                                                                    <option value="Đông Bắc" class="option" {{is_array(request('direction')) && in_array('Đông Bắc', request('direction')) ? 'selected' : ''}}>Đông Bắc</option>
+                                                                                    <option value="Tây Nam" class="option" {{is_array(request('direction')) && in_array('Tây Nam', request('direction')) ? 'selected' : ''}}>Tây Nam</option>
+                                                                                    <option value="Tây Bắc" class="option" {{is_array(request('direction')) && in_array('Tây Bắc', request('direction')) ? 'selected' : ''}}>Tây Bắc</option>                          
                                                                                 </select>
                                                         </div>                                                    
                                                     </div>
                                                     <div class="form-group-3 form-style">
                                                         <div class="group-select">
                                                             <select class="select_js" name="area[]">  
-                                                                                    <option value="0" class="option selected">Diện tích</li>   
-                                                                                    <option value="1" class="option">< 100m</option>
-                                                                                    <option value="2" class="option">100 - 300m2</option>
-                                                                                    <option value="3" class="option">300 - 500m2</option>
-                                                                                    <option value="4" class="option">500 - 1000m2</option>
-                                                                                    <option value="5" class="option">1000 - 5000m2</option>                                                      
-                                                                                    <option value="6" class="option">1ha - 5ha</option>
-                                                                                    <option value="7" class="option">> 5ha</option>                     
+                                                                                    <option value="0" class="option" {{!request('area') || (is_array(request('area')) && in_array('0', request('area'))) ? 'selected' : ''}}>Diện tích</li>   
+                                                                                    <option value="1" class="option" {{is_array(request('area')) && in_array('1', request('area')) ? 'selected' : ''}}>< 100m</option>
+                                                                                    <option value="2" class="option" {{is_array(request('area')) && in_array('2', request('area')) ? 'selected' : ''}}>100 - 300m2</option>
+                                                                                    <option value="3" class="option" {{is_array(request('area')) && in_array('3', request('area')) ? 'selected' : ''}}>300 - 500m2</option>
+                                                                                    <option value="4" class="option" {{is_array(request('area')) && in_array('4', request('area')) ? 'selected' : ''}}>500 - 1000m2</option>
+                                                                                    <option value="5" class="option" {{is_array(request('area')) && in_array('5', request('area')) ? 'selected' : ''}}>1000 - 5000m2</option>                                                      
+                                                                                    <option value="6" class="option" {{is_array(request('area')) && in_array('6', request('area')) ? 'selected' : ''}}>1ha - 5ha</option>
+                                                                                    <option value="7" class="option" {{is_array(request('area')) && in_array('7', request('area')) ? 'selected' : ''}>>> 5ha</option>                     
                                                                                 </select>
                                                         </div>                                                    
                                                     </div>
@@ -219,8 +219,8 @@
                                                                 <div class="form-group wg-box3">
                                                                     <h6 style="margin-bottom: 20px;">Khoảng giá (đơn vị triệu)</h6>
                                                                         <div class="tf-amenities bg-white">
-                                                                             Min: <input name="price_range_min" type="number" value="" />  
-                                                                             Max: <input name="price_range_max" type="number" value="" />  
+                                                                             Min: <input name="price_range_min" type="number" value="{{request('price_range_min')}}" />  
+                                                                             Max: <input name="price_range_max" type="number" value="{{request('price_range_max')}}" />  
                                                                         </div>                                                  
                                                                     </div> 
                                                                 <div class="boder-wg"></div>
@@ -229,25 +229,25 @@
                                                                     <div class="form-group wg-box3">
                                                                     <h6 style="margin-bottom: 20px;">Diện tích</h6>
                                                                         <div class="tf-amenities bg-white">
-                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="1"/> 
+                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="1" {{is_array(request('area')) && in_array('1', request('area')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">< 100m2</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="area[]" type="checkbox" value="2"/> 
+                                                                            <label class="flex"><input name="area[]" type="checkbox" value="2" {{is_array(request('area')) && in_array('2', request('area')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">100 - 300m2</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="3"/> 
+                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="3" {{is_array(request('area')) && in_array('3', request('area')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">300 - 500m2</span> 
                                                                             </label> 
-                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="4"/> 
+                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="4" {{is_array(request('area')) && in_array('4', request('area')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">500 - 1000m2</span> 
                                                                             </label> 
-                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="5"/> 
+                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="5" {{is_array(request('area')) && in_array('5', request('area')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">1000 - 5000m2</span> 
                                                                             </label> 
-                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="6"/> 
+                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="6" {{is_array(request('area')) && in_array('6', request('area')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">1ha - 5ha</span> 
                                                                             </label> 
-                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="7"/> 
+                                                                            <label class="flex"><input name="area[]" type="checkbox"  value="7" {{is_array(request('area')) && in_array('7', request('area')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">> 5ha</span> 
                                                                             </label> 
                                                                         </div>                                                  
@@ -255,19 +255,19 @@
                                                                     <div class="form-group wg-box3">
                                                                     <h6 style="margin-bottom: 20px;">Đường</h6>
                                                                         <div class="tf-amenities bg-white">
-                                                                            <label class="flex"><input name="road[]" type="checkbox" value="1" /> 
+                                                                            <label class="flex"><input name="road[]" type="checkbox" value="1" {{is_array(request('road')) && in_array('1', request('road')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">< 2m</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="road[]" type="checkbox"  value="2"/> 
+                                                                            <label class="flex"><input name="road[]" type="checkbox"  value="2" {{is_array(request('road')) && in_array('2', request('road')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">2 - 3m</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="road[]" type="checkbox" value="3"/> 
+                                                                            <label class="flex"><input name="road[]" type="checkbox" value="3" {{is_array(request('road')) && in_array('3', request('road')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">3 - 5m</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="road[]" type="checkbox"  value="4"/> 
+                                                                            <label class="flex"><input name="road[]" type="checkbox"  value="4" {{is_array(request('road')) && in_array('4', request('road')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">5 - 10m</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="road[]" type="checkbox" value="5"/> 
+                                                                            <label class="flex"><input name="road[]" type="checkbox" value="5" {{is_array(request('road')) && in_array('5', request('road')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">QL</span> 
                                                                             </label>                                       
                                                                         </div>                                                  
@@ -275,16 +275,16 @@
                                                                     <div class="form-group wg-box3">
                                                                     <h6 style="margin-bottom: 20px;">Mặt tiền</h6>
                                                                         <div class="tf-amenities bg-white">
-                                                                            <label class="flex"><input name="front[]" type="checkbox"  value="1" /> 
+                                                                            <label class="flex"><input name="front[]" type="checkbox"  value="1" {{is_array(request('front')) && in_array('1', request('front')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">< 5m</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="front[]" type="checkbox" value="2"  /> 
+                                                                            <label class="flex"><input name="front[]" type="checkbox" value="2" {{is_array(request('front')) && in_array('2', request('front')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">5 - 8m</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="front[]" type="checkbox" value="3"  /> 
+                                                                            <label class="flex"><input name="front[]" type="checkbox" value="3" {{is_array(request('front')) && in_array('3', request('front')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13 ">8 - 12m</span> 
                                                                             </label> 
-                                                                            <label class="flex"><input name="front[]" type="checkbox" value="4"  /> 
+                                                                            <label class="flex"><input name="front[]" type="checkbox" value="4" {{is_array(request('front')) && in_array('4', request('front')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13 ">> 12m</span> 
                                                                             </label> 
                                                                         </div>                                                  
@@ -292,28 +292,28 @@
                                                                     <div class="form-group wg-box3">
                                                                     <h6 style="margin-bottom: 20px;">Hướng</h6>
                                                                         <div class="tf-amenities bg-white">
-                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="đông" /> 
+                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="đông" {{is_array(request('direction')) && in_array('đông', request('direction')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">Đông</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="tây" /> 
+                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="tây" {{is_array(request('direction')) && in_array('tây', request('direction')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">Tây</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="nam" /> 
+                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="nam" {{is_array(request('direction')) && in_array('nam', request('direction')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">Nam</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="bắc" /> 
+                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="bắc" {{is_array(request('direction')) && in_array('bắc', request('direction')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">Bắc</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="đông bắc" /> 
+                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="đông bắc" {{is_array(request('direction')) && in_array('đông bắc', request('direction')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">Đông Bắc</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="đông nam" /> 
+                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="đông nam" {{is_array(request('direction')) && in_array('đông nam', request('direction')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">Đông Nam</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="tây bắc" /> 
+                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="tây bắc" {{is_array(request('direction')) && in_array('tây bắc', request('direction')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">Tây Bắc</span> 
                                                                             </label>
-                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="tây nam" /> 
+                                                                            <label class="flex"><input name="direction[]" type="checkbox" value="tây nam" {{is_array(request('direction')) && in_array('tây nam', request('direction')) ? 'checked' : ''}}/> 
                                                                                 <span class="btn-checkbox"></span><span class="fs-13">Tây Nam</span> 
                                                                             </label>
                                                                         </div>                                                  
