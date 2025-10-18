@@ -222,6 +222,22 @@ class ProductController extends Controller
         // Thực hiện query và kiểm tra kết quả
         $productIds = $query->pluck('id')->toArray();
         
+        // TEMPORARY FIX: Sử dụng direct query thay vì Laravel query
+        $minPrice = $params['price_min'] ?? 0;
+        $maxPrice = $params['price_max'] ?? 999999999999;
+        $minPriceVnd = $minPrice * 1000000;
+        $maxPriceVnd = $maxPrice * 1000000;
+        
+        $correctProductIds = \DB::select('SELECT id FROM products WHERE status = 1 AND CAST(price AS UNSIGNED) >= ? AND CAST(price AS UNSIGNED) <= ?', [$minPriceVnd, $maxPriceVnd]);
+        $productIds = array_column($correctProductIds, 'id');
+        
+        \Log::info('DEBUG: Using DIRECT query instead of Laravel query', [
+            'laravel_query_ids' => $query->pluck('id')->toArray(),
+            'direct_query_ids' => $productIds,
+            'price_range' => [$minPriceVnd, $maxPriceVnd],
+            'note' => 'Using direct query to get correct products'
+        ]);
+        
         // Debug: Kiểm tra SQL query thực tế được execute
         $actualSql = $query->toSql();
         $actualBindings = $query->getBindings();
