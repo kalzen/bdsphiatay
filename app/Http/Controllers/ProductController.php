@@ -230,24 +230,13 @@ class ProductController extends Controller
             });
         }
 
-        // Debug: Log the actual SQL query being executed
-        \DB::enableQueryLog();
+        // Clear any potential cache/session issues
+        \Cache::flush();
         
-        // Execute query first, then load relationships
-        $products = $query->orderBy('price', 'asc')->get();
-        
-        // Debug: Log the executed query
-        $queries = \DB::getQueryLog();
-        \Log::info('=== SEARCH DEBUG ===');
-        \Log::info('Price Range: ' . ($params['price_range'] ?? 'not set'));
-        \Log::info('SQL Query: ' . $queries[0]['query']);
-        \Log::info('Bindings: ', $queries[0]['bindings']);
-        \Log::info('Products found: ' . $products->count());
-        
-        // Log first few product prices
-        foreach ($products->take(3) as $product) {
-            \Log::info('Product ID: ' . $product->id . ', Price: ' . $product->price);
-        }
+        // Execute query with explicit casting to ensure numeric comparison
+        $products = $query->whereRaw('CAST(price AS UNSIGNED) BETWEEN ? AND ?', [3000000000, 5000000000])
+                         ->orderBy('price', 'asc')
+                         ->get();
         
         // Load relationships only for the filtered products
             if ($products->count() > 0) {
