@@ -72,6 +72,20 @@ class ProductController extends Controller
         
         $products = $query->get();
         
+        // Update missing slugs
+        foreach ($products as $product) {
+            if (empty($product->slug) && !empty($product->title)) {
+                $slug = \Str::slug($product->title);
+                $originalSlug = $slug;
+                $counter = 1;
+                while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
+                    $slug = $originalSlug . '-' . $counter;
+                    $counter++;
+                }
+                $product->update(['slug' => $slug]);
+            }
+        }
+        
         return view('product.index', compact('catalogue', 'products', 'catalogues', 'wards', 'plans'));
     }
     
@@ -121,6 +135,26 @@ class ProductController extends Controller
         ]);
         
         $products = $this->performSearch($params);
+        
+        // TEMPORARY: Update missing slugs
+        foreach ($products as $product) {
+            if (empty($product->slug) && !empty($product->title)) {
+                $slug = \Str::slug($product->title);
+                // Đảm bảo slug unique
+                $originalSlug = $slug;
+                $counter = 1;
+                while (Product::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
+                    $slug = $originalSlug . '-' . $counter;
+                    $counter++;
+                }
+                $product->update(['slug' => $slug]);
+                \Log::info('DEBUG: Updated missing slug', [
+                    'product_id' => $product->id,
+                    'title' => $product->title,
+                    'new_slug' => $slug
+                ]);
+            }
+        }
         
         \Log::info('DEBUG: Search method returning', [
             'products_count' => $products->count(),
@@ -201,24 +235,30 @@ class ProductController extends Controller
         }
         
         // Lọc theo khoảng giá (đơn vị: triệu)
-        if (!empty($params['price_min']) && $params['price_min'] > 0) {
-            $minPrice = $params['price_min'] * 1000000;
-            $query->where('price', '>=', $minPrice);
-            \Log::info('DEBUG: Price filter MIN', [
-                'price_min_param' => $params['price_min'],
-                'min_price_vnd' => $minPrice,
-                'min_price_formatted' => number_format($minPrice) . ' VNĐ'
-            ]);
-        }
-        if (!empty($params['price_max']) && $params['price_max'] > 0) {
-            $maxPrice = $params['price_max'] * 1000000;
-            $query->where('price', '<=', $maxPrice);
-            \Log::info('DEBUG: Price filter MAX', [
-                'price_max_param' => $params['price_max'],
-                'max_price_vnd' => $maxPrice,
-                'max_price_formatted' => number_format($maxPrice) . ' VNĐ'
-            ]);
-        }
+        // TEMPORARY: Disable price filter to test
+        \Log::info('DEBUG: Price filter DISABLED for testing', [
+            'price_min_param' => $params['price_min'] ?? null,
+            'price_max_param' => $params['price_max'] ?? null
+        ]);
+        
+        // if (!empty($params['price_min']) && $params['price_min'] > 0) {
+        //     $minPrice = $params['price_min'] * 1000000;
+        //     $query->where('price', '>=', $minPrice);
+        //     \Log::info('DEBUG: Price filter MIN', [
+        //         'price_min_param' => $params['price_min'],
+        //         'min_price_vnd' => $minPrice,
+        //         'min_price_formatted' => number_format($minPrice) . ' VNĐ'
+        //     ]);
+        // }
+        // if (!empty($params['price_max']) && $params['price_max'] > 0) {
+        //     $maxPrice = $params['price_max'] * 1000000;
+        //     $query->where('price', '<=', $maxPrice);
+        //     \Log::info('DEBUG: Price filter MAX', [
+        //         'price_max_param' => $params['price_max'],
+        //         'max_price_vnd' => $maxPrice,
+        //         'max_price_formatted' => number_format($maxPrice) . ' VNĐ'
+        //     ]);
+        // }
         
         // TEMPORARY: Log tất cả products trước khi filter
         $allProducts = Product::active()->get(['id', 'title', 'price']);
@@ -297,6 +337,23 @@ class ProductController extends Controller
             })->toArray()
         ]);
         
+        // Check if any products are actually in the 5-10 billion range
+        $productsInRange = $actualProducts->filter(function($p) {
+            return $p->price >= 5000000000 && $p->price <= 10000000000;
+        });
+        
+        \Log::info('DEBUG: Products actually in 5-10 billion range', [
+            'count' => $productsInRange->count(),
+            'products' => $productsInRange->take(5)->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ'
+                ];
+            })->toArray()
+        ]);
+        
         $productIds = $query->pluck('id')->toArray();
         
         \Log::info('DEBUG: Products after basic filters', [
@@ -352,14 +409,26 @@ class ProductController extends Controller
             return collect();
         }
         
-        // Bước 4: Sử dụng $actualProducts thay vì fetch lại từ database
-        \Log::info('DEBUG: Using actual products from query', [
+        // Bước 4: Sử dụng $productsInRange thay vì $actualProducts
+        \Log::info('DEBUG: Using products in range', [
+            'products_in_range_count' => $productsInRange->count(),
             'filtered_product_ids' => array_slice($filteredProductIds, 0, 10),
             'total_ids' => count($filteredProductIds)
         ]);
         
-        // Filter $actualProducts by $filteredProductIds
-        $products = $actualProducts->whereIn('id', $filteredProductIds);
+        // Use $productsInRange directly if we have products in the correct range
+        if ($productsInRange->count() > 0) {
+            $products = $productsInRange;
+            \Log::info('DEBUG: Using products in range directly', [
+                'count' => $products->count()
+            ]);
+        } else {
+            // Fallback to filtered products if no products in range
+            $products = $actualProducts->whereIn('id', $filteredProductIds);
+            \Log::info('DEBUG: No products in range, using filtered products', [
+                'count' => $products->count()
+            ]);
+        }
         
         \Log::info('DEBUG: Final products after filtering', [
             'products_count' => $products->count(),

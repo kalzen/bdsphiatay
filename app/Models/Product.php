@@ -8,11 +8,29 @@ use Illuminate\Support\Str;
 class Product extends Model
 {
     protected $guarded = [];
+    
+    protected $fillable = [
+        'title', 'slug', 'description', 'content', 'price', 'status', 'user_id', 'ward_id'
+    ];
     const STATUS_ACTIVE = 1;
     const STATUS_INACTIVE = 0;
     public function getUrlAttribute()
     {
-        return '/du-an/'.$this->slug;
+        return '/du-an/'.$this->getSlugAttribute();
+    }
+    
+    public function getSlugAttribute($value)
+    {
+        // Nếu slug null hoặc rỗng, tự động generate từ title
+        if (empty($value) && !empty($this->title)) {
+            $slug = Str::slug($this->title);
+            // Lưu slug vào database nếu chưa có
+            if ($this->exists) {
+                $this->update(['slug' => $slug]);
+            }
+            return $slug;
+        }
+        return $value;
     }
     public function scopeActive($query) {
         $query->where('status', Product::STATUS_ACTIVE);
@@ -82,5 +100,29 @@ class Product extends Model
         {
             $product->slug = Str::slug($product->title);
         });
+    }
+    
+    /**
+     * Update tất cả sản phẩm thiếu slug
+     */
+    public static function updateMissingSlugs()
+    {
+        $products = self::whereNull('slug')->orWhere('slug', '')->get();
+        
+        foreach ($products as $product) {
+            if (!empty($product->title)) {
+                $slug = Str::slug($product->title);
+                // Đảm bảo slug unique
+                $originalSlug = $slug;
+                $counter = 1;
+                while (self::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
+                    $slug = $originalSlug . '-' . $counter;
+                    $counter++;
+                }
+                $product->update(['slug' => $slug]);
+            }
+        }
+        
+        return $products->count();
     }
 }
