@@ -186,7 +186,7 @@
                                                                                     <option value="4" class="option" {{is_array(request('area')) && in_array('4', request('area')) ? 'selected' : ''}}>500 - 1000m2</option>
                                                                                     <option value="5" class="option" {{is_array(request('area')) && in_array('5', request('area')) ? 'selected' : ''}}>1000 - 5000m2</option>                                                      
                                                                                     <option value="6" class="option" {{is_array(request('area')) && in_array('6', request('area')) ? 'selected' : ''}}>1ha - 5ha</option>
-                                                                                    <option value="7" class="option" {{is_array(request('area')) && in_array('7', request('area')) ? 'selected' : ''}>>> 5ha</option>                     
+                                                                                    <option value="7" class="option" {{is_array(request('area')) && in_array('7', request('area')) ? 'selected' : ''}}>> 5ha</option>                     
                                                                                 </select>
                                                         </div>                                                    
                                                     </div>
