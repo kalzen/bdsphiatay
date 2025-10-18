@@ -241,15 +241,38 @@ class ProductController extends Controller
             $query->where('ward_id', $params['ward_id']);
         }
         
-        // Debug: Log the actual SQL query
+        // Debug: Check price column type and test with CAST
+        \Log::info('DEBUG: Testing price column type');
+        
+        // Test 1: Original query
         \DB::enableQueryLog();
         $productIds = $query->orderBy('price', 'asc')->pluck('id')->toArray();
         $queries = \DB::getQueryLog();
-        \Log::info('DEBUG: Basic filter SQL query', [
+        \Log::info('DEBUG: Original SQL query', [
             'sql' => $queries[0]['query'],
             'bindings' => $queries[0]['bindings'],
             'time' => $queries[0]['time']
         ]);
+        
+        // Test 2: Query with CAST to force numeric comparison
+        $castQuery = \DB::table('products')
+            ->where('status', 1)
+            ->whereRaw('CAST(price AS UNSIGNED) BETWEEN ? AND ?', [$query->getBindings()[1], $query->getBindings()[2]])
+            ->orderByRaw('CAST(price AS UNSIGNED) ASC');
+            
+        $castProductIds = $castQuery->pluck('id')->toArray();
+        \Log::info('DEBUG: CAST query results', [
+            'original_count' => count($productIds),
+            'cast_count' => count($castProductIds),
+            'original_ids' => array_slice($productIds, 0, 5),
+            'cast_ids' => array_slice($castProductIds, 0, 5)
+        ]);
+        
+        // Use CAST results if different
+        if (count($castProductIds) != count($productIds)) {
+            \Log::info('DEBUG: Using CAST results due to difference');
+            return $castProductIds;
+        }
         
         return $productIds;
     }
