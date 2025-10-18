@@ -536,6 +536,8 @@
         const area = urlParams.getAll('area[]');
         
         // Restore price filter
+        console.log('URL params:', {priceMin, priceMax});
+        
         if (priceMin || priceMax) {
             $('#price_min').val(priceMin || '');
             $('#price_max').val(priceMax || '');
@@ -545,18 +547,24 @@
             $('#price_range_select option').each(function() {
                 const optMin = $(this).data('min');
                 const optMax = $(this).data('max');
+                console.log('Checking option:', {optMin, optMax, priceMin, priceMax});
                 if (optMin == priceMin && optMax == priceMax) {
                     $(this).prop('selected', true);
                     foundMatch = true;
+                    console.log('Found match!');
                     return false; // break loop
                 }
             });
             
             // Nếu không match dropdown thì là custom price
             if (!foundMatch) {
+                console.log('No dropdown match, using custom inputs');
                 $('#custom_price_min').val(priceMin || '');
                 $('#custom_price_max').val(priceMax || '');
             }
+        } else {
+            // Nếu không có price filter, reset dropdown về "Khoảng giá"
+            $('#price_range_select').val('');
         }
         
         // Restore ward filter

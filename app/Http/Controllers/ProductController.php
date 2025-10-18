@@ -168,9 +168,6 @@ class ProductController extends Controller
      */
     private function performSearch($params)
     {
-        // Debug: Log tất cả parameters
-        \Log::info('DEBUG: Search parameters', $params);
-        
         // FINAL FIX: Sử dụng Laravel Query Builder đơn giản
         $query = Product::where('status', 1);
         
@@ -205,19 +202,6 @@ class ProductController extends Controller
         
         $productIds = $filteredProducts->pluck('id')->toArray();
         
-        \Log::info('DEBUG: PHP FILTER RESULT', [
-            'all_products_count' => $allProducts->count(),
-            'filtered_products_count' => count($productIds),
-            'price_range' => [$minPriceVnd, $maxPriceVnd],
-            'sample_filtered_products' => $filteredProducts->take(3)->map(function($p) {
-                return [
-                    'id' => $p->id,
-                    'price' => $p->price,
-                    'price_formatted' => number_format($p->price) . ' VNĐ'
-                ];
-            })->toArray()
-        ]);
-        
         if (empty($productIds)) {
             return collect();
         }
@@ -242,20 +226,7 @@ class ProductController extends Controller
             ->whereIn('id', $filteredProductIds)
             ->orderBy('created_at', 'desc')
             ->get();
-        
-        \Log::info('DEBUG: FINAL RESULTS', [
-            'total_products' => $products->count(),
-            'price_range' => [$minPriceVnd, $maxPriceVnd],
-            'sample_products' => $products->take(3)->map(function($p) {
-                return [
-                    'id' => $p->id,
-                    'title' => $p->title,
-                    'price' => $p->price,
-                    'price_formatted' => number_format($p->price) . ' VNĐ'
-                ];
-            })->toArray()
-        ]);
-        
+
         return $products;
     }
     
