@@ -216,9 +216,20 @@ class ProductController extends Controller
         $correctProductIds = \DB::select($sql, $bindings);
         $productIds = array_column($correctProductIds, 'id');
         
+        // Debug: Kiểm tra products thực tế từ direct query
+        $actualProducts = \DB::select('SELECT id, price, CAST(price AS UNSIGNED) as price_unsigned FROM products WHERE id IN (' . implode(',', $productIds) . ')');
+        
         \Log::info('DEBUG: DIRECT QUERY RESULT', [
             'product_ids' => $productIds,
-            'count' => count($productIds)
+            'count' => count($productIds),
+            'actual_products' => $actualProducts,
+            'price_range_check' => [
+                'min_expected' => $minPriceVnd,
+                'max_expected' => $maxPriceVnd,
+                'products_in_range' => array_filter($actualProducts, function($p) use ($minPriceVnd, $maxPriceVnd) {
+                    return $p->price_unsigned >= $minPriceVnd && $p->price_unsigned <= $maxPriceVnd;
+                })
+            ]
         ]);
         
         if (empty($productIds)) {
