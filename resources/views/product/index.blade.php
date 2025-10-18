@@ -425,27 +425,37 @@
                             @endphp
                             
                             @foreach($products as $product)
+                            {{-- DEBUG: Check product slug --}}
+                            @if(empty($product->slug))
+                                @php
+                                    \Log::error('DEBUG: Product missing slug', [
+                                        'product_id' => $product->id,
+                                        'product_title' => $product->title,
+                                        'product_slug' => $product->slug
+                                    ]);
+                                @endphp
+                            @endif
                             <div class="col-lg-4 col-md-6 col-sm-12">
                                                 <div class="box box-dream hv-one style-dream">
                                                     <div class="image-group relative ">
                                                         <span class="featured fs-12 fw-6">Nổi bật</span>   
                                                         <span class="featured style fs-12 fw-6">Mới nhất</span>   
                                                         <div class="swiper-container noo carousel-2 img-style"  >    
-                                                            <a href="{{ route('product.detail',['alias' => $product->slug]) }}" class="icon-plus"><img src="{{asset('phiatay/assets/images/icon/plus.svg')}}" alt="images"></a>
+                                                            <a href="{{ route('product.detail',['alias' => $product->slug ?? $product->id]) }}" class="icon-plus"><img src="{{asset('phiatay/assets/images/icon/plus.svg')}}" alt="images"></a>
                                                             <div class="swiper-wrapper ">
                                                                 <div class="swiper-slide"><img src="{{ asset($product->images->first()->url ?? '')}}" alt="{{$product->title}}"></div>
                                                             </div>                                 
                                                         </div>
                                                     </div>
                                                     <div class="content">
-                                                        <h3 class="link-style-1"><a href="{{ route('product.detail',['alias' => $product->slug]) }}">{{$product->title}}</a> </h3>
+                                                        <h3 class="link-style-1"><a href="{{ route('product.detail',['alias' => $product->slug ?? $product->id]) }}">{{$product->title}}</a> </h3>
                                                         @foreach($product->attributes as $attribute_item)
                                                             @if ($attribute_item->pivot->attribute_id == 11)
                                                                 <div class="text-address"><p class="p-12">{{$attribute_item->pivot->value??''}} - Tp. Cao Bằng</p></div>
                                                                 @endif
                                                     @endforeach
                                                         
-                                                        <div class="money fs-18 fw-6 text-color-3"><a href="{{ route('product.detail',['alias' => $product->slug]) }}">{{$product->price_convert()}}</a></div>  
+                                                        <div class="money fs-18 fw-6 text-color-3"><a href="{{ route('product.detail',['alias' => $product->slug ?? $product->id]) }}">{{$product->price_convert()}}</a></div>  
                                                         <div class="icon-box flex">
                                                         @foreach($product->attributes as $attribute_item)
                                                             @if ($attribute_item->pivot->attribute_id == 3)
@@ -609,7 +619,7 @@
           "@type": "Product",
           "name": "{{$product->title}}",
           "description": "{{substr(strip_tags($product->description ?? ''),0,300)}}",
-          "url": "{{route('product.detail', ['alias' => $product->slug])}}",
+          "url": "{{route('product.detail', ['alias' => $product->slug ?? $product->id])}}",
           @if($product->images->first())
           "image": "{{$product->images->first()->url}}",
           @endif
