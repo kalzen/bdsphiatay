@@ -207,6 +207,11 @@ class ProductController extends Controller
             
             if (isset($priceRanges[$params['price_range']])) {
                 [$minPrice, $maxPrice] = $priceRanges[$params['price_range']];
+                \Log::info('DEBUG: Price range filter', [
+                    'price_range' => $params['price_range'],
+                    'min_price' => $minPrice,
+                    'max_price' => $maxPrice
+                ]);
                 $query->whereBetween('price', [$minPrice, $maxPrice]);
             }
         } else {
@@ -224,7 +229,17 @@ class ProductController extends Controller
             $query->where('ward_id', $params['ward_id']);
         }
         
-        return $query->orderBy('price', 'asc')->pluck('id')->toArray();
+        // Debug: Log the actual SQL query
+        \DB::enableQueryLog();
+        $productIds = $query->orderBy('price', 'asc')->pluck('id')->toArray();
+        $queries = \DB::getQueryLog();
+        \Log::info('DEBUG: Basic filter SQL query', [
+            'sql' => $queries[0]['query'],
+            'bindings' => $queries[0]['bindings'],
+            'time' => $queries[0]['time']
+        ]);
+        
+        return $productIds;
     }
     
     /**
