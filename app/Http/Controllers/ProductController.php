@@ -224,8 +224,9 @@ class ProductController extends Controller
                     'min_price' => $minPrice,
                     'max_price' => $maxPrice
                 ]);
-                // Use CAST to force numeric comparison
-                $query->whereRaw('CAST(price AS UNSIGNED) BETWEEN ? AND ?', [$minPrice, $maxPrice]);
+                // Use both conditions like in phpMyAdmin
+                $query->whereBetween('price', [$minPrice, $maxPrice])
+                      ->whereRaw('CAST(price AS UNSIGNED) BETWEEN ? AND ?', [$minPrice, $maxPrice]);
             }
         } else {
             // Custom price range (min/max in millions) - FORCE numeric comparison
@@ -276,10 +277,11 @@ class ProductController extends Controller
         \DB::enableQueryLog();
         $productIds = $query->orderBy('price', 'asc')->pluck('id')->toArray();
         $queries = \DB::getQueryLog();
-        \Log::info('DEBUG: Query executed', [
+        \Log::info('DEBUG: Final SQL query executed', [
             'sql' => $queries[0]['query'],
             'bindings' => $queries[0]['bindings'],
-            'result_count' => count($productIds)
+            'result_count' => count($productIds),
+            'first_5_ids' => array_slice($productIds, 0, 5)
         ]);
         
         return $productIds;
