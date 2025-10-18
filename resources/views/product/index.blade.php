@@ -409,6 +409,21 @@
                                 </div>
                             </div>
                             <div class="wrap-item flex">
+                            {{-- DEBUG: Log products data --}}
+                            @php
+                                \Log::info('DEBUG: View products data', [
+                                    'total_products' => $products->count(),
+                                    'first_3_products' => $products->take(3)->map(function($p) {
+                                        return [
+                                            'id' => $p->id,
+                                            'title' => $p->title,
+                                            'price' => $p->price,
+                                            'price_formatted' => number_format($p->price) . ' VNĐ'
+                                        ];
+                                    })->toArray()
+                                ]);
+                            @endphp
+                            
                             @foreach($products as $product)
                             <div class="col-lg-4 col-md-6 col-sm-12">
                                                 <div class="box box-dream hv-one style-dream">

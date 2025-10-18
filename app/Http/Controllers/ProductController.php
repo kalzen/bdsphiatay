@@ -354,6 +354,20 @@ class ProductController extends Controller
             })->toArray()
         ]);
         
+        // Debug: Log data được trả về cho view
+        \Log::info('DEBUG: Data sent to view', [
+            'products_count' => $products->count(),
+            'first_5_products' => $products->take(5)->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ',
+                    'price_in_range' => ($p->price >= 5000000000 && $p->price <= 10000000000) ? 'YES' : 'NO'
+                ];
+            })->toArray()
+        ]);
+        
         return $products;
     }
     
