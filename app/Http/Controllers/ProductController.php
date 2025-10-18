@@ -7,36 +7,61 @@ use App\Models\Product;
 use App\Models\Catalogue;
 use App\Models\Ward;
 use App\Models\Plan;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
     /**
-     * Display a listing of products
+     * Hiển thị danh sách tất cả các dự án
+     * Route: GET /du-an
+     * View: resources/views/product/index.blade.php
      */
     public function index()
     {
-        $catalogues = Catalogue::orderBy('id','asc')->get();
+        $catalogues = Catalogue::orderBy('id', 'asc')->get();
         $wards = Ward::all();
         $plans = Plan::all();
-        $products = Product::active()->latest()->paginate(20);
+        
+        // Lấy danh sách sản phẩm với relationships
+        $products = Product::with(['images', 'attributes', 'catalogues', 'ward'])
+            ->active()
+            ->orderBy('created_at', 'desc')
+            ->get();
         
         return view('product.index', compact('catalogues', 'products', 'wards', 'plans'));
     }
     
     /**
-     * Display products by catalogue
+     * Hiển thị danh sách dự án theo danh mục
+     * Route: GET /danh-muc/{alias}
+     * View: resources/views/product/index.blade.php
      */
     public function catalogue($alias)
     {
-        $catalogues = Catalogue::orderBy('id','asc')->get();
-        $catalogue = Catalogue::where('slug', $alias)->firstOrFail();
+        $catalogues = Catalogue::orderBy('id', 'asc')->get();
+        $catalogue = Catalogue::with(['tags', 'image'])
+            ->where('slug', $alias)
+            ->firstOrFail();
+        
         $wards = Ward::all();
         $plans = Plan::all();
         
-        $query = $catalogue->products()->active();
+        // Query sản phẩm theo catalogue
+        $query = $catalogue->products()
+            ->with(['images', 'attributes', 'ward'])
+            ->active();
         
-        // Sorting
+        // Tìm kiếm theo từ khóa
+        if (request('keyword')) {
+            $keyword = request('keyword');
+            $query->where(function($q) use ($keyword) {
+                $q->where('title', 'like', '%'.$keyword.'%')
+                  ->orWhere('description', 'like', '%'.$keyword.'%')
+                  ->orWhere('content', 'like', '%'.$keyword.'%');
+            });
+        }
+        
+        // Sắp xếp
         if (request('sort') == 'price-asc') {
             $query->orderBy('price', 'asc');
         } elseif (request('sort') == 'price-desc') {
@@ -45,44 +70,27 @@ class ProductController extends Controller
             $query->orderBy('created_at', 'desc');
         }
         
-        // Keyword search
-        if (request('keyword')) {
-            $query->where(function($q) {
-                $keyword = request('keyword');
-                $q->where('title', 'like', '%'.$keyword.'%')
-                  ->orWhere('description', 'like', '%'.$keyword.'%')
-                  ->orWhere('slug', 'like', '%'.$keyword.'%')
-                  ->orWhereHas('tags', function($tag) use ($keyword) {
-                      $tag->where('name', 'like', '%'.$keyword.'%');
-                  })
-                  ->orWhereHas('catalogues', function($cat) use ($keyword) {
-                      $cat->where('name', 'like', '%'.$keyword.'%')
-                          ->orWhere('slug', 'like', '%'.$keyword.'%');
-                });
-            });
-        }
-        
-        $products = $query->paginate(20);
+        $products = $query->get();
         
         return view('product.index', compact('catalogue', 'products', 'catalogues', 'wards', 'plans'));
     }
     
     /**
-     * Display products by ward
+     * Hiển thị danh sách dự án theo khu vực (Ward)
+     * Route: GET /khu-vuc/{slug}
+     * View: resources/views/product/index.blade.php
      */
     public function ward($slug)
     {
-        try {
-            $ward = Ward::where('slug', $slug)->firstOrFail();
-        } catch (\Exception $e) {
-            $ward = Ward::where('name', 'like', '%'.str_replace('-', '%', $slug).'%')->firstOrFail();
-        }
+        // Tìm ward theo slug
+        $ward = Ward::where('slug', $slug)->firstOrFail();
         
         $wards = Ward::all();
         $plans = Plan::all();
         $catalogues = Catalogue::orderBy('id', 'asc')->get();
         
-        $products = Product::with(['images', 'attributes'])
+        // Lấy sản phẩm theo ward
+        $products = Product::with(['images', 'attributes', 'catalogues'])
             ->where('ward_id', $ward->id)
             ->active()
             ->orderBy('created_at', 'desc')
@@ -94,362 +102,329 @@ class ProductController extends Controller
     }
     
     /**
-     * Search products with advanced filtering
+     * Tìm kiếm nâng cao với nhiều bộ lọc
+     * Route: GET /tim-kiem
+     * View: resources/views/product/index.blade.php
      */
     public function search(Request $request)
     {
         $params = $request->all();
         
-        // Clear cache to avoid stale data
-        \Cache::flush();
-        
-        // Get basic data for form
+        // Dữ liệu cho form filters
         $wards = Ward::all();
         $plans = Plan::all();
         $catalogues = Catalogue::orderBy('id', 'asc')->get();
         
-        // Search products
-        $products = $this->searchProducts($params);
+        // Tìm kiếm sản phẩm
+        $products = $this->performSearch($params);
         
         return view('product.index', compact('products', 'wards', 'catalogues', 'plans'));
     }
     
     /**
-     * Display product detail
+     * Hiển thị chi tiết dự án
+     * Route: GET /du-an/{alias}
+     * View: resources/views/product/detail.blade.php
      */
     public function detail($alias)
     {
-        $product = Product::active()->where('slug', $alias)->firstOrFail();
-        DB::table('products')->where('id', $product->id)->increment('viewed');
-        
-        $products = Product::latest()
-            ->withCount(['images'])
-            ->having('images_count', '>', 0)
+        // Lấy chi tiết sản phẩm với tất cả relationships
+        $product = Product::with([
+                'images',
+                'attributes',
+                'catalogues',
+                'ward',
+                'user.images',
+                'tags'
+            ])
             ->active()
+            ->where('slug', $alias)
+            ->firstOrFail();
+        
+        // Tăng lượt xem
+        $product->increment('viewed');
+        
+        // Lấy các sản phẩm nổi bật (có ảnh)
+        $products = Product::with(['images'])
+            ->active()
+            ->has('images')
+            ->orderBy('created_at', 'desc')
             ->take(4)
             ->get();
         
-        $wards = Ward::withCount('products')->get();
+        // Lấy danh sách các ward với số lượng sản phẩm
+        $wards = Ward::withCount('products')
+            ->orderBy('name', 'asc')
+            ->get();
         
         return view('product.detail', compact('product', 'products', 'wards'));
     }
     
     /**
-     * Advanced product search with all filters
+     * Thực hiện tìm kiếm với các bộ lọc
+     * 
+     * @param array $params Tham số tìm kiếm
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    private function searchProducts($params)
+    private function performSearch($params)
     {
-        // Step 1: Basic filters on products table
-        $productIds = $this->getBasicFilteredProducts($params);
+        // Bước 1: Lọc cơ bản trên bảng products
+        $query = Product::with(['images', 'attributes', 'catalogues', 'ward'])
+            ->active();
         
-        \Log::info('DEBUG: Basic filtered product IDs', $productIds);
+        // Tìm kiếm theo từ khóa
+        if (!empty($params['keyword'])) {
+            $keyword = trim($params['keyword']);
+            $query->where(function($q) use ($keyword) {
+                $q->where('title', 'like', '%'.$keyword.'%')
+                  ->orWhere('description', 'like', '%'.$keyword.'%')
+                  ->orWhere('content', 'like', '%'.$keyword.'%');
+            });
+        }
+        
+        // Lọc theo khoảng giá định sẵn
+        if (!empty($params['price_range'])) {
+            $priceRanges = [
+                1 => [0, 500000000],                    // Dưới 500 triệu
+                2 => [500000000, 1000000000],           // 500 triệu - 1 tỷ
+                3 => [1000000000, 2000000000],          // 1 - 2 tỷ
+                4 => [2000000000, 3000000000],          // 2 - 3 tỷ
+                5 => [3000000000, 5000000000],          // 3 - 5 tỷ
+                6 => [5000000000, 10000000000],         // 5 - 10 tỷ
+                7 => [10000000000, 20000000000],        // 10 - 20 tỷ
+                8 => [20000000000, 30000000000],        // 20 - 30 tỷ
+                9 => [30000000000, PHP_INT_MAX],        // Trên 30 tỷ
+            ];
+            
+            if (isset($priceRanges[$params['price_range']])) {
+                [$minPrice, $maxPrice] = $priceRanges[$params['price_range']];
+                $query->whereBetween('price', [$minPrice, $maxPrice]);
+            }
+        } 
+        // Lọc theo khoảng giá tùy chỉnh (đơn vị: triệu)
+        else {
+            if (!empty($params['price_range_min']) && $params['price_range_min'] > 0) {
+                $query->where('price', '>=', $params['price_range_min'] * 1000000);
+            }
+            if (!empty($params['price_range_max']) && $params['price_range_max'] > 0) {
+                $query->where('price', '<=', $params['price_range_max'] * 1000000);
+            }
+        }
+        
+        // Lọc theo phường/xã
+        if (!empty($params['ward_id'])) {
+            $query->where('ward_id', $params['ward_id']);
+        }
+        
+        // Bước 2: Lấy product IDs để lọc theo attributes
+        $productIds = $query->pluck('id')->toArray();
         
         if (empty($productIds)) {
             return collect();
         }
         
-        // Step 2: Apply attribute-based filters ONLY if there are attribute filters
-        $hasAttributeFilters = $this->hasAttributeFilters($params);
+        // Bước 3: Áp dụng các bộ lọc theo attributes
+        $productIds = $this->applyAttributeFilters($productIds, $params);
         
-        \Log::info('DEBUG: Has attribute filters', ['has' => $hasAttributeFilters]);
-        
-        if ($hasAttributeFilters) {
-            $finalProductIds = $this->applyAttributeFilters($productIds, $params);
-            \Log::info('DEBUG: After attribute filters', $finalProductIds);
-            if (empty($finalProductIds)) {
-                return collect();
-            }
-        } else {
-            // No attribute filters, use original product IDs
-            $finalProductIds = $productIds;
-            \Log::info('DEBUG: No attribute filters, using original IDs', $finalProductIds);
+        if (empty($productIds)) {
+            return collect();
         }
         
-        // Step 3: Load final products with relationships
-        // Debug: Check what's actually in database for these IDs
-        $debugProducts = \DB::table('products')
-            ->whereIn('id', $finalProductIds)
-            ->select('id', 'title', 'price')
-            ->orderBy('price', 'asc')
+        // Bước 4: Lấy danh sách sản phẩm cuối cùng
+        $products = Product::with(['images', 'attributes', 'catalogues', 'ward'])
+            ->whereIn('id', $productIds)
+            ->orderBy('created_at', 'desc')
             ->get();
-            
-        \Log::info('DEBUG: Raw database check', [
-            'count' => $debugProducts->count(),
-            'products' => $debugProducts->toArray()
-        ]);
-        
-        $products = Product::whereIn('id', $finalProductIds)
-            ->with(['images', 'attributes'])
-            ->orderBy('price', 'asc')
-            ->get();
-            
-        \Log::info('DEBUG: Final products loaded', [
-            'count' => $products->count(),
-            'prices' => $products->pluck('price')->toArray()
-        ]);
         
         return $products;
     }
     
     /**
-     * Apply basic filters (keyword, price, ward) to products table
-     */
-    private function getBasicFilteredProducts($params)
-    {
-        $query = DB::table('products')->where('status', 1);
-        
-        // Keyword search
-        if (!empty($params['keyword'])) {
-            $query->where('title', 'like', '%'.trim($params['keyword']).'%');
-        }
-        
-        // Price range filter - FORCE numeric comparison with CAST
-        if (!empty($params['price_range'])) {
-            $priceRanges = [
-                1 => [0, 500000000],
-                2 => [500000000, 1000000000], 
-                3 => [1000000000, 2000000000],
-                4 => [2000000000, 3000000000],
-                5 => [3000000000, 5000000000],
-                6 => [5000000000, 10000000000],
-                7 => [10000000000, 20000000000],
-                8 => [20000000000, 30000000000],
-                9 => [30000000000, PHP_INT_MAX],
-            ];
-            
-            if (isset($priceRanges[$params['price_range']])) {
-                [$minPrice, $maxPrice] = $priceRanges[$params['price_range']];
-                \Log::info('DEBUG: Price range filter', [
-                    'price_range' => $params['price_range'],
-                    'min_price' => $minPrice,
-                    'max_price' => $maxPrice
-                ]);
-                // Use both conditions like in phpMyAdmin
-                $query->whereBetween('price', [$minPrice, $maxPrice])
-                      ->whereRaw('CAST(price AS UNSIGNED) BETWEEN ? AND ?', [$minPrice, $maxPrice]);
-            }
-        } else {
-            // Custom price range (min/max in millions) - FORCE numeric comparison
-            if (!empty($params['price_range_min']) && $params['price_range_min'] > 0) {
-                $query->whereRaw('CAST(price AS UNSIGNED) >= ?', [$params['price_range_min'] * 1000000]);
-            }
-            if (!empty($params['price_range_max']) && $params['price_range_max'] > 0) {
-                $query->whereRaw('CAST(price AS UNSIGNED) <= ?', [$params['price_range_max'] * 1000000]);
-            }
-        }
-        
-        // Ward filter
-        if (!empty($params['ward_id'])) {
-            $query->where('ward_id', $params['ward_id']);
-        }
-        
-        // Debug: Check what's actually in database
-        \Log::info('DEBUG: Checking database data integrity');
-        
-        // Check some sample products to see their actual prices
-        $sampleProducts = \DB::table('products')
-            ->where('status', 1)
-            ->select('id', 'title', 'price')
-            ->orderBy('price', 'desc')
-            ->limit(10)
-            ->get();
-            
-        \Log::info('DEBUG: Sample products (highest prices)', [
-            'products' => $sampleProducts->toArray()
-        ]);
-        
-        // Check products in the 5-10 billion range specifically
-        $targetProducts = \DB::table('products')
-            ->where('status', 1)
-            ->where('price', '>=', 5000000000)
-            ->where('price', '<=', 10000000000)
-            ->select('id', 'title', 'price')
-            ->orderBy('price', 'asc')
-            ->limit(5)
-            ->get();
-            
-        \Log::info('DEBUG: Products in 5-10 billion range', [
-            'count' => $targetProducts->count(),
-            'products' => $targetProducts->toArray()
-        ]);
-        
-        // Execute the original query
-        \DB::enableQueryLog();
-        $productIds = $query->orderBy('price', 'asc')->pluck('id')->toArray();
-        $queries = \DB::getQueryLog();
-        \Log::info('DEBUG: Final SQL query executed', [
-            'sql' => $queries[0]['query'],
-            'bindings' => $queries[0]['bindings'],
-            'result_count' => count($productIds),
-            'first_5_ids' => array_slice($productIds, 0, 5)
-        ]);
-        
-        return $productIds;
-    }
-    
-    /**
-     * Apply attribute-based filters to product IDs
+     * Áp dụng các bộ lọc dựa trên attributes
+     * 
+     * @param array $productIds Danh sách product IDs
+     * @param array $params Tham số lọc
+     * @return array
      */
     private function applyAttributeFilters($productIds, $params)
     {
-        $query = DB::table('attribute_product')->whereIn('product_id', $productIds);
+        $filteredIds = $productIds;
         
-        $conditions = [];
-        
-        // Direction filter
+        // Lọc theo hướng
         if (!empty($params['direction']) && is_array($params['direction'])) {
             $directions = array_filter($params['direction'], function($v) {
-                return !empty(trim($v));
+                return !empty(trim($v)) && trim($v) != ' ';
             });
             
             if (!empty($directions)) {
-                $conditions[] = function($q) use ($directions) {
-                    $q->whereIn('value', $directions);
-                };
+                $ids = DB::table('attribute_product')
+                    ->whereIn('product_id', $filteredIds)
+                    ->where(function($query) use ($directions) {
+                        foreach ($directions as $direction) {
+                            $query->orWhere('value', 'like', '%'.$direction.'%');
+                        }
+                    })
+                    ->pluck('product_id')
+                    ->unique()
+                    ->toArray();
+                
+                $filteredIds = array_intersect($filteredIds, $ids);
             }
         }
         
-        // Area filter
+        // Lọc theo diện tích (attribute_id = 3)
         if (!empty($params['area']) && is_array($params['area'])) {
             $areas = array_filter($params['area'], function($v) {
                 return $v != '0' && !empty(trim($v));
             });
             
             if (!empty($areas)) {
-                $conditions[] = function($q) use ($areas) {
-                    $q->where('attribute_id', 3);
-                    $areaConditions = [];
-                    
-                    foreach ($areas as $area) {
-                        switch ($area) {
-                            case '1': $areaConditions[] = 'CAST(value as DECIMAL) < 100'; break;
-                            case '2': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 100 AND 300'; break;
-                            case '3': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 300 AND 500'; break;
-                            case '4': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 500 AND 1000'; break;
-                            case '5': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 1000 AND 5000'; break;
-                            case '6': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 10000 AND 50000'; break;
-                            case '7': $areaConditions[] = 'CAST(value as DECIMAL) > 50000'; break;
-                        }
-                    }
-                    
-                    if (!empty($areaConditions)) {
-                        $q->whereRaw('(' . implode(' OR ', $areaConditions) . ')');
-                    }
-                };
+                $ids = $this->filterByArea($filteredIds, $areas);
+                $filteredIds = array_intersect($filteredIds, $ids);
             }
         }
         
-        // Front filter
+        // Lọc theo mặt tiền (attribute_id = 6)
         if (!empty($params['front']) && is_array($params['front'])) {
             $fronts = array_filter($params['front']);
             
             if (!empty($fronts)) {
-                $conditions[] = function($q) use ($fronts) {
-                    $q->where('attribute_id', 6);
-                    $frontConditions = [];
-                    
-                    foreach ($fronts as $front) {
-                        switch ($front) {
-                            case '1': $frontConditions[] = 'CAST(value as DECIMAL) < 5'; break;
-                            case '2': $frontConditions[] = 'CAST(value as DECIMAL) BETWEEN 5 AND 8'; break;
-                            case '3': $frontConditions[] = 'CAST(value as DECIMAL) BETWEEN 8 AND 12'; break;
-                            case '4': $frontConditions[] = 'CAST(value as DECIMAL) > 12'; break;
-                        }
-                    }
-                    
-                    if (!empty($frontConditions)) {
-                        $q->whereRaw('(' . implode(' OR ', $frontConditions) . ')');
-                    }
-                };
+                $ids = $this->filterByFront($filteredIds, $fronts);
+                $filteredIds = array_intersect($filteredIds, $ids);
             }
         }
         
-        // Road filter
+        // Lọc theo đường (attribute_id = 4 hoặc tùy theo database)
         if (!empty($params['road']) && is_array($params['road'])) {
             $roads = array_filter($params['road']);
             
             if (!empty($roads)) {
-                $conditions[] = function($q) use ($roads) {
-                    $q->where('attribute_id', 3);
-                    $roadConditions = [];
-                    
-                    foreach ($roads as $road) {
-                        switch ($road) {
-                            case '1': $roadConditions[] = 'CAST(value as DECIMAL) < 2'; break;
-                            case '2': $roadConditions[] = 'CAST(value as DECIMAL) BETWEEN 2 AND 3'; break;
-                            case '3': $roadConditions[] = 'CAST(value as DECIMAL) BETWEEN 3 AND 5'; break;
-                            case '4': $roadConditions[] = 'CAST(value as DECIMAL) BETWEEN 5 AND 10'; break;
-                            case '5': $roadConditions[] = "value LIKE '%QL%'"; break;
-                        }
-                    }
-                    
-                    if (!empty($roadConditions)) {
-                        $q->whereRaw('(' . implode(' OR ', $roadConditions) . ')');
-                    }
-                };
+                $ids = $this->filterByRoad($filteredIds, $roads);
+                $filteredIds = array_intersect($filteredIds, $ids);
             }
         }
         
-        // Type filter
-        if (!empty($params['type'])) {
-            $conditions[] = function($q) use ($params) {
-                $q->where('attribute_id', 8)
-                  ->where('value', 'like', '%'.$params['type'].'%');
-            };
-        }
-        
-        // Function filter
-        if (!empty($params['function'])) {
-            $conditions[] = function($q) use ($params) {
-                $q->where('attribute_id', 10)
-                  ->where('value', 'like', '%'.$params['function'].'%');
-            };
-        }
-        
-        // Khu vực filter
-        if (!empty($params['khuvuc'])) {
-            $conditions[] = function($q) use ($params) {
-                $q->where('attribute_id', 9)
-                  ->where('value', 'like', '%'.$params['khuvuc'].'%');
-            };
-        }
-        
-        // Plan filter
+        // Lọc theo chức năng/tiện ích (plan_id)
         if (!empty($params['plan_id']) && is_array($params['plan_id'])) {
             $planIds = array_filter($params['plan_id']);
+            
             if (!empty($planIds)) {
-                $conditions[] = function($q) use ($planIds) {
-                    $q->whereIn('attribute_id', $planIds);
-                };
+                $ids = DB::table('plan_product')
+                    ->whereIn('product_id', $filteredIds)
+                    ->whereIn('plan_id', $planIds)
+                    ->pluck('product_id')
+                    ->unique()
+                    ->toArray();
+                
+                $filteredIds = array_intersect($filteredIds, $ids);
             }
         }
         
-        // If no attribute filters, return original product IDs
-        if (empty($conditions)) {
-            return $productIds;
-        }
-        
-        // Apply all conditions
-        foreach ($conditions as $condition) {
-            $condition($query);
-        }
-        
-        // Get final product IDs
-        return $query->distinct()->pluck('product_id')->toArray();
+        return array_values($filteredIds);
     }
     
     /**
-     * Check if there are any attribute-based filters
+     * Lọc sản phẩm theo diện tích
      */
-    private function hasAttributeFilters($params)
+    private function filterByArea($productIds, $areas)
     {
-        return !empty($params['direction']) || 
-               !empty($params['area']) || 
-               !empty($params['front']) || 
-               !empty($params['road']) || 
-               !empty($params['type']) || 
-               !empty($params['function']) || 
-               !empty($params['khuvuc']) || 
-               !empty($params['plan_id']);
+        $query = DB::table('attribute_product')
+            ->whereIn('product_id', $productIds)
+            ->where('attribute_id', 3); // Attribute ID cho diện tích
+        
+        $query->where(function($q) use ($areas) {
+            foreach ($areas as $area) {
+                switch ($area) {
+                    case '1':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) < 100');
+                        break;
+                    case '2':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) BETWEEN 100 AND 300');
+                        break;
+                    case '3':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) BETWEEN 300 AND 500');
+                        break;
+                    case '4':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) BETWEEN 500 AND 1000');
+                        break;
+                    case '5':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) BETWEEN 1000 AND 5000');
+                        break;
+                    case '6':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) BETWEEN 10000 AND 50000');
+                        break;
+                    case '7':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) > 50000');
+                        break;
+                }
+            }
+        });
+        
+        return $query->pluck('product_id')->unique()->toArray();
+    }
+    
+    /**
+     * Lọc sản phẩm theo mặt tiền
+     */
+    private function filterByFront($productIds, $fronts)
+    {
+        $query = DB::table('attribute_product')
+            ->whereIn('product_id', $productIds)
+            ->where('attribute_id', 6); // Attribute ID cho mặt tiền
+        
+        $query->where(function($q) use ($fronts) {
+            foreach ($fronts as $front) {
+                switch ($front) {
+                    case '1':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) < 5');
+                        break;
+                    case '2':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) BETWEEN 5 AND 8');
+                        break;
+                    case '3':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) BETWEEN 8 AND 12');
+                        break;
+                    case '4':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) > 12');
+                        break;
+                }
+            }
+        });
+        
+        return $query->pluck('product_id')->unique()->toArray();
+    }
+    
+    /**
+     * Lọc sản phẩm theo đường
+     */
+    private function filterByRoad($productIds, $roads)
+    {
+        $query = DB::table('attribute_product')
+            ->whereIn('product_id', $productIds)
+            ->where('attribute_id', 4); // Attribute ID cho đường
+        
+        $query->where(function($q) use ($roads) {
+            foreach ($roads as $road) {
+                switch ($road) {
+                    case '1':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) < 2');
+                        break;
+                    case '2':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) BETWEEN 2 AND 3');
+                        break;
+                    case '3':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) BETWEEN 3 AND 5');
+                        break;
+                    case '4':
+                        $q->orWhereRaw('CAST(value AS DECIMAL(10,2)) BETWEEN 5 AND 10');
+                        break;
+                    case '5':
+                        $q->orWhere('value', 'like', '%QL%');
+                        break;
+                }
+            }
+        });
+        
+        return $query->pluck('product_id')->unique()->toArray();
     }
 }
