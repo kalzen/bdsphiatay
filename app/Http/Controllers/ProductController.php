@@ -360,13 +360,33 @@ class ProductController extends Controller
             'first_5_ids' => array_slice(array_column($rawResults, 'id'), 0, 5)
         ]);
         
-        $products = Product::whereRaw("id IN ($idsString)")
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Product::whereRaw("id IN ($idsString)")
+            ->orderBy('created_at', 'desc');
+            
+        \Log::info('DEBUG: Query before execution', [
+            'sql' => $query->toSql(),
+            'bindings' => $query->getBindings()
+        ]);
+        
+        $products = $query->get();
+        
+        // TEMPORARY: Use raw DB results if Eloquent fails
+        if ($products->count() != count($rawResults)) {
+            \Log::info('DEBUG: Eloquent vs Raw DB mismatch', [
+                'eloquent_count' => $products->count(),
+                'raw_count' => count($rawResults),
+                'using_raw_results' => true
+            ]);
+            
+            // Convert raw results to Eloquent models
+            $products = collect($rawResults)->map(function($item) {
+                return new Product((array) $item);
+            });
+        }
             
         \Log::info('DEBUG: Actual SQL executed', [
-            'sql' => $products->toSql(),
-            'bindings' => $products->getBindings()
+            'sql' => 'Cannot get SQL from Collection',
+            'bindings' => 'Cannot get bindings from Collection'
         ]);
             
         \Log::info('DEBUG: Products fetched from database', [
