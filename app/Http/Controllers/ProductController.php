@@ -63,27 +63,30 @@ class ProductController extends Controller
     
     public function search(Request $request)
     {
+        // Get request parameters
         $params = $request->all();
         
-        if ($request->has('clear_session')) {
-            $params = [];
-        }
+        // Clear cache to avoid stale data
+        \Cache::flush();
         
+        // Get basic data for form
         $wards = Ward::all();
         $plans = Plan::all();
         $catalogues = Catalogue::orderBy('id','asc')->get();
-        $query = Product::active();
-
+        
+        // Start with fresh query - no global scopes
+        $query = \DB::table('products')->where('status', 1);
+        
         // Keyword search
         if (!empty($params['keyword'])) {
-            $query->where('title','like','%'.$params['keyword'].'%');
+            $query->where('title', 'like', '%'.$params['keyword'].'%');
         }
         
-        // Price range filter - optimized
+        // Price range filter
         if (!empty($params['price_range'])) {
             $priceRanges = [
                 1 => [0, 500000000],
-                2 => [500000000, 1000000000],
+                2 => [500000000, 1000000000], 
                 3 => [1000000000, 2000000000],
                 4 => [2000000000, 3000000000],
                 5 => [3000000000, 5000000000],
@@ -112,141 +115,19 @@ class ProductController extends Controller
             $query->where('ward_id', $params['ward_id']);
         }
         
-        // Direction filter - optimized
-        if (!empty($params['direction']) && is_array($params['direction'])) {
-            $directions = array_filter($params['direction'], function($v) {
-                return !empty(trim($v));
-            });
-            
-            if (!empty($directions)) {
-                $query->whereHas('attributes', function($q) use($directions) {
-                    $q->whereIn('value', $directions);
-                });
-            }
-        }
+        // Execute main query to get product IDs
+        $productIds = $query->orderBy('price', 'asc')->pluck('id')->toArray();
         
-        // Area filter - optimized
-        if (!empty($params['area']) && is_array($params['area'])) {
-            $areas = array_filter($params['area'], function($v) {
-                return $v != '0' && !empty(trim($v));
-            });
-            
-            if (!empty($areas)) {
-                $query->whereHas('attributes', function($q) use($areas) {
-                    $q->where('attribute_id', 3);
-                    $areaConditions = [];
-                    
-                    foreach ($areas as $area) {
-                        switch ($area) {
-                            case '1': $areaConditions[] = 'CAST(value as DECIMAL) < 100'; break;
-                            case '2': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 100 AND 300'; break;
-                            case '3': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 300 AND 500'; break;
-                            case '4': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 500 AND 1000'; break;
-                            case '5': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 1000 AND 5000'; break;
-                            case '6': $areaConditions[] = 'CAST(value as DECIMAL) BETWEEN 10000 AND 50000'; break;
-                            case '7': $areaConditions[] = 'CAST(value as DECIMAL) > 50000'; break;
-                        }
-                    }
-                    
-                    if (!empty($areaConditions)) {
-                        $q->whereRaw('(' . implode(' OR ', $areaConditions) . ')');
-                            }
-                        });
-            }
+        // If no products found, return empty collection
+        if (empty($productIds)) {
+                $products = collect();
+        } else {
+            // Load products with relationships using the filtered IDs
+            $products = Product::whereIn('id', $productIds)
+                ->with(['images', 'attributes'])
+                ->orderBy('price', 'asc')
+                ->get();
         }
-        
-        // Front filter - optimized
-        if (!empty($params['front']) && is_array($params['front'])) {
-            $fronts = array_filter($params['front']);
-            
-            if (!empty($fronts)) {
-                $query->whereHas('attributes', function($q) use($fronts) {
-                    $q->where('attribute_id', 6);
-                    $frontConditions = [];
-                    
-                    foreach ($fronts as $front) {
-                        switch ($front) {
-                            case '1': $frontConditions[] = 'CAST(value as DECIMAL) < 5'; break;
-                            case '2': $frontConditions[] = 'CAST(value as DECIMAL) BETWEEN 5 AND 8'; break;
-                            case '3': $frontConditions[] = 'CAST(value as DECIMAL) BETWEEN 8 AND 12'; break;
-                            case '4': $frontConditions[] = 'CAST(value as DECIMAL) > 12'; break;
-                        }
-                    }
-                    
-                    if (!empty($frontConditions)) {
-                        $q->whereRaw('(' . implode(' OR ', $frontConditions) . ')');
-                    }
-                });
-            }
-        }
-        
-        // Road filter - optimized
-        if (!empty($params['road']) && is_array($params['road'])) {
-            $roads = array_filter($params['road']);
-            
-            if (!empty($roads)) {
-                $query->whereHas('attributes', function($q) use($roads) {
-                    $q->where('attribute_id', 3);
-                    $roadConditions = [];
-                    
-                    foreach ($roads as $road) {
-                        switch ($road) {
-                            case '1': $roadConditions[] = 'CAST(value as DECIMAL) < 2'; break;
-                            case '2': $roadConditions[] = 'CAST(value as DECIMAL) BETWEEN 2 AND 3'; break;
-                            case '3': $roadConditions[] = 'CAST(value as DECIMAL) BETWEEN 3 AND 5'; break;
-                            case '4': $roadConditions[] = 'CAST(value as DECIMAL) BETWEEN 5 AND 10'; break;
-                            case '5': $roadConditions[] = "value LIKE '%QL%'"; break;
-                        }
-                    }
-                    
-                    if (!empty($roadConditions)) {
-                        $q->whereRaw('(' . implode(' OR ', $roadConditions) . ')');
-                        }
-                    });
-        }
-        }
-        
-        // Type filter
-        if (!empty($params['type'])) {
-            $query->whereHas('attributes', function($q) use($params) {
-                $q->where('attribute_id', 8)
-                  ->where('value', 'like', '%'.$params['type'].'%');
-            });
-        }
-        
-        // Function filter
-        if (!empty($params['function'])) {
-            $query->whereHas('attributes', function($q) use($params) {
-                $q->where('attribute_id', 10)
-                  ->where('value', 'like', '%'.$params['function'].'%');
-            });
-        }
-        
-        // Khu vực filter
-        if (!empty($params['khuvuc'])) {
-            $query->whereHas('attributes', function($q) use($params) {
-                $q->where('attribute_id', 9)
-                  ->where('value', 'like', '%'.$params['khuvuc'].'%');
-            });
-        }
-
-        // Clear any potential cache/session issues
-        \Cache::flush();
-        \Session::flush();
-        
-        // Use completely fresh query builder to avoid any global scopes
-        $products = \DB::table('products')
-            ->where('status', 1)
-            ->whereRaw('CAST(price AS UNSIGNED) BETWEEN ? AND ?', [3000000000, 5000000000])
-                    ->orderBy('price', 'asc')
-                    ->get();
-        
-        // Convert to Eloquent models and load relationships
-        $productIds = $products->pluck('id')->toArray();
-        $products = Product::whereIn('id', $productIds)
-            ->with(['images', 'attributes'])
-            ->orderBy('price', 'asc')
-            ->get();
         
         return view('product.index', compact('products', 'wards', 'catalogues', 'plans'));
     }
