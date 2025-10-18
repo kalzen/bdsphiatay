@@ -249,7 +249,6 @@ class ProductController extends Controller
             \Log::info('Product ID: ' . $product->id . ', Price: ' . $product->price);
         }
         
-        dd($products);
         // Load relationships only for the filtered products
             if ($products->count() > 0) {
                 $products->load(['images', 'attributes']);
