@@ -282,6 +282,21 @@ class ProductController extends Controller
             'bindings' => $query->getBindings()
         ]);
         
+        // TEMPORARY: Check actual products from query before pluck
+        $actualProducts = $query->get(['id', 'title', 'price']);
+        \Log::info('DEBUG: Actual products from query', [
+            'count' => $actualProducts->count(),
+            'first_5_products' => $actualProducts->take(5)->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ',
+                    'price_in_range' => ($p->price >= 5000000000 && $p->price <= 10000000000) ? 'YES' : 'NO'
+                ];
+            })->toArray()
+        ]);
+        
         $productIds = $query->pluck('id')->toArray();
         
         \Log::info('DEBUG: Products after basic filters', [
@@ -337,92 +352,28 @@ class ProductController extends Controller
             return collect();
         }
         
-        // Bước 4: Lấy danh sách sản phẩm cuối cùng
-        \Log::info('DEBUG: Fetching products with IDs', [
+        // Bước 4: Sử dụng $actualProducts thay vì fetch lại từ database
+        \Log::info('DEBUG: Using actual products from query', [
             'filtered_product_ids' => array_slice($filteredProductIds, 0, 10),
-            'total_ids' => count($filteredProductIds),
-            'ids_type' => gettype($filteredProductIds),
-            'first_id_type' => isset($filteredProductIds[0]) ? gettype($filteredProductIds[0]) : 'N/A',
-            'first_id_value' => isset($filteredProductIds[0]) ? $filteredProductIds[0] : 'N/A'
+            'total_ids' => count($filteredProductIds)
         ]);
         
-        // TEMPORARY: Fetch products with raw SQL to test
-        $idsString = implode(',', $filteredProductIds);
-        \Log::info('DEBUG: Raw SQL test', [
-            'ids_string' => $idsString,
-            'sql_query' => "SELECT * FROM products WHERE id IN ($idsString) ORDER BY created_at DESC",
-            'filtered_product_ids_before_raw' => array_slice($filteredProductIds, 0, 10)
-        ]);
+        // Filter $actualProducts by $filteredProductIds
+        $products = $actualProducts->whereIn('id', $filteredProductIds);
         
-        // TEMPORARY: Test with DB::select() to bypass Eloquent
-        \Log::info('DEBUG: Before raw DB query', [
-            'filtered_product_ids_before_raw_query' => array_slice($filteredProductIds, 0, 10)
-        ]);
-        
-        $rawResults = \DB::select("SELECT * FROM products WHERE id IN ($idsString) ORDER BY created_at DESC");
-        \Log::info('DEBUG: Raw DB results', [
-            'count' => count($rawResults),
-            'first_5_ids' => array_slice(array_column($rawResults, 'id'), 0, 5)
-        ]);
-        
-        $query = Product::whereRaw("id IN ($idsString)")
-            ->orderBy('created_at', 'desc');
-            
-        \Log::info('DEBUG: Query before execution', [
-            'sql' => $query->toSql(),
-            'bindings' => $query->getBindings()
-        ]);
-        
-        $products = $query->get();
-        
-        \Log::info('DEBUG: After Eloquent fetch', [
-            'filtered_product_ids_after_eloquent' => array_slice($filteredProductIds, 0, 10),
+        \Log::info('DEBUG: Final products after filtering', [
             'products_count' => $products->count(),
-            'products_ids' => $products->pluck('id')->toArray()
-        ]);
-        
-        // TEMPORARY: Force use raw DB results due to Eloquent issue
-        \Log::info('DEBUG: Forcing raw DB results due to Eloquent issue', [
-            'eloquent_count' => $products->count(),
-            'raw_count' => count($rawResults),
-            'eloquent_ids' => $products->pluck('id')->toArray(),
-            'raw_ids' => array_column($rawResults, 'id')
-        ]);
-        
-        // Always use raw DB results for now
-        $products = collect($rawResults)->map(function($item) {
-            return new Product((array) $item);
-        });
-            
-        \Log::info('DEBUG: Actual SQL executed', [
-            'sql' => 'Cannot get SQL from Collection',
-            'bindings' => 'Cannot get bindings from Collection'
-        ]);
-            
-        \Log::info('DEBUG: Products fetched from database', [
-            'fetched_count' => $products->count(),
-            'fetched_ids' => $products->pluck('id')->toArray(),
-            'first_5_fetched' => $products->take(5)->map(function($p) {
+            'first_5_products' => $products->take(5)->map(function($p) {
                 return [
                     'id' => $p->id,
                     'title' => $p->title,
                     'price' => $p->price,
-                    'price_formatted' => number_format($p->price) . ' VNĐ'
-                ];
-            })->toArray()
-        ]);
-            
-        // Debug: Kiểm tra data consistency
-        \Log::info('DEBUG: Data consistency check', [
-            'requested_ids' => array_slice($filteredProductIds, 0, 10),
-            'actual_products' => $products->take(5)->map(function($p) {
-                return [
-                    'id' => $p->id,
-                    'price' => $p->price,
+                    'price_formatted' => number_format($p->price) . ' VNĐ',
                     'price_in_range' => ($p->price >= 5000000000 && $p->price <= 10000000000) ? 'YES' : 'NO'
                 ];
             })->toArray()
         ]);
+            
         
         // Debug: Log kết quả cuối cùng
         \Log::info('DEBUG: Final search results', [
