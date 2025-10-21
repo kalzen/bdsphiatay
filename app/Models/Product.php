@@ -10,7 +10,7 @@ class Product extends Model
     protected $guarded = [];
     
     protected $fillable = [
-        'title', 'slug', 'description', 'content', 'price', 'status', 'user_id', 'ward_id'
+        'title', 'slug', 'description', 'content', 'sale_content', 'price', 'status', 'user_id', 'ward_id'
     ];
     const STATUS_ACTIVE = 1;
     const STATUS_INACTIVE = 0;
