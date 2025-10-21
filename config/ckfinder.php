@@ -57,7 +57,9 @@ $config['images'] = array(
         'small'  => array('width' => 480, 'height' => 320, 'quality' => 80),
         'medium' => array('width' => 600, 'height' => 480, 'quality' => 80),
         'large'  => array('width' => 800, 'height' => 600, 'quality' => 80)
-    )
+    ),
+    // Tự động xử lý EXIF orientation để tránh ảnh bị xoay
+    'autoRotate' => true
 );
 
 /*=================================== Backends ========================================*/
@@ -158,7 +160,11 @@ $config['debug'] = false;
 /*==================================== Plugins ========================================*/
 // http://docs.cksource.com/ckfinder3-php/configuration.html#configuration_options_plugins
 
-$config['plugins'] = array();
+$config['plugins'] = array(
+    'AutoOrientImage' => array(
+        'class' => '\App\CKFinder\Plugins\AutoOrientImage'
+    )
+);
 
 /*================================ Cache settings =====================================*/
 // http://docs.cksource.com/ckfinder3-php/configuration.html#configuration_options_cache
