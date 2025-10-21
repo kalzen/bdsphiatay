@@ -16,22 +16,9 @@ class Product extends Model
     const STATUS_INACTIVE = 0;
     public function getUrlAttribute()
     {
-        return '/du-an/'.$this->getSlugAttribute();
+        return '/du-an/'.$this->slug;
     }
     
-    public function getSlugAttribute($value)
-    {
-        // Nếu slug null hoặc rỗng, tự động generate từ title
-        if (empty($value) && !empty($this->title)) {
-            $slug = Str::slug($this->title);
-            // Lưu slug vào database nếu chưa có
-            if ($this->exists) {
-                $this->update(['slug' => $slug]);
-            }
-            return $slug;
-        }
-        return $value;
-    }
     public function scopeActive($query) {
         $query->where('status', Product::STATUS_ACTIVE);
     }
@@ -102,27 +89,4 @@ class Product extends Model
         });
     }
     
-    /**
-     * Update tất cả sản phẩm thiếu slug
-     */
-    public static function updateMissingSlugs()
-    {
-        $products = self::whereNull('slug')->orWhere('slug', '')->get();
-        
-        foreach ($products as $product) {
-            if (!empty($product->title)) {
-                $slug = Str::slug($product->title);
-                // Đảm bảo slug unique
-                $originalSlug = $slug;
-                $counter = 1;
-                while (self::where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
-                    $slug = $originalSlug . '-' . $counter;
-                    $counter++;
-                }
-                $product->update(['slug' => $slug]);
-            }
-        }
-        
-        return $products->count();
-    }
 }
