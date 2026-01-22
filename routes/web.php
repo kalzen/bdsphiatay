@@ -44,7 +44,7 @@ Route::get('/danh-muc/{alias}', [App\Http\Controllers\ProductController::class, 
 // Change the ward route to use slug instead of ID
 Route::get('/khu-vuc/{slug}', [App\Http\Controllers\ProductController::class, 'ward'])->name('product.ward');
 
-Route::get('/tin-tuc/', [App\Http\Controllers\PostController::class, 'index'])->name('post.list');
+Route::get('/tin-tuc', [App\Http\Controllers\PostController::class, 'index'])->name('post.list');
 Route::get('/danh-muc-tin-tuc/{alias}', [App\Http\Controllers\PostController::class, 'category'])->name('post.category');
 Route::get('/tim-kiem-tin-tuc', [App\Http\Controllers\PostController::class, 'search'])->name('post.search');
 Route::get('/tin-tuc/{alias}', [App\Http\Controllers\PostController::class, 'detail'])->name('post.detail');
