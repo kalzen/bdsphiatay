@@ -119,30 +119,23 @@
                                 </div>
                                 {!! $post->content !!}
 
-                                @if($post->faqs && $post->faqs->count())
-                                    <div class="post-faq mt-5">
-                                        <h2 class="fs-24 fw-7 mb-3">Câu hỏi thường gặp (FAQ)</h2>
-                                        <div class="accordion" id="postFaqAccordion">
-                                            @foreach($post->faqs as $index => $faq)
-                                                <div class="card mb-2">
-                                                    <div class="card-header" id="faqHeading{{ $index }}">
-                                                        <h3 class="mb-0 fs-16">
-                                                            <button class="btn btn-link text-left" type="button" data-toggle="collapse" data-target="#faqCollapse{{ $index }}" aria-expanded="{{ $index === 0 ? 'true' : 'false' }}" aria-controls="faqCollapse{{ $index }}">
-                                                                {{ $faq->question }}
-                                                            </button>
-                                                        </h3>
-                                                    </div>
-
-                                                    <div id="faqCollapse{{ $index }}" class="collapse {{ $index === 0 ? 'show' : '' }}" aria-labelledby="faqHeading{{ $index }}" data-parent="#postFaqAccordion">
-                                                        <div class="card-body">
-                                                            {!! $faq->answer_html !!}
-                                                        </div>
+                                @php $postFaqs = $post->relationLoaded('faqs') ? $post->faqs : $post->faqs()->orderBy('id')->get(); @endphp
+                                @if($postFaqs && $postFaqs->count() > 0)
+                                    <div class="post-faq" style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #eee;">
+                                        <h2 class="fs-24 fw-7 mb-4" style="margin-bottom: 1.25rem;">Các câu hỏi thường gặp</h2>
+                                        <div class="faq-list">
+                                            @foreach($postFaqs as $index => $faq)
+                                                <div class="faq-item" style="margin-bottom: 1.5rem;">
+                                                    <h3 class="faq-question fs-18 fw-7" style="margin-bottom: 0.5rem; font-size: 1.125rem;">{{ $faq->question }}</h3>
+                                                    <div class="faq-answer fs-16 lh-26" style="color: #555;">
+                                                        {!! $faq->answer_html !!}
                                                     </div>
                                                 </div>
                                             @endforeach
                                         </div>
                                     </div>
                                 @endif
+
                                 <div class="tag-wrap flex justify-space align-center">
                                     <div class="tags-box">
                                         <div class="tags flex-three ">
