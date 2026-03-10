@@ -22,7 +22,7 @@ class PostController extends Controller
     }
     public function detail($alias)
     {
-        $post = Post::active()->where('slug',$alias)->firstOrFail();
+        $post = Post::active()->with('faqs')->where('slug',$alias)->firstOrFail();
         DB::table('posts')->where('id',$post->id)->increment('viewed');
         $categories = Category::orderBy('name','asc')->whereNull('parent_id')->get();
         $most_view = Post::active()->orderBy('id','desc')->limit(5)->get();

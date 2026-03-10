@@ -51,6 +51,26 @@
   "wordCount": "{{str_word_count(strip_tags($post->content))}}"
 }
 </script>
+@if($post->faqs && $post->faqs->count())
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    @foreach($post->faqs as $faq)
+    {
+      "@type": "Question",
+      "name": "{{ $faq->question }}",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "{!! trim(preg_replace('/\s+/', ' ', strip_tags($faq->answer_html))) !!}"
+      }
+    }@if(!$loop->last),@endif
+    @endforeach
+  ]
+}
+</script>
+@endif
 @endsection
 
 @section('content')
@@ -98,6 +118,31 @@
                                     <div class="sub-title fs-12 fw-6">{{$post->title}}</div>
                                 </div>
                                 {!! $post->content !!}
+
+                                @if($post->faqs && $post->faqs->count())
+                                    <div class="post-faq mt-5">
+                                        <h2 class="fs-24 fw-7 mb-3">Câu hỏi thường gặp (FAQ)</h2>
+                                        <div class="accordion" id="postFaqAccordion">
+                                            @foreach($post->faqs as $index => $faq)
+                                                <div class="card mb-2">
+                                                    <div class="card-header" id="faqHeading{{ $index }}">
+                                                        <h3 class="mb-0 fs-16">
+                                                            <button class="btn btn-link text-left" type="button" data-toggle="collapse" data-target="#faqCollapse{{ $index }}" aria-expanded="{{ $index === 0 ? 'true' : 'false' }}" aria-controls="faqCollapse{{ $index }}">
+                                                                {{ $faq->question }}
+                                                            </button>
+                                                        </h3>
+                                                    </div>
+
+                                                    <div id="faqCollapse{{ $index }}" class="collapse {{ $index === 0 ? 'show' : '' }}" aria-labelledby="faqHeading{{ $index }}" data-parent="#postFaqAccordion">
+                                                        <div class="card-body">
+                                                            {!! $faq->answer_html !!}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
                                 <div class="tag-wrap flex justify-space align-center">
                                     <div class="tags-box">
                                         <div class="tags flex-three ">

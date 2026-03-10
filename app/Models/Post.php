@@ -38,6 +38,10 @@ class Post extends Model
     {
         return $this->belongsToMany(Image::class)->withTimestamps();
     }
+    public function faqs()
+    {
+        return $this->hasMany(PostFaq::class);
+    }
     public function categories()
     {
         return $this->belongsToMany(Category::class)->withTimestamps();
