@@ -70,8 +70,13 @@ class PostController extends Controller
     {
         $categories = Category::query()->whereNull('parent_id')->orderBy('name','asc')->get();
         $record = Post::find($id);
+
         $document = new \DOMDocument();
-        $document->loadHTML($record->content);
+        // Suppress HTML parsing warnings (e.g. unknown/invalid tags) so they don't break the page
+        $internalErrors = libxml_use_internal_errors(true);
+        $document->loadHTML('<!DOCTYPE html><html><body>'.$record->content.'</body></html>');
+        libxml_clear_errors();
+        libxml_use_internal_errors($internalErrors);
         $a = $document->getElementsByTagName('a');
         $img = $document->getElementsByTagName('img');
         $alt = 1;
