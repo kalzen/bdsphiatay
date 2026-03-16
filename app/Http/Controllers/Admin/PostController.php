@@ -150,8 +150,21 @@ class PostController extends Controller
             $post = Post::find($id);
             $post->update($request->only(['title','description','content','status','is_promotion','keyword']));
             $post->categories()->sync($request->category_id);
-            $post->tags()->sync(collect(explode(', ',$request->tags))->map(function($item){return Tag::updateOrCreate(['name'=>$item]);})->pluck('id'));
-            $post->images()->first()->update(['url' => $request->image]);
+            $post->tags()->sync(
+                collect(explode(', ',$request->tags))
+                    ->filter() // remove empty items
+                    ->map(function($item){return Tag::updateOrCreate(['name'=>$item]);})
+                    ->pluck('id')
+            );
+
+            if ($request->filled('image')) {
+                $imageRelation = $post->images()->first();
+                if ($imageRelation) {
+                    $imageRelation->update(['url' => $request->image]);
+                } else {
+                    $post->images()->create(['url' => $request->image]);
+                }
+            }
             DB::commit();
             return redirect()->route('admin.post.index')->with('message', 'Cập nhật thành công');
         }catch(Exception $ex) {
