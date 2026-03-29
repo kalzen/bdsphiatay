@@ -16,7 +16,7 @@ class PostController extends Controller
         $featured_posts = Post::active()->orderBy('viewed','desc')->paginate(5);
         $related = Post::inRandomOrder()->paginate(5);
         $products = Product::latest()->withCount(['images'])->having('images_count','>',0)->active()->take(4)->get();
-        $tags = Tag::All();
+        $tags = Tag::topUsedOnPosts(10);
         $posts = Post::active()->paginate(10);
         return view('post.index',compact('categories','posts','featured_posts', 'products', 'tags', 'related'));
     }
@@ -27,7 +27,7 @@ class PostController extends Controller
         $categories = Category::orderBy('name','asc')->whereNull('parent_id')->get();
         $most_view = Post::active()->orderBy('id','desc')->limit(5)->get();
         $products = Product::latest()->withCount(['images'])->having('images_count','>',0)->active()->take(3)->get();
-        $tags = Tag::All();
+        $tags = Tag::topUsedOnPosts(10);
         $related = Post::inRandomOrder()->paginate(3);
         //dd($related);
         return view('post.detail',compact('post', 'categories', 'most_view', 'products', 'tags', 'related'));
@@ -42,7 +42,7 @@ class PostController extends Controller
         $posts = $category->posts()->active()->orderBy('id','desc')->paginate(10);
         $featured_posts = Post::active()->orderBy('id','desc')->paginate(5);
         $products = Product::latest()->withCount(['images'])->having('images_count','>',0)->active()->take(3)->get();
-        $tags = Tag::All();
+        $tags = Tag::topUsedOnPosts(10);
         $related = Post::inRandomOrder()->paginate(5);
         return view('post.index',compact('category','posts','categories','featured_posts', 'category_parent', 'products', 'tags', 'related'));
     }    public function search()
@@ -57,7 +57,7 @@ class PostController extends Controller
             });
         })->paginate(10);
         $products = Product::latest()->withCount(['images'])->having('images_count','>',0)->active()->take(4)->get();
-        $tags = Tag::All();
+        $tags = Tag::topUsedOnPosts(10);
         $related = Post::inRandomOrder()->paginate(5);
         $search_keyword = request('keyword');
         return view('post.index',compact('posts','categories','featured_posts', 'products', 'tags', 'related', 'search_keyword'));

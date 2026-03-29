@@ -8812,7 +8812,7 @@ input[type=color]::placeholder {
 p {
   font-weight: 400;
   font-size: 14px;
-  line-height: 21px;
+  line-height: 26px;
   color: #222;
 }
 
@@ -8847,14 +8847,16 @@ h1 {
 }
 
 h2 {
-  font-size: 45px;
-  line-height: 54px;
+  font-size: 32px;
+  line-height: 32px;
   font-weight: 700;
+  margin: 10px 0px;
 }
 
 h3 {
   font-size: 18px;
   line-height: 27px;
+  margin: 10px 0px;
 }
 
 h4 {
