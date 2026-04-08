@@ -6,8 +6,13 @@
                         <div class="col-lg-12">
                             <div class="wrap-logo flex align-center justify-space">
                                 <div class="logo-footer style box-1" id="logo-footer">
-                                    <a href="/">
-                                        <img src="{{$shared_config['logo']['value']}}" alt="logo" width="197" height="48">
+                                    <a href="{{ route('index') }}">
+                                        <img
+                                            src="{{ $shared_config['logo']['value'] ?? asset('phiatay/assets/images/logo/logo@2x.png') }}"
+                                            alt=""
+                                            width="197"
+                                            height="48"
+                                        >
                                     </a>
                                 </div>
                                 <div class="box-menu box-2">
