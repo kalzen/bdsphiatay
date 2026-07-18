@@ -3,7 +3,7 @@
 @section('meta')
 <meta name="keywords" content="{{collect($product->tags)->pluck('name')->join(',')}}"/>
 <meta name="description" content="{{substr(strip_tags($product->description),0,300)}}"/>
-<meta property="og:image" content="{{$product->images()->first()->url??''}}">
+<meta property="og:image" content="{{$product->images()->first()?->url ?? ''}}">
 <meta property="og:type" content="product">
 <meta property="og:title" content="{{$product->title}}">
 <meta property="og:description" content="{{substr(strip_tags($product->description),0,300)}}">
@@ -406,7 +406,7 @@
                                         </h3>
                                         <div class="author-box flex align-center">
                                             <div class="image-author flex-none">
-                                                <img src="{{$product->user->images->first()->url??''}}" alt="images">
+                                                <img src="{{$product->user->images->first()?->url ?? ''}}" alt="images">
                                             </div>
                                             <div class="content">
                                                 <p class="text-color-2">{{$product->user->name}}</p>
@@ -447,7 +447,7 @@
                                         @foreach ($products as $p)                                                                                                      
                                         <div class="box-listings flex hover-img3">
                                             <div class="img-listings img-style3">
-                                                <img style="width: 120px;" src="{{ asset($p->images->first()->url ?? '')}}" alt="{{$p->title}}">
+                                                <img style="width: 120px;" src="{{ asset($p->images->first()?->url ?? '')}}" alt="{{$p->title}}">
                                             </div>
                                             <div class="content link-style-1">
                                                 <a class="fs-16 lh-24" href="{{ route('product.detail',['alias' => $p->slug]) }}">{{$p->title}}</a>

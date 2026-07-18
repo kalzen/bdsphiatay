@@ -38,6 +38,11 @@ class Post extends Model
     {
         return $this->belongsToMany(Image::class)->withTimestamps();
     }
+
+    public function getCoverUrlAttribute(): string
+    {
+        return $this->images->first()?->url ?? '';
+    }
     public function faqs()
     {
         return $this->hasMany(PostFaq::class);

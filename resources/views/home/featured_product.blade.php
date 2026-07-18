@@ -22,7 +22,7 @@
                                                         <div class="swiper-container noo carousel-2 img-style"  >    
                                                             <a href="{{ route('product.detail',['alias' => $product->slug]) }}" class="icon-plus"><img src="{{asset('phiatay/assets/images/icon/plus.svg')}}" alt="images"></a>
                                                             <div class="swiper-wrapper ">
-                                                                <div class="swiper-slide"><img src="{{ asset($product->images->first()->url ?? '')}}" alt="images"></div>
+                                                                <div class="swiper-slide"><img src="{{ asset($product->images->first()?->url ?? '')}}" alt="images"></div>
                                                             </div>                                 
                                                         </div>
                                                     </div>

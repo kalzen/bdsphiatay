@@ -32,8 +32,8 @@
                             <input type="file" class="form-control-file" multiple data-key="images" data-fouc>
                             @if(old('images'))
                             <input class="form-control" type="hidden" name="images" value="{{old('images')}}" id="images">
-                            @elseif (isset($record) && $record->images->first()->url)
-                            <input class="form-control" type="hidden" name="images" value="{{ $record->images->first()->url}}" id="images">
+                            @elseif (isset($record) && $record->images->first()?->url)
+                            <input class="form-control" type="hidden" name="images" value="{{ $record->images->first()?->url }}" id="images">
                             @else
                             <input class="form-control" type="hidden" name="images" value="" id="images">
                             @endif

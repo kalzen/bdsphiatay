@@ -173,7 +173,7 @@
                             <div class="product-media">
                             <!-- <div class="product-label"><label class="label-text sale">sale</label></div>
                                 <button class="product-wish wish"><i class="fas fa-heart"></i></button> -->
-                                <a class="product-image" href="{{ route('product.detail',['product' => $product->slug]) }}"><img src="{{ asset($product->images->first()->url ?? '')}}" alt="{{$product->title}}"></a>
+                                <a class="product-image" href="{{ route('product.detail',['product' => $product->slug]) }}"><img src="{{ asset($product->images->first()?->url ?? '')}}" alt="{{$product->title}}"></a>
                                 <div class="product-widget">
                                     <a title="Product View" href="{{ route('product.detail',['product' => $product->slug]) }}" class="fas fa-eye" data-bs-toggle="modal" data-bs-target="#product-view"></a>
                                 </div>

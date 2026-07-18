@@ -19,7 +19,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-12 col-xl-10">
                     <article class="blog-details">
-                        <a class="blog-details-thumb" href="javascript:;"><img src="{{$post->images()->first()->url??'/frontend/images/blog/01.jpg'}}"
+                        <a class="blog-details-thumb" href="javascript:;"><img src="{{$post->images()->first()?->url ?? '/frontend/images/blog/01.jpg'}}"
                                 alt="blog"></a>
                         <div class="blog-details-content">
                             <ul class="blog-details-meta">
@@ -30,7 +30,7 @@
                             <p class="blog-details-desc">{{ $post->description }}</p>
                             
                             <div class="row blog-details-grid">
-                                <div class="col-md-12 col-lg-12"><img class="img-fluid" src="{{$post->images->first()->url??''}}"
+                                <div class="col-md-12 col-lg-12"><img class="img-fluid" src="{{$post->images->first()?->url ?? ''}}"
                                         alt="{{ $post->title }}"></div>
                             </div>
                             <div class="blog-details-subtitle">

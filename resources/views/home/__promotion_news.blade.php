@@ -9,7 +9,7 @@
                 <div class="popular">
                     <a href="{{$post->url}}" class="popular-link">
                         <p class="popular-img">
-                            <img src="{{$post->images()->first()->url??''}}" alt="{{$post->title}}">
+                            <img src="{{$post->images()->first()?->url ?? ''}}" alt="{{$post->title}}">
                         </p>
                         <h3>
                             <span>{{$post->title}}</span>

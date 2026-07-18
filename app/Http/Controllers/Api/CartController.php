@@ -42,7 +42,7 @@ class CartController extends Controller
                 'id' => $info->id,
                 'name' => $info->title,
                 'url' => $info->url,
-                'image' => $info->images->first()->url ?? ''
+                'image' => $info->images->first()?->url ?? ''
             ];
             Session::put('cart', $cart);
             return response()->json(['success'=>true,'data'=>$cart,'msg'=>'Cập nhật thành công']);

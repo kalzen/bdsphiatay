@@ -3,7 +3,7 @@
 @section('meta')
 <meta name="keywords" content="{{collect($post->tags)->pluck('name')->join(',')}}"/>
 <meta name="description" content="{{substr(strip_tags($post->description),0,300)}}"/>
-<meta property="og:image" content="{{$post->images()->first()->url??''}}">
+<meta property="og:image" content="{{$post->images()->first()?->url ?? ''}}">
 <meta property="og:type" content="article">
 <meta property="og:title" content="{{$post->title}}">
 <meta property="og:description" content="{{substr(strip_tags($post->description),0,300)}}">
@@ -37,7 +37,7 @@
   @if($post->images()->first())
   "image": {
     "@type": "ImageObject",
-    "url": "{{$post->images()->first()->url}}",
+    "url": "{{$post->images()->first()?->url}}",
     "width": 800,
     "height": 600
   },
@@ -113,7 +113,7 @@
                                     </div>
                                 </div>
                                 <div class="texts-1 fs-16 fw-8 font-2 lh-29">{{$post->description}}</div>
-                                <div class="image"><img src="{{$post->images()->first()->url??''}}" alt="{{$post->title}}"></div>
+                                <div class="image"><img src="{{$post->images()->first()?->url ?? ''}}" alt="{{$post->title}}"></div>
                                 <div class="content-img">
                                     <div class="sub-title fs-12 fw-6">{{$post->title}}</div>
                                 </div>
@@ -181,7 +181,7 @@
                                         @foreach ($products as $product)                                                                                                      
                                         <div class="box-listings flex hover-img3">
                                             <div class="img-listings img-style3">
-                                                <img style="width: 120px;" src="{{ asset($product->images->first()->url ?? '')}}" alt="{{$product->title}}">
+                                                <img style="width: 120px;" src="{{ asset($product->images->first()?->url ?? '')}}" alt="{{$product->title}}">
                                             </div>
                                             <div class="content link-style-1">
                                                 <a class="fs-16 lh-24" href="{{ route('product.detail',['alias' => $product->slug]) }}">{{$product->title}}</a>
@@ -223,7 +223,7 @@
                         <div class="col-lg-4 col-md-4">
                             <div class="box hover-img">
                                 <div class="images img-style relative ">
-                                    <img style="height: 250px;" src="{{$relate->images->first()->url}}" alt="{{$relate->title}}">
+                                    <img style="height: 250px;" src="{{$relate->images->first()?->url ?? ''}}" alt="{{$relate->title}}">
                                     
                                 </div>
                                 <div class="content center">

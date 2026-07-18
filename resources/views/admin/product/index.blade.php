@@ -49,7 +49,7 @@
                             </td>
                             <td>
                                 @if($record->images->count())
-                                <img src="{{$record->images->first()->url}}" height="50">
+                                <img src="{{$record->images->first()?->url ?? ''}}" height="50">
                                 @endif
                             </td>
                             <td>

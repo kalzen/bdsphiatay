@@ -30,7 +30,7 @@ use App\Models\User;
                                 <input type="checkbox" name="ids[]" value="{{$record->id}}" class="form-input-styled">
                             </td>
                             <td>
-                            <img class="mt-2" id="image_preview" height="100" src="{{$record->images->first()->url??''}}"/>
+                            <img class="mt-2" id="image_preview" height="100" src="{{$record->images->first()?->url ?? ''}}"/>
                             </td>
                             <td>
                                 <a href="{{route('admin.user.edit', $record->id)}}">{{$record->email}}</a>

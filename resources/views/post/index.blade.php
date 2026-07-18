@@ -64,7 +64,7 @@ Tin tức - {{env('APP_NAME')}}
       }@if($post->images->first()),
       "image": {
         "@type": "ImageObject",
-        "url": "{{$post->images->first()->url}}"
+        "url": "{{$post->images->first()?->url ?? ''}}"
       }@endif
     }@if(!$loop->last),@endif
     @endforeach
@@ -131,7 +131,7 @@ Tin tức - {{env('APP_NAME')}}
                                 @if($loop->index == 0)
                                 <div class="box-heading ">
                                     <div class="image relative ">
-                                        <img style="" src="{{$post->images->first()->url}}" alt="{{$post->title}}">
+                                        <img style="" src="{{$post->images->first()?->url ?? ''}}" alt="{{$post->title}}">
                                         <div class="sub-box flex align-center fs-13 fw-6">
                                             <div class="title-1">{{date('M',strtotime($post->created_at))}}</div>
                                         </div>
@@ -150,7 +150,7 @@ Tin tức - {{env('APP_NAME')}}
                                 @if($loop->index > 0)
                                     <div class="box hover-img flex">
                                         <div class="images img-style relative flex-none">
-                                            <img style="width: 250px !important; height: 200px !important" src="{{$post->images->first()->url}}" alt="{{$post->title}}">
+                                            <img style="width: 250px !important; height: 200px !important" src="{{$post->images->first()?->url ?? ''}}" alt="{{$post->title}}">
                                         </div>
                                         <div class="content">
                                             <h3><a href="{{$post->url}}">{{$post->title}}</a></h3>
@@ -195,7 +195,7 @@ Tin tức - {{env('APP_NAME')}}
                                         @foreach ($products as $product)                                                                                                      
                                         <div class="box-listings flex hover-img3">
                                             <div class="img-listings img-style3">
-                                                <img style="width: 120px;" src="{{ asset($product->images->first()->url ?? '')}}" alt="{{$product->title}}">
+                                                <img style="width: 120px;" src="{{ asset($product->images->first()?->url ?? '')}}" alt="{{$product->title}}">
                                             </div>
                                             <div class="content link-style-1">
                                                 <a class="fs-16 lh-24" href="{{ route('product.detail',['alias' => $product->slug]) }}">{{$product->title}}</a>

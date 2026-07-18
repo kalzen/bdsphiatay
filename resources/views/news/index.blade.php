@@ -3,7 +3,7 @@
 <title>{{$post->title}}</title>
 <meta name="keywords" content="{{collect($post->tags)->pluck('name')->join(',')}}"/>
 <meta name="description" content="{{substr(strip_tags($post->description),0,300)}}"/>
-<meta property="og:image" content="{{$post->images()->first()->url??''}}">
+<meta property="og:image" content="{{$post->images()->first()?->url ?? ''}}">
 <meta property="og:type" content="article">
 <meta property="og:title" content="{{$post->title}}">
 <meta property="og:description" content="{{substr(strip_tags($post->description),0,300)}}">
@@ -30,7 +30,7 @@
                             <div class="blog-card">
                                 <div class="blog-media">
                                     <a class="blog-img" href="/{{$record->slug}}">
-                                        <img src="{{$record->images()->first()->url??'/frontend/images/blog/01.jpg'}}" alt="{{$record->images()->first()->title??$record->title}}">
+                                        <img src="{{$record->images()->first()?->url ?? '/frontend/images/blog/01.jpg'}}" alt="{{$record->images()->first()?->title ?? $record->title}}">
                                     </a>
                                 </div>
                                 <div class="blog-content">
@@ -74,7 +74,7 @@
                             @foreach($related as $item)
                             <li>
                                 <a class="blog-widget-media" href="/{{$item->slug}}">
-                                    <img src="{{$record->images()->first()->url??'/frontend/images/blog/01.jpg'}}" alt="{{$record->images()->first()->title??$record->title}}">
+                                    <img src="{{$record->images()->first()?->url ?? '/frontend/images/blog/01.jpg'}}" alt="{{$record->images()->first()?->title ?? $record->title}}">
                                 </a>
                                 <h6 class="blog-widget-text">
                                     <a href="{{$item->url}}">{{$item->title}}</a>

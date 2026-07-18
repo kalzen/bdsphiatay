@@ -419,7 +419,7 @@
                                                         <div class="swiper-container noo carousel-2 img-style"  >    
                                                             <a href="{{ route('product.detail',['alias' => $product->slug ?? $product->id]) }}" class="icon-plus"><img src="{{asset('phiatay/assets/images/icon/plus.svg')}}" alt="images"></a>
                                                             <div class="swiper-wrapper ">
-                                                                <div class="swiper-slide"><img src="{{ asset($product->images->first()->url ?? '')}}" alt="{{$product->title}}"></div>
+                                                                <div class="swiper-slide"><img src="{{ asset($product->images->first()?->url ?? '')}}" alt="{{$product->title}}"></div>
                                                             </div>                                 
                                                         </div>
                                                     </div>
@@ -677,7 +677,7 @@
           "description": "{{substr(strip_tags($product->description ?? ''),0,300)}}",
           "url": "{{route('product.detail', ['alias' => $product->slug ?? $product->id])}}",
           @if($product->images->first())
-          "image": "{{$product->images->first()->url}}",
+          "image": "{{$product->images->first()?->url ?? ''}}",
           @endif
           @if($product->price)
           "offers": {

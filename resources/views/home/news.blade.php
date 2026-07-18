@@ -13,7 +13,7 @@
                             <div class="col-lg-4 col-md-4">
                                 <div class="box hover-img">
                                     <div class="images img-style relative ">
-                                        <a class="w-100" href="{{ route('post.detail',['alias' => $post->slug])}}"><img style="height: 250px" src="{{$post->images->first()->url??''}}" alt="images"></a>
+                                        <a class="w-100" href="{{ route('post.detail',['alias' => $post->slug])}}"><img style="height: 250px" src="{{$post->images->first()?->url ?? ''}}" alt="images"></a>
                                         
                                     </div>
                                     <div class="content center">

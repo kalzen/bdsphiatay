@@ -9,7 +9,7 @@
                 <div class="special">
                     <a href="{{$product->url}}" class="special-link">
                         <p class="special-img">
-                            <img src="{{$product->images->first()->url??''}}" alt="{{$product->title}}">
+                            <img src="{{$product->images->first()?->url ?? ''}}" alt="{{$product->title}}">
                         </p>
                         <h3>
                             <span>{{$product->title}}</span>

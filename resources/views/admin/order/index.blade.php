@@ -28,7 +28,7 @@
                             </td>
                             <td>
                                 @if($record->details&&$record->details()->first())
-                                <img src="{{$record->details()->first()->product->images()->first()->url??''}}" height="50">
+                                <img src="{{$record->details()->first()?->product?->images()->first()?->url ?? ''}}" height="50">
                                 @endif
                             </td>
                             <td>

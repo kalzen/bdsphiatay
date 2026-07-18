@@ -3,16 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Post;
+use App\Services\AiMarketingPostService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class PostController extends Controller
 {
+    /** @var AiMarketingPostService */
+    protected $postService;
+
+    public function __construct(AiMarketingPostService $postService)
+    {
+        $this->postService = $postService;
+    }
+
     /**
-     * Store a newly created post coming from external AI Marketing Agent.
+     * Create or update a post coming from external AI Marketing Agent.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
@@ -24,6 +31,11 @@ class PostController extends Controller
                 'title' => ['required', 'string'],
                 'body' => ['required', 'string'],
                 'description' => ['nullable', 'string'],
+                'published_url' => ['nullable', 'string'],
+                'image_urls' => ['nullable', 'array'],
+                'image_urls.*' => ['nullable', 'string'],
+                'force_replace_images' => ['nullable'],
+                'replace_images' => ['nullable'],
                 'faq' => ['nullable', 'array'],
                 'faq.*.question' => ['required_with:faq', 'string'],
                 'faq.*.answer' => ['required_with:faq', 'string'],
@@ -36,32 +48,10 @@ class PostController extends Controller
         }
 
         try {
-            $post = null;
-
-            DB::transaction(function () use (&$post, $validated) {
-                $post = Post::create([
-                    'title' => $validated['title'],
-                    'content' => $validated['body'],
-                    'description' => $validated['description'] ?? null,
-                    'status' => Post::STATUS_ACTIVE,
-                ]);
-
-                if (!empty($validated['faq']) && is_array($validated['faq'])) {
-                    foreach ($validated['faq'] as $faqItem) {
-                        $post->faqs()->create([
-                            'question' => $faqItem['question'],
-                            'answer_html' => $faqItem['answer'],
-                        ]);
-                    }
-                }
-
-                Log::info('Post created via AI Marketing Agent', [
-                    'source' => 'ai_marketing_agent',
-                    'post_id' => $post->id,
-                ]);
-            });
+            $result = $this->postService->upsert($validated);
+            $post = $result['post'];
         } catch (\Throwable $e) {
-            Log::error('Failed to create post via AI Marketing Agent', [
+            Log::error('Failed to upsert post via AI Marketing Agent', [
                 'source' => 'ai_marketing_agent',
                 'exception' => $e->getMessage(),
             ]);
@@ -77,11 +67,8 @@ class PostController extends Controller
             ], 500);
         }
 
-        $publicUrl = url($post->url);
-
         return response()->json([
-            'url' => $publicUrl,
-        ], 201);
+            'url' => url($post->url),
+        ], $result['created'] ? 201 : 200);
     }
 }
-

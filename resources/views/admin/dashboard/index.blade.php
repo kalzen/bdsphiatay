@@ -40,7 +40,7 @@
                                     <div class="mr-sm-3 mb-2 mb-sm-0">
                                         <div class="card-img-actions">
                                             <a href="javascript:;">
-                                                <img src="{{$post->images()->first()->url??''}}" class="img-fluid img-preview rounded" alt="">
+                                                <img src="{{$post->images()->first()?->url ?? ''}}" class="img-fluid img-preview rounded" alt="">
                                                 <span class="card-img-actions-overlay card-img"><i class="icon-play3 icon-2x"></i></span>
                                             </a>
                                         </div>

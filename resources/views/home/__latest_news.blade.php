@@ -25,7 +25,7 @@
                     <div class="blog-grid-i" >
                         <div class="blog-i">
                             <a href="{{$post->url}}" class="blog-img">
-                                <img src="{{$post->images()->first()->url??''}}" alt="{{$post->title}}">
+                                <img src="{{$post->images()->first()?->url ?? ''}}" alt="{{$post->title}}">
                             </a>
                             <p class="blog-info">
                                 <a href="{{$post->categories()->first()->url??''}}">{{$post->categories()->first()->name??''}}</a>

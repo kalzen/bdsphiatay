@@ -3,7 +3,7 @@
 <div class="col">
     <div class="product-card">
         <div class="product-media">
-            <a class="product-image" href="{{ route('product.detail',['product' => $product->slug]) }}"><img src="{{ asset($product->images->first()->url ?? '')}}" alt="{{$product->title}}"></a>
+            <a class="product-image" href="{{ route('product.detail',['product' => $product->slug]) }}"><img src="{{ asset($product->images->first()?->url ?? '')}}" alt="{{$product->title}}"></a>
         </div>
         <div class="product-content">
            <h6 class="product-name"><a href="{{ route('product.detail',['product' => $product->slug]) }}">{{$product->title}}</a></h6>
